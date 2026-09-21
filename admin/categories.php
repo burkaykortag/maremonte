@@ -1,0 +1,267 @@
+<?php
+/**
+ * Kategori Yönetimi (Ekleme, Düzenleme, Sıralama, Görsel & İkon, Silme)
+ */
+
+require_once __DIR__ . '/header.php';
+
+$successMsg = '';
+$errorMsg = '';
+
+// POST: Kategori Ekle veya Güncelle
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $catId = (int)($_POST['category_id'] ?? 0);
+    $name = clean($_POST['name'] ?? '');
+    $icon = clean($_POST['icon'] ?? 'utensils');
+    $sortOrder = (int)($_POST['sort_order'] ?? 0);
+    $imageUrl = clean($_POST['image_url'] ?? '');
+    $isActive = !empty($_POST['is_active']) ? 1 : 0;
+
+    // Resim Yükleme Kontrolü
+    if (!empty($_FILES['image_file']['name'])) {
+        $uploadRes = uploadImage($_FILES['image_file'], 'categories');
+        if ($uploadRes['success']) {
+            $imageUrl = $uploadRes['full_url'];
+        } else {
+            $errorMsg = $uploadRes['error'];
+        }
+    }
+
+    if (empty($name)) {
+        $errorMsg = 'Lütfen bir kategori adı girin.';
+    } elseif (empty($errorMsg)) {
+        try {
+            // Slug üret
+            $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name)));
+
+            if ($catId > 0) {
+                if (!empty($imageUrl)) {
+                    $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, icon = ?, image = ?, sort_order = ?, is_active = ? WHERE id = ?");
+                    $stmt->execute([$name, $slug, $icon, $imageUrl, $sortOrder, $isActive, $catId]);
+                } else {
+                    $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, icon = ?, sort_order = ?, is_active = ? WHERE id = ?");
+                    $stmt->execute([$name, $slug, $icon, $sortOrder, $isActive, $catId]);
+                }
+                $successMsg = 'Kategori başarıyla güncellendi!';
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO categories (name, slug, icon, image, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$name, $slug, $icon, $imageUrl, $sortOrder, $isActive]);
+                $successMsg = 'Yeni kategori başarıyla eklendi!';
+            }
+        } catch (Exception $e) {
+            $errorMsg = 'Veritabanı hatası: ' . $e->getMessage();
+        }
+    }
+}
+
+// Kategorileri ve Ürün Sayılarını Çek
+$stmt = $pdo->query("SELECT c.*, COUNT(p.id) as product_count FROM categories c LEFT JOIN products p ON c.id = p.category_id GROUP BY c.id ORDER BY c.sort_order ASC, c.id ASC");
+$categories = $stmt->fetchAll();
+?>
+
+<div class="page-header">
+    <div class="page-title">
+        <h1>Kategori Yönetimi</h1>
+        <p>Menünüzün ana bölümlerini, sıralamasını ve ikonlarını düzenleyin</p>
+    </div>
+
+    <button type="button" class="btn btn-primary" onclick="openCategoryModal()">
+        <i class="fas fa-plus"></i> Yeni Kategori Ekle
+    </button>
+</div>
+
+<?php if (!empty($successMsg)): ?>
+    <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); color: #6ee7b7; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.88rem; margin-bottom: 20px;">
+        <i class="fas fa-check-circle" style="margin-right: 6px;"></i> <?php echo htmlspecialchars($successMsg); ?>
+    </div>
+<?php endif; ?>
+
+<?php if (!empty($errorMsg)): ?>
+    <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: #fca5a5; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.88rem; margin-bottom: 20px;">
+        <i class="fas fa-circle-exclamation" style="margin-right: 6px;"></i> <?php echo htmlspecialchars($errorMsg); ?>
+    </div>
+<?php endif; ?>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-layer-group" style="color:var(--primary);"></i> Mevcut Kategoriler (<?php echo count($categories); ?>)</h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">Görsel / İkon</th>
+                        <th>Kategori Adı</th>
+                        <th>Sıra No</th>
+                        <th>Ürün Sayısı</th>
+                        <th>Menüde Aktif</th>
+                        <th style="text-align: right;">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($categories)): ?>
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 32px; color: var(--text-dim);">
+                                Henüz kategori eklenmedi.
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($categories as $c): ?>
+                            <tr id="row-category-<?php echo $c['id']; ?>">
+                                <td>
+                                    <?php if (!empty($c['image'])): ?>
+                                        <img src="<?php echo htmlspecialchars($c['image']); ?>" class="table-thumb" alt="">
+                                    <?php else: ?>
+                                        <div class="table-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.2rem;">
+                                            <i class="fas fa-<?php echo htmlspecialchars($c['icon'] ?: 'utensils'); ?>"></i>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <strong><?php echo htmlspecialchars($c['name']); ?></strong>
+                                </td>
+                                <td>
+                                    <span style="font-weight: 700; color: var(--text-muted); background: var(--bg-input); padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                                        <?php echo (int)$c['sort_order']; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="products.php?category=<?php echo $c['id']; ?>" style="color: var(--info); font-weight: 700; text-decoration: none;">
+                                        <i class="fas fa-burger"></i> <?php echo (int)$c['product_count']; ?> Ürün
+                                    </a>
+                                </td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" class="status-toggle" data-type="category" data-id="<?php echo $c['id']; ?>" <?php echo $c['is_active'] ? 'checked' : ''; ?>>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td style="text-align: right;">
+                                    <button type="button" class="btn btn-secondary btn-icon" title="Düzenle" onclick='editCategory(<?php echo json_encode($c); ?>)'>
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-icon btn-delete-item" title="Sil" data-type="category" data-id="<?php echo $c['id']; ?>" data-name="<?php echo htmlspecialchars($c['name']); ?>">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- KATEGORİ EKLE / DÜZENLE MODALI -->
+<div class="admin-modal" id="categoryModal">
+    <div class="admin-modal-content" style="max-width: 500px;">
+        <div class="admin-modal-header">
+            <h3 class="card-title" id="catModalTitle"><i class="fas fa-layer-group" style="color:var(--primary);"></i> Yeni Kategori Ekle</h3>
+            <button type="button" class="btn btn-secondary btn-icon" onclick="closeModal('categoryModal')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="categories.php" enctype="multipart/form-data">
+            <input type="hidden" name="category_id" id="formCatId" value="0">
+
+            <div class="admin-modal-body">
+                <div class="form-group">
+                    <label class="form-label">Kategori Adı *</label>
+                    <input type="text" name="name" id="formCatName" class="form-control" placeholder="Örn: Gurme Burgerler" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <div class="form-group">
+                        <label class="form-label">FontAwesome İkon Adı</label>
+                        <select name="icon" id="formCatIcon" class="form-control">
+                            <option value="utensils">utensils (Çatal Bıçak)</option>
+                            <option value="burger">burger (Burger)</option>
+                            <option value="pizza-slice">pizza-slice (Pizza)</option>
+                            <option value="egg">egg (Kahvaltı / Yumurta)</option>
+                            <option value="drumstick-bite">drumstick-bite (Tavuk / Et)</option>
+                            <option value="bowl-food">bowl-food (Çorba / Kase)</option>
+                            <option value="fish">fish (Balık / Deniz Ürünü)</option>
+                            <option value="cake-candles">cake-candles (Tatlı / Pasta)</option>
+                            <option value="coffee">coffee (Kahve / Sıcak İçecek)</option>
+                            <option value="martini-glass">martini-glass (Kokteyl / Bar)</option>
+                            <option value="wine-glass">wine-glass (Şarap)</option>
+                            <option value="beer-mug-empty">beer-mug-empty (Bira)</option>
+                            <option value="leaf">leaf (Salata / Vegan)</option>
+                            <option value="fire">fire (Izgara / Spesiyal)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Görüntüleme Sırası (Sıra No)</label>
+                        <input type="number" name="sort_order" id="formCatSort" class="form-control" value="1">
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-input); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 16px;">
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label class="form-label">Kategori Görseli Yükle</label>
+                        <input type="file" name="image_file" class="form-control image-upload-input" data-preview="catImgPreview" accept="image/*">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">veya Görsel URL</label>
+                        <input type="url" name="image_url" id="formCatImageUrl" class="form-control" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px; text-align: center;">
+                    <img id="catImgPreview" src="" alt="Önizleme" style="max-height: 100px; border-radius: var(--radius-sm); display: none; margin: 0 auto; border: 1px solid var(--border);">
+                </div>
+
+                <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-main); cursor: pointer;">
+                    <input type="checkbox" name="is_active" id="formCatIsActive" value="1" checked>
+                    <span>Menüde Aktif Olarak Göster</span>
+                </label>
+            </div>
+
+            <div class="admin-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('categoryModal')">İptal</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openCategoryModal() {
+    document.getElementById('catModalTitle').innerHTML = '<i class="fas fa-layer-group" style="color:var(--primary);"></i> Yeni Kategori Ekle';
+    document.getElementById('formCatId').value = '0';
+    document.getElementById('formCatName').value = '';
+    document.getElementById('formCatIcon').value = 'utensils';
+    document.getElementById('formCatSort').value = '1';
+    document.getElementById('formCatImageUrl').value = '';
+    document.getElementById('formCatIsActive').checked = true;
+    document.getElementById('catImgPreview').style.display = 'none';
+    openModal('categoryModal');
+}
+
+function editCategory(c) {
+    document.getElementById('catModalTitle').innerHTML = '<i class="fas fa-pen" style="color:var(--primary);"></i> Kategoriyi Düzenle: ' + c.name;
+    document.getElementById('formCatId').value = c.id;
+    document.getElementById('formCatName').value = c.name;
+    document.getElementById('formCatIcon').value = c.icon || 'utensils';
+    document.getElementById('formCatSort').value = c.sort_order || 1;
+    document.getElementById('formCatImageUrl').value = c.image || '';
+    document.getElementById('formCatIsActive').checked = c.is_active == 1;
+
+    const preview = document.getElementById('catImgPreview');
+    if (c.image) {
+        preview.src = c.image;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+
+    openModal('categoryModal');
+}
+</script>
+
+<?php require_once __DIR__ . '/footer.php'; ?>
