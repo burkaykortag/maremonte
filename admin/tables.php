@@ -327,6 +327,7 @@ function printSingleQR(restaurant, table, qrUrl, fullUrl) {
                 </div>
                 <div class="instruction">📱 Menüyü görmek için kameranızı okutun</div>
                 <div class="sub-instruction">Uygulama yüklemenize gerek yoktur</div>
+                <div style="margin-top:8px; font-size:11px; font-weight:700; color:#d97706; background:#fef3c7; padding:4px 8px; border-radius:6px; display:inline-block;">Garson çağırırken bu masa numarasını belirtiniz</div>
             </div>
         </body>
         </html>
@@ -353,6 +354,7 @@ function printAllQRCards() {
                 </div>
                 <div class="instruction">📱 Menüyü görmek için kameranızı okutun</div>
                 <div class="sub-instruction">Uygulama yüklemenize gerek yoktur</div>
+                <div style="margin-top:6px; font-size:10px; font-weight:700; color:#d97706; background:#fef3c7; padding:3px 6px; border-radius:4px; display:inline-block;">Garson çağırırken bu masa numarasını belirtiniz</div>
             </div>
         `;
     });

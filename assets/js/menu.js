@@ -670,6 +670,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Masa Numarası Hafızası & Senkronu
+    const savedTable = localStorage.getItem('maremonte_table');
+    const waiterTableInput = document.getElementById('waiterTableNumber');
+    const orderTableInput = document.getElementById('orderTableNumber');
+
+    if (waiterTableInput && !waiterTableInput.value && savedTable) {
+        waiterTableInput.value = savedTable;
+    }
+    if (orderTableInput && !orderTableInput.value && savedTable) {
+        orderTableInput.value = savedTable;
+    }
+    if (waiterTableInput && waiterTableInput.value) {
+        localStorage.setItem('maremonte_table', waiterTableInput.value.trim());
+    }
+
+    if (waiterTableInput) {
+        waiterTableInput.addEventListener('input', () => {
+            const val = waiterTableInput.value.trim();
+            if (val) localStorage.setItem('maremonte_table', val);
+            if (orderTableInput) orderTableInput.value = val;
+        });
+    }
+    if (orderTableInput) {
+        orderTableInput.addEventListener('input', () => {
+            const val = orderTableInput.value.trim();
+            if (val) localStorage.setItem('maremonte_table', val);
+            if (waiterTableInput) waiterTableInput.value = val;
+        });
+    }
+
     if (sendWaiterCallBtn) {
         sendWaiterCallBtn.addEventListener('click', async () => {
             const tableNumberInput = document.getElementById('waiterTableNumber');
@@ -678,9 +708,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const note = tableNoteInput ? tableNoteInput.value.trim() : '';
 
             if (!tableNumber) {
-                showToast('Lütfen masa numaranızı girin', 'error');
+                showToast('Lütfen masanızdaki QR kodun yanında yazan masa numarasını girin', 'error');
+                if (tableNumberInput) tableNumberInput.focus();
                 return;
             }
+
+            localStorage.setItem('maremonte_table', tableNumber);
 
             sendWaiterCallBtn.disabled = true;
             sendWaiterCallBtn.textContent = 'İletiliyor...';

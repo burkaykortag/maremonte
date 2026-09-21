@@ -463,9 +463,16 @@ foreach ($categories as $cat) {
                     <div id="cartItemsContainer"></div>
 
                     <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--border-color);">
-                        <div style="margin-bottom:12px;">
-                            <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;"><?php echo __t('table', $currentLang); ?> *</label>
-                            <input type="text" id="orderTableNumber" value="<?php echo htmlspecialchars($tableNumber); ?>" class="search-input" placeholder="Masa No (Örn: 4)" style="height:42px; border-radius:var(--radius-sm);">
+                        <div style="margin-bottom:14px;">
+                            <label style="font-size:0.78rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                                <i class="fas fa-chair" style="color:var(--primary);"></i>
+                                <?php echo __t('table_number', $currentLang); ?> *
+                            </label>
+                            <input type="text" id="orderTableNumber" value="<?php echo htmlspecialchars($tableNumber); ?>" class="search-input" placeholder="Masanızdaki No (Örn: 4, 12, B2...)" style="height:42px; border-radius:var(--radius-sm); font-weight:700; margin-bottom:6px;">
+                            <div style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--text-muted); background:rgba(var(--primary-rgb),0.08); border:1px solid rgba(var(--primary-rgb),0.2); padding:6px 10px; border-radius:var(--radius-sm); line-height:1.35;">
+                                <i class="fas fa-qrcode" style="color:var(--primary); font-size:0.95rem; flex-shrink:0;"></i>
+                                <span><?php echo __t('enter_table_qr_hint', $currentLang); ?></span>
+                            </div>
                         </div>
 
                         <div style="margin-bottom:16px;">
@@ -565,9 +572,28 @@ foreach ($categories as $cat) {
                     </button>
                 </div>
 
-                <div style="margin-bottom: 14px;">
-                    <label style="font-size:0.8rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;"><?php echo __t('table', $currentLang); ?> *</label>
-                    <input type="text" id="waiterTableNumber" value="<?php echo htmlspecialchars($tableNumber); ?>" placeholder="Örn: 4 veya B2" class="search-input" style="padding-left:16px;">
+                <div style="margin-bottom: 16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <label style="font-size:0.82rem; font-weight:800; color:var(--text-main); margin-bottom:0; display:flex; align-items:center; gap:6px;">
+                            <i class="fas fa-chair" style="color:var(--primary);"></i>
+                            <?php echo __t('table_number', $currentLang); ?> *
+                        </label>
+                        <?php if (!empty($tableNumber)): ?>
+                            <span style="font-size:0.72rem; color:var(--success); font-weight:700; background:rgba(16,185,129,0.12); padding:2px 8px; border-radius:999px;">
+                                <i class="fas fa-check-circle"></i> Otomatik Tanımlı
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div style="position:relative; margin-bottom:8px;">
+                        <input type="text" id="waiterTableNumber" value="<?php echo htmlspecialchars($tableNumber); ?>" placeholder="Masanızdaki No (Örn: 4, 12, B2...)" class="search-input" style="padding-left:38px; font-weight:700; font-size:0.95rem;">
+                        <i class="fas fa-hashtag" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--primary); font-size:0.9rem;"></i>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px; font-size:0.75rem; color:var(--text-muted); background:rgba(var(--primary-rgb),0.08); border:1px solid rgba(var(--primary-rgb),0.2); padding:8px 12px; border-radius:var(--radius-sm); line-height:1.35;">
+                        <i class="fas fa-qrcode" style="color:var(--primary); font-size:1.1rem; flex-shrink:0;"></i>
+                        <span><?php echo __t('enter_table_qr_hint', $currentLang); ?></span>
+                    </div>
                 </div>
 
                 <div class="call-options-grid">

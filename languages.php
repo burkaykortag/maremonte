@@ -53,7 +53,9 @@ $translations = [
         'free_wifi' => 'Ücretsiz Wi-Fi',
         'copy_password' => 'Şifreyi Kopyala',
         'copied' => 'Şifre Kopyalandı!',
-        'required_option' => 'Lütfen zorunlu seçenekleri belirleyin'
+        'required_option' => 'Lütfen zorunlu seçenekleri belirleyin',
+        'table_number' => 'Masa Numarası',
+        'enter_table_qr_hint' => 'Lütfen masanızdaki QR kodun yanında yazan masa numarasını giriniz.'
     ],
     'en' => [
         'flag' => '🇬🇧',
@@ -104,7 +106,9 @@ $translations = [
         'free_wifi' => 'Free Wi-Fi',
         'copy_password' => 'Copy Password',
         'copied' => 'Password Copied!',
-        'required_option' => 'Please select required options'
+        'required_option' => 'Please select required options',
+        'table_number' => 'Table Number',
+        'enter_table_qr_hint' => 'Please enter the table number located next to your QR code.'
     ],
     'ar' => [
         'flag' => '🇸🇦',
@@ -155,7 +159,9 @@ $translations = [
         'free_wifi' => 'واي فاي مجاني',
         'copy_password' => 'نسخ كلمة السر',
         'copied' => 'تم النسخ بنجاح!',
-        'required_option' => 'يرجى تحديد الخيارات الإجبارية'
+        'required_option' => 'يرجى تحديد الخيارات الإجبارية',
+        'table_number' => 'رقم الطاولة',
+        'enter_table_qr_hint' => 'يرجى إدخال رقم الطاولة الموضح بجانب رمز الاستجابة السريعة (QR).'
     ],
     'ru' => [
         'flag' => '🇷🇺',
@@ -206,7 +212,9 @@ $translations = [
         'free_wifi' => 'Бесплатный Wi-Fi',
         'copy_password' => 'Скопировать пароль',
         'copied' => 'Пароль скопирован!',
-        'required_option' => 'Пожалуйста, выберите обязательные опции'
+        'required_option' => 'Пожалуйста, выберите обязательные опции',
+        'table_number' => 'Номер стола',
+        'enter_table_qr_hint' => 'Пожалуйста, введите номер стола, указанный рядом с QR-кодом.'
     ],
     'de' => [
         'flag' => '🇩🇪',
@@ -257,7 +265,9 @@ $translations = [
         'free_wifi' => 'Kostenloses WLAN',
         'copy_password' => 'Passwort kopieren',
         'copied' => 'Passwort kopiert!',
-        'required_option' => 'Bitte wählen Sie die erforderlichen Optionen'
+        'required_option' => 'Bitte wählen Sie die erforderlichen Optionen',
+        'table_number' => 'Tischnummer',
+        'enter_table_qr_hint' => 'Bitte geben Sie die Tischnummer ein, die sich neben dem QR-Code befindet.'
     ]
 ];
 
