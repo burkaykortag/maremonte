@@ -203,7 +203,7 @@ function seedInitialData($pdo) {
         'address' => 'Bağdat Caddesi No: 142, Kadıköy / İstanbul',
         
         // MODÜL AÇ/KAPA (AÇIK = 1, KAPALI = 0)
-        'enable_order' => '1',            // Masadan Canlı Sipariş & Sepet
+        'enable_order' => '0',            // Masadan Canlı Sipariş & Sepet (Varsayılan Pasif - Garson Çağrısı Aktif)
         'enable_multi_lang' => '1',       // Çoklu Dil Desteği (TR, EN, AR, RU, DE)
         'enable_kitchen' => '1',          // Canlı Mutfak & Bar Ekranı (KDS)
         'enable_stories' => '1',          // Instagram Tarzı Kampanya Hikayeleri

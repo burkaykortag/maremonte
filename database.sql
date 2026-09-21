@@ -94,19 +94,19 @@ CREATE TABLE `tables` (
 
 CREATE TABLE `waiter_calls` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `table_no` varchar(50) NOT NULL,
-  `call_type` varchar(50) DEFAULT 'garson',
+  `table_number` varchar(50) NOT NULL,
+  `call_type` varchar(50) DEFAULT 'waiter',
   `note` varchar(255) DEFAULT '',
-  `status` varchar(30) DEFAULT 'bekliyor',
+  `status` varchar(30) DEFAULT 'pending',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `table_no` varchar(50) NOT NULL,
+  `table_number` varchar(50) NOT NULL,
   `total_amount` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `status` varchar(50) DEFAULT 'bekliyor',
+  `status` varchar(50) DEFAULT 'pending',
   `note` text DEFAULT NULL,
   `customer_name` varchar(100) DEFAULT '',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -121,7 +121,7 @@ CREATE TABLE `order_items` (
   `quantity` int(11) NOT NULL DEFAULT 1,
   `unit_price` decimal(10,2) NOT NULL DEFAULT 0.00,
   `total_price` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `options_text` text DEFAULT NULL,
+  `options_json` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -148,9 +148,11 @@ CREATE TABLE `stories` (
 
 CREATE TABLE `feedback` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `table_no` varchar(50) DEFAULT '',
+  `table_number` varchar(50) DEFAULT '',
   `rating` int(11) NOT NULL,
+  `name` varchar(100) DEFAULT '',
   `comment` text DEFAULT NULL,
+  `is_read` int(11) DEFAULT 0,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -170,7 +172,7 @@ INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `updated_at`) VALU
 ('11', 'instagram', 'gustogourmet', '2026-09-21 09:07:32'),
 ('12', 'address', 'Bağdat Caddesi No: 142, Kadıköy / İstanbul', '2026-09-21 09:07:32'),
 ('13', 'enable_waiter_call', '1', '2026-09-21 05:58:22'),
-('14', 'enable_order', '1', '2026-09-21 05:58:22'),
+('14', 'enable_order', '0', '2026-09-21 05:58:22'),
 ('15', 'service_charge', '0', '2026-09-21 05:58:22'),
 ('17', 'logo_dark_url', '', '2026-09-21 09:07:32'),
 ('18', 'logo_light_url', '', '2026-09-21 09:07:32'),

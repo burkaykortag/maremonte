@@ -170,6 +170,16 @@ switch ($action) {
         }
         break;
 
+    case 'get_pending_calls':
+        try {
+            $stmt = $pdo->query("SELECT * FROM waiter_calls WHERE status = 'pending' ORDER BY id DESC");
+            $calls = $stmt->fetchAll();
+            echo json_encode(['success' => true, 'data' => $calls]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        break;
+
     // 8. HİKAYE (STORY) DURUM / SİLME
     case 'toggle_story_status':
         $id = (int)($_POST['id'] ?? 0);

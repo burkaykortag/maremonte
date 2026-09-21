@@ -445,7 +445,7 @@ foreach ($categories as $cat) {
                             <i class="fas fa-cart-plus"></i> <?php echo __t('add_to_cart', $currentLang); ?>
                         </button>
                     <?php else: ?>
-                        <button type="button" class="bottom-cta-btn" onclick="document.getElementById('productDrawer').classList.remove('active'); document.getElementById('waiterModal').classList.add('active');">
+                        <button type="button" class="bottom-cta-btn" id="drawerCallWaiterBtn">
                             <i class="fas fa-bell"></i> <?php echo __t('call_waiter', $currentLang); ?>
                         </button>
                     <?php endif; ?>

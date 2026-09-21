@@ -135,6 +135,39 @@ $calls = $pdo->query($query)->fetchAll();
 </div>
 
 <script>
+let lastPendingCount = <?php echo count(array_filter($calls, function($c){ return $c['status'] === 'pending'; })); ?>;
+let audioEnabled = true;
+
+// Web Audio API Zil/Çan Sesi Üretici (Sıfır harici dosya, her tarayıcıda çalışır)
+function playWaiterBell() {
+    if (!audioEnabled) return;
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now); // A5
+        osc.frequency.exponentialRampToValueAtTime(1760, now + 0.15); // A6
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.35);
+        
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(now);
+        osc.stop(now + 1.2);
+    } catch (e) {
+        console.log('Audio alert blocked:', e);
+    }
+}
+
 async function changeStatus(id, status) {
     const formData = new FormData();
     formData.append('action', 'update_call_status');
@@ -145,7 +178,7 @@ async function changeStatus(id, status) {
         const res = await fetch('ajax.php', { method: 'POST', body: formData });
         const data = await res.json();
         if (data.success) {
-            showAdminToast('Durum güncellendi.', 'success');
+            showAdminToast(status === 'completed' ? 'Çağrı tamamlandı.' : 'Çağrı tekrar açıldı.', 'success');
             setTimeout(() => location.reload(), 400);
         }
     } catch (e) {
@@ -153,19 +186,22 @@ async function changeStatus(id, status) {
     }
 }
 
-// Otomatik 10 saniyede bir bekleyen çağrıları kontrol et
+// Otomatik 5 saniyede bir bekleyen çağrıları canlı kontrol et
 setInterval(async () => {
     try {
         const res = await fetch('ajax.php?action=get_pending_calls');
         const data = await res.json();
         if (data.success && data.data) {
-            const currentFilter = '<?php echo $filterStatus; ?>';
-            if (currentFilter === 'pending' && data.data.length > <?php echo count($calls); ?>) {
-                location.reload();
+            const newCount = data.data.length;
+            if (newCount > lastPendingCount) {
+                playWaiterBell();
+                showAdminToast('🔔 YENİ GARSON ÇAĞRISI GELDİ!', 'warning');
+                setTimeout(() => location.reload(), 1200);
             }
+            lastPendingCount = newCount;
         }
     } catch(e) {}
-}, 10000);
+}, 5000);
 </script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

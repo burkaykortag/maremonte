@@ -632,12 +632,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // 11. GARSON ÇAĞIRMA & WI-FI MODAL
     const openWaiterBtn = document.getElementById('openWaiterBtn');
     const closeWaiterBtn = document.getElementById('closeWaiterBtn');
+    const drawerCallWaiterBtn = document.getElementById('drawerCallWaiterBtn');
     const sendWaiterCallBtn = document.getElementById('sendWaiterCallBtn');
     const callOptionBtns = document.querySelectorAll('.call-option-btn');
     let selectedCallType = 'waiter';
 
     if (openWaiterBtn && waiterModal) openWaiterBtn.addEventListener('click', () => waiterModal.classList.add('active'));
     if (closeWaiterBtn && waiterModal) closeWaiterBtn.addEventListener('click', () => waiterModal.classList.remove('active'));
+
+    if (drawerCallWaiterBtn && waiterModal) {
+        drawerCallWaiterBtn.addEventListener('click', () => {
+            if (drawerBackdrop) drawerBackdrop.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Eğer ürün seçiliyse notu hazırla
+            const waiterNoteInput = document.getElementById('waiterNote');
+            if (currentSelectedProduct && waiterNoteInput) {
+                waiterNoteInput.value = `Sipariş İsteği: ${currentSelectedProduct.name}`;
+            }
+            
+            // 'waiter' seçeneğini seçili yap
+            callOptionBtns.forEach(b => {
+                if (b.dataset.type === 'waiter') b.classList.add('selected');
+                else b.classList.remove('selected');
+            });
+            selectedCallType = 'waiter';
+
+            waiterModal.classList.add('active');
+        });
+    }
 
     callOptionBtns.forEach(btn => {
         btn.addEventListener('click', () => {
