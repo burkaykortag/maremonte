@@ -37,8 +37,8 @@ $products = $pdo->query($query)->fetchAll();
 <!-- KATEGORİ FİLTRESİ VE BİLGİ KUTUSU -->
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px;">
     <div class="card" style="margin-bottom: 0;">
-        <div class="card-body" style="padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="card-body" style="padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <label class="form-label" style="margin-bottom: 0; white-space: nowrap;">KATEGORİYE GÖRE FİLTRELE:</label>
                 <select class="form-control" style="width: auto; min-width: 220px;" onchange="location.href='quick-price.php?category=' + this.value">
                     <option value="0">Tüm Kategoriler (<?php echo count($products); ?> Ürün)</option>

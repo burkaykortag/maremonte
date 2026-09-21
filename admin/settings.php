@@ -132,23 +132,23 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 }
 
 // Güncel Ayarları Oku
-$restaurantName = getSetting('restaurant_name', 'Gusto Gourmet & Lounge');
-$restaurantSlogan = getSetting('restaurant_slogan', 'Eşsiz Lezzetler & Keyifli Anlar');
+$restaurantName = getSetting('restaurant_name', 'HOTEL MARE & MONTE BISTRO');
+$restaurantSlogan = getSetting('restaurant_slogan', 'Altınoluk (Est. 1985)');
 $currency = getSetting('currency', '₺');
-$themeColor = getSetting('theme_color', '#d97706');
-$themeMode = getSetting('theme_mode', 'dark');
-$logoDarkUrl = getSetting('logo_dark_url', getSetting('logo_url', ''));
-$logoLightUrl = getSetting('logo_light_url', '');
-$bannerUrl = getSetting('banner_url', 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80');
-$wifiName = getSetting('wifi_name', 'Gusto_Guest_5G');
-$wifiPass = getSetting('wifi_pass', 'Gusto2026!');
-$phone = getSetting('phone', '');
-$instagram = getSetting('instagram', '');
-$address = getSetting('address', '');
-$googleMapsUrl = getSetting('google_maps_url', 'https://maps.google.com/?q=Gusto+Gourmet');
+$themeColor = getSetting('theme_color', '#C5A059');
+$themeMode = getSetting('theme_mode', 'light');
+$logoDarkUrl = getSetting('logo_dark_url', getSetting('logo_url', 'assets/images/maremonte_logo.svg'));
+$logoLightUrl = getSetting('logo_light_url', 'assets/images/maremonte_logo.svg');
+$bannerUrl = getSetting('banner_url', 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80');
+$wifiName = getSetting('wifi_name', 'MareMonte_Guest');
+$wifiPass = getSetting('wifi_pass', 'MareMonte1985');
+$phone = getSetting('phone', '+90 (266) 396 00 00');
+$instagram = getSetting('instagram', 'hotelmaremonte');
+$address = getSetting('address', 'İskele Mah. Sahil Cad. No:14, Altınoluk / Balıkesir');
+$googleMapsUrl = getSetting('google_maps_url', 'https://maps.google.com/?q=Hotel+Mare+Monte+Altinoluk');
 
 // Modül Durumları
-$enableOrder = getSetting('enable_order', '1') === '1';
+$enableOrder = getSetting('enable_order', '0') === '1';
 $enableMultiLang = getSetting('enable_multi_lang', '1') === '1';
 $enableKitchen = getSetting('enable_kitchen', '1') === '1';
 $enableStories = getSetting('enable_stories', '1') === '1';
@@ -157,6 +157,89 @@ $enableFeedback = getSetting('enable_feedback', '1') === '1';
 $enableAllergensFilter = getSetting('enable_allergens_filter', '1') === '1';
 $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
 ?>
+
+<style>
+.settings-layout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    width: 100%;
+}
+
+.modules-toggle-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.theme-mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.logo-upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-2col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.form-1-2col-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 14px;
+}
+
+.module-toggle-item {
+    background: var(--bg-input);
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.module-toggle-item > div:first-child {
+    min-width: 0;
+    flex: 1;
+}
+
+@media (max-width: 1024px) {
+    .settings-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .modules-toggle-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .theme-mode-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .logo-upload-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+    .form-2col-grid,
+    .form-1-2col-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+</style>
 
 <div class="page-header">
     <div class="page-title">
@@ -177,29 +260,29 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
     </div>
 <?php endif; ?>
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+<div class="settings-layout-grid">
 
     <!-- GENEL AYARLAR VE MODÜLLER FORMU -->
-    <form method="POST" action="settings.php" enctype="multipart/form-data">
+    <form method="POST" action="settings.php" enctype="multipart/form-data" style="width: 100%;">
         <input type="hidden" name="setting_type" value="general">
 
         <!-- 1. MODÜL VE ÖZELLİK YÖNETİMİ (AÇ / KAPA) -->
-        <div class="card" style="border: 2px solid #3b82f6; background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(22, 31, 48, 0.95) 100%);">
+        <div class="card" style="border: 2px solid var(--primary); background: linear-gradient(135deg, rgba(197, 160, 89, 0.08) 0%, rgba(22, 31, 48, 0.95) 100%);">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-toggle-on" style="color:#60a5fa;"></i> Modül & Özellik Yönetimi (Aç / Kapa)</h3>
-                <span style="font-size: 0.75rem; background: #3b82f6; color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: 700;">8 Aktif Modül</span>
+                <h3 class="card-title"><i class="fas fa-toggle-on" style="color:var(--primary);"></i> Modül & Özellik Yönetimi (Aç / Kapa)</h3>
+                <span style="font-size: 0.75rem; background: var(--primary); color: #000; padding: 3px 10px; border-radius: 999px; font-weight: 800;">8 Modül</span>
             </div>
             <div class="card-body">
                 <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 18px;">
                     İstediğiniz özellikleri tek tıkla menüden gizleyebilir veya aktif edebilirsiniz:
                 </p>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="modules-toggle-grid">
                     
                     <!-- 1. Sipariş & Sepet -->
-                    <div style="background: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div class="module-toggle-item">
                         <div>
-                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-cart-shopping" style="color:var(--primary);margin-right:6px;"></i> Masadan Canlı Sipariş</div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-cart-shopping" style="color:var(--primary);margin-right:6px;"></i> Masadan Sipariş</div>
                             <div style="font-size: 0.72rem; color: var(--text-dim);">Sepet & Masadan sipariş verme</div>
                         </div>
                         <label class="switch">
@@ -209,7 +292,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                     </div>
 
                     <!-- 2. Çoklu Dil -->
-                    <div style="background: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-language" style="color:#60a5fa;margin-right:6px;"></i> Çoklu Dil Desteği</div>
                             <div style="font-size: 0.72rem; color: var(--text-dim);">TR, EN, AR, RU, DE dilleri</div>
@@ -221,7 +304,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                     </div>
 
                     <!-- 3. Mutfak Ekranı -->
-                    <div style="background: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-kitchen-set" style="color:#34d399;margin-right:6px;"></i> Mutfak Ekranı (KDS)</div>
                             <div style="font-size: 0.72rem; color: var(--text-dim);">Canlı sipariş takibi & termal fiş</div>
@@ -233,7 +316,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                     </div>
 
                     <!-- 4. Hikayeler -->
-                    <div style="background: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-circle-play" style="color:#f43f5e;margin-right:6px;"></i> Kampanya Hikayeleri</div>
                             <div style="font-size: 0.72rem; color: var(--text-dim);">Instagram tarzı hikaye çubuğu</div>
@@ -245,7 +328,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                     </div>
 
                     <!-- 5. Giriş Pop-up -->
-                    <div style="background: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-bullhorn" style="color:#fbbf24;margin-right:6px;"></i> Açılış Pop-Up Duyuru</div>
                             <div style="font-size: 0.72rem; color: var(--text-dim);">Girişte kampanya penceresi</div>
@@ -257,7 +340,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                     </div>
 
                     <!-- 6. Google Yorumları & Puanlama -->
-                    <div style="background: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-star" style="color:#fbbf24;margin-right:6px;"></i> Google Yorum & Puan</div>
                             <div style="font-size: 0.72rem; color: var(--text-dim);">1-5 yıldız ve Harita yönlendirme</div>
@@ -269,7 +352,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                     </div>
 
                     <!-- 7. Alerjen & Diyet Filtresi -->
-                    <div style="background: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-shield-halved" style="color:#10b981;margin-right:6px;"></i> Alerjen & Diyet Filtresi</div>
                             <div style="font-size: 0.72rem; color: var(--text-dim);">Glutensiz, Vegan, Kalori filtreleri</div>
@@ -281,7 +364,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                     </div>
 
                     <!-- 8. Garson & Hesap Çağrı -->
-                    <div style="background: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                    <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-bell" style="color:var(--primary);margin-right:6px;"></i> Garson & Hesap Çağrı</div>
                             <div style="font-size: 0.72rem; color: var(--text-dim);">Masadan garson çağırma modülü</div>
@@ -300,27 +383,27 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
         <div class="card" style="border: 2px solid var(--border-focus);">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-circle-half-stroke" style="color:var(--primary);"></i> Menü Tema Modu</h3>
-                <span style="font-size: 0.75rem; background: var(--primary); color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: 700;">Admin Belirler</span>
+                <span style="font-size: 0.75rem; background: var(--primary); color: #000; padding: 3px 8px; border-radius: 4px; font-weight: 700;">Admin Belirler</span>
             </div>
             <div class="card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <!-- Dark Mode -->
-                    <label style="cursor: pointer; display: block;">
-                        <input type="radio" name="theme_mode" value="dark" <?php echo $themeMode === 'dark' ? 'checked' : ''; ?> style="display: none;" onchange="updateThemeCards()">
-                        <div id="cardThemeDark" style="border: 2px solid <?php echo $themeMode === 'dark' ? 'var(--primary)' : 'var(--border)'; ?>; background: #0c0f14; border-radius: var(--radius-md); padding: 16px; text-align: center; transition: all 0.2s ease;">
-                            <div style="font-size: 2rem; margin-bottom: 8px;">🌙</div>
-                            <div style="font-weight: 800; color: #fff; font-size: 0.95rem;">Lüks Koyu Tema (Dark)</div>
-                            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px;">Siyah & Koyu zemin üzerinde lüks altın görünüm</div>
-                        </div>
-                    </label>
-
+                <div class="theme-mode-grid">
                     <!-- Light Mode -->
                     <label style="cursor: pointer; display: block;">
                         <input type="radio" name="theme_mode" value="light" <?php echo $themeMode === 'light' ? 'checked' : ''; ?> style="display: none;" onchange="updateThemeCards()">
                         <div id="cardThemeLight" style="border: 2px solid <?php echo $themeMode === 'light' ? 'var(--primary)' : 'var(--border)'; ?>; background: #ffffff; border-radius: var(--radius-md); padding: 16px; text-align: center; transition: all 0.2s ease;">
                             <div style="font-size: 2rem; margin-bottom: 8px;">☀️</div>
                             <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem;">Ferah Açık Tema (Light)</div>
-                            <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Beyaz & Aydınlık zemin üzerinde modern görünüm</div>
+                            <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Akdeniz & Ege Rivierası parşömen görünüm</div>
+                        </div>
+                    </label>
+
+                    <!-- Dark Mode -->
+                    <label style="cursor: pointer; display: block;">
+                        <input type="radio" name="theme_mode" value="dark" <?php echo $themeMode === 'dark' ? 'checked' : ''; ?> style="display: none;" onchange="updateThemeCards()">
+                        <div id="cardThemeDark" style="border: 2px solid <?php echo $themeMode === 'dark' ? 'var(--primary)' : 'var(--border)'; ?>; background: #0c0f14; border-radius: var(--radius-md); padding: 16px; text-align: center; transition: all 0.2s ease;">
+                            <div style="font-size: 2rem; margin-bottom: 8px;">🌙</div>
+                            <div style="font-weight: 800; color: #fff; font-size: 0.95rem;">Lüks Koyu Tema (Dark)</div>
+                            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px;">Gece mavisi & koyu zemin üzerinde lüks altın</div>
                         </div>
                     </label>
                 </div>
@@ -333,36 +416,34 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                 <h3 class="card-title"><i class="fas fa-images" style="color:var(--primary);"></i> Tema Logoları (Dark & Light)</h3>
             </div>
             <div class="card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="logo-upload-grid">
                     
-                    <!-- Dark Logo -->
-                    <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-                        <label class="form-label" style="color: #fbbf24;"><i class="fas fa-moon"></i> Koyu (Dark) Tema Logosu</label>
-                        <input type="file" name="logo_dark_file" class="form-control image-upload-input" data-preview="logoDarkPreview" accept="image/*" style="margin-bottom: 8px;">
-                        <input type="url" name="logo_dark_url" value="<?php echo htmlspecialchars($logoDarkUrl); ?>" placeholder="veya Dark Logo URL" class="form-control" style="margin-bottom: 12px;">
-
-                        <div style="background: #0c0f14; border: 2px dashed rgba(255,255,255,0.15); border-radius: var(--radius-sm); padding: 14px; text-align: center; min-height: 85px; display: flex; align-items: center; justify-content: center;">
-                            <?php if (!empty($logoDarkUrl)): ?>
-                                <img id="logoDarkPreview" src="<?php echo htmlspecialchars($logoDarkUrl); ?>" alt="Dark Logo" style="max-height: 65px; max-width: 100%; object-fit: contain;">
-                            <?php else: ?>
-                                <img id="logoDarkPreview" src="" alt="Dark Logo" style="max-height: 65px; max-width: 100%; object-fit: contain; display: none;">
-                                <span style="font-size: 0.75rem; color: var(--text-dim);"><i class="fas fa-image"></i> Dark Logo Yüklenmedi</span>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
                     <!-- Light Logo -->
                     <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
                         <label class="form-label" style="color: #38bdf8;"><i class="fas fa-sun"></i> Açık (Light) Tema Logosu</label>
                         <input type="file" name="logo_light_file" class="form-control image-upload-input" data-preview="logoLightPreview" accept="image/*" style="margin-bottom: 8px;">
-                        <input type="url" name="logo_light_url" value="<?php echo htmlspecialchars($logoLightUrl); ?>" placeholder="veya Light Logo URL" class="form-control" style="margin-bottom: 12px;">
+                        <input type="text" name="logo_light_url" value="<?php echo htmlspecialchars($logoLightUrl); ?>" placeholder="veya Logo Dosya Yolu / URL" class="form-control" style="margin-bottom: 12px;">
 
                         <div style="background: #ffffff; border: 2px dashed #cbd5e1; border-radius: var(--radius-sm); padding: 14px; text-align: center; min-height: 85px; display: flex; align-items: center; justify-content: center;">
                             <?php if (!empty($logoLightUrl)): ?>
-                                <img id="logoLightPreview" src="<?php echo htmlspecialchars($logoLightUrl); ?>" alt="Light Logo" style="max-height: 65px; max-width: 100%; object-fit: contain;">
+                                <img id="logoLightPreview" src="../<?php echo htmlspecialchars($logoLightUrl); ?>" alt="Light Logo" style="max-height: 65px; max-width: 100%; object-fit: contain;" onerror="this.src='../assets/images/maremonte_logo.svg'">
                             <?php else: ?>
-                                <img id="logoLightPreview" src="" alt="Light Logo" style="max-height: 65px; max-width: 100%; object-fit: contain; display: none;">
-                                <span style="font-size: 0.75rem; color: #64748b;"><i class="fas fa-image"></i> Light Logo Yüklenmedi</span>
+                                <img id="logoLightPreview" src="../assets/images/maremonte_logo.svg" alt="Light Logo" style="max-height: 65px; max-width: 100%; object-fit: contain;">
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Dark Logo -->
+                    <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                        <label class="form-label" style="color: #fbbf24;"><i class="fas fa-moon"></i> Koyu (Dark) Tema Logosu</label>
+                        <input type="file" name="logo_dark_file" class="form-control image-upload-input" data-preview="logoDarkPreview" accept="image/*" style="margin-bottom: 8px;">
+                        <input type="text" name="logo_dark_url" value="<?php echo htmlspecialchars($logoDarkUrl); ?>" placeholder="veya Dark Logo Dosya Yolu / URL" class="form-control" style="margin-bottom: 12px;">
+
+                        <div style="background: #0c0f14; border: 2px dashed rgba(255,255,255,0.15); border-radius: var(--radius-sm); padding: 14px; text-align: center; min-height: 85px; display: flex; align-items: center; justify-content: center;">
+                            <?php if (!empty($logoDarkUrl)): ?>
+                                <img id="logoDarkPreview" src="../<?php echo htmlspecialchars($logoDarkUrl); ?>" alt="Dark Logo" style="max-height: 65px; max-width: 100%; object-fit: contain;" onerror="this.src='../assets/images/maremonte_logo.svg'">
+                            <?php else: ?>
+                                <img id="logoDarkPreview" src="../assets/images/maremonte_logo.svg" alt="Dark Logo" style="max-height: 65px; max-width: 100%; object-fit: contain;">
                             <?php endif; ?>
                         </div>
                     </div>
@@ -377,7 +458,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                 <h3 class="card-title"><i class="fas fa-panorama" style="color:var(--primary);"></i> Menü Üst Kapak Görseli (Banner)</h3>
             </div>
             <div class="card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: center;">
+                <div class="form-2col-grid" style="align-items: center;">
                     <div>
                         <label class="form-label">Kapak Görseli Yükle</label>
                         <input type="file" name="banner_file" class="form-control image-upload-input" data-preview="bannerPreview" accept="image/*" style="margin-bottom: 8px;">
@@ -396,7 +477,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                 <h3 class="card-title"><i class="fas fa-store" style="color:var(--primary);"></i> Restoran Bilgileri & Google Harita Linki</h3>
             </div>
             <div class="card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-2col-grid">
                     <div class="form-group">
                         <label class="form-label">Restoran / İşletme Adı *</label>
                         <input type="text" name="restaurant_name" value="<?php echo htmlspecialchars($restaurantName); ?>" class="form-control" required>
@@ -408,7 +489,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px;">
+                <div class="form-1-2col-grid">
                     <div class="form-group">
                         <label class="form-label">Para Birimi</label>
                         <input type="text" name="currency" value="<?php echo htmlspecialchars($currency); ?>" class="form-control">
@@ -416,13 +497,12 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
 
                     <div class="form-group">
                         <label class="form-label">Vurgu / Buton Rengi</label>
-                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                            <input type="color" name="theme_color" id="themeColorPicker" value="<?php echo htmlspecialchars($themeColor); ?>" style="width: 44px; height: 42px; padding: 2px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-input); cursor: pointer;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <input type="color" name="theme_color" id="themeColorPicker" value="<?php echo htmlspecialchars($themeColor); ?>" style="width: 44px; height: 40px; padding: 2px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-input); cursor: pointer;">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setThemeColor('#C5A059')">Riviera Gold</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setThemeColor('#1A4B4B')">Kazdağları Yeşil</button>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="setThemeColor('#d97706')">Sıcak Amber</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="setThemeColor('#059669')">Zümrüt Yeşili</button>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="setThemeColor('#2563eb')">Gece Mavisi</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="setThemeColor('#dc2626')">Kırmızı</button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="setThemeColor('#7c3aed')">Mor</button>
                         </div>
                     </div>
                 </div>
@@ -440,7 +520,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                 <h3 class="card-title"><i class="fas fa-wifi" style="color:var(--primary);"></i> Wi-Fi & İletişim</h3>
             </div>
             <div class="card-body">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-2col-grid">
                     <div class="form-group">
                         <label class="form-label">Wi-Fi Ağ Adı (SSID)</label>
                         <input type="text" name="wifi_name" value="<?php echo htmlspecialchars($wifiName); ?>" class="form-control">
@@ -452,7 +532,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-2col-grid">
                     <div class="form-group">
                         <label class="form-label">Telefon</label>
                         <input type="text" name="phone" value="<?php echo htmlspecialchars($phone); ?>" class="form-control">
@@ -460,7 +540,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
 
                     <div class="form-group">
                         <label class="form-label">Instagram Kullanıcı Adı</label>
-                        <input type="text" name="instagram" value="<?php echo htmlspecialchars($instagram); ?>" placeholder="Örn: gustogourmet" class="form-control">
+                        <input type="text" name="instagram" value="<?php echo htmlspecialchars($instagram); ?>" placeholder="Örn: hotelmaremonte" class="form-control">
                     </div>
                 </div>
 
@@ -470,7 +550,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                 </div>
             </div>
             <div class="card-header" style="justify-content: flex-end;">
-                <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 1rem; font-weight: 800;">
+                <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 1rem; font-weight: 800; width: 100%; max-width: 280px; justify-content: center;">
                     <i class="fas fa-save"></i> Tüm Ayarları Kaydet
                 </button>
             </div>
@@ -478,7 +558,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
     </form>
 
     <!-- ŞİFRE DEĞİŞTİRME & SİSTEM ÖZETİ -->
-    <div>
+    <div style="width: 100%;">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-key" style="color:var(--warning);"></i> Yönetici Şifresi</h3>
@@ -501,25 +581,25 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                         <input type="password" name="new_password_confirm" class="form-control" required>
                     </div>
 
-                    <button type="submit" class="btn btn-secondary" style="width: 100%;">
+                    <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center;">
                         <i class="fas fa-lock"></i> Şifreyi Güncelle
                     </button>
                 </div>
             </form>
         </div>
 
-        <div class="card" style="background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3);">
+        <div class="card" style="background: rgba(197, 160, 89, 0.08); border-color: rgba(197, 160, 89, 0.35);">
             <div class="card-body">
-                <h4 style="font-size: 0.95rem; font-weight: 700; color: #34d399; margin-bottom: 8px;">
+                <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-light); margin-bottom: 10px;">
                     <i class="fas fa-circle-check"></i> Sistem & Modül Durumu
                 </h4>
-                <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.7;">
-                    • Masadan Sipariş: <strong><?php echo $enableOrder ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
-                    • Çoklu Dil Desteği: <strong><?php echo $enableMultiLang ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
-                    • Mutfak Ekranı (KDS): <strong><?php echo $enableKitchen ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
-                    • Hikayeler & Pop-Up: <strong><?php echo $enableStories ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
-                    • Google Yorumları: <strong><?php echo $enableFeedback ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
-                    • Aktif Menü Teması: <strong style="color:#fff; text-transform:uppercase;"><?php echo $themeMode; ?></strong>
+                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.8;">
+                    • Masadan Sipariş: <strong style="color:#fff;"><?php echo $enableOrder ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Çoklu Dil Desteği: <strong style="color:#fff;"><?php echo $enableMultiLang ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Mutfak Ekranı (KDS): <strong style="color:#fff;"><?php echo $enableKitchen ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Hikayeler & Pop-Up: <strong style="color:#fff;"><?php echo $enableStories ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Google Yorumları: <strong style="color:#fff;"><?php echo $enableFeedback ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Aktif Menü Teması: <strong style="color:var(--primary-light); text-transform:uppercase;"><?php echo $themeMode; ?></strong>
                 </p>
             </div>
         </div>

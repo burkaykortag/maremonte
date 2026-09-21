@@ -87,7 +87,7 @@ try {
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px;">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px;">
 
     <!-- SON GARSON ÇAĞRILARI -->
     <div class="card">

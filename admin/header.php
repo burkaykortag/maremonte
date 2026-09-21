@@ -8,7 +8,7 @@ requireAdmin();
 
 $currentPage = basename($_SERVER['PHP_SELF']);
 $adminName = $_SESSION['admin_name'] ?? 'Yönetici';
-$restaurantName = getSetting('restaurant_name', 'Gusto QR Menü');
+$restaurantName = getSetting('restaurant_name', 'HOTEL MARE & MONTE BISTRO');
 
 // Bekleyen çağrı ve sipariş sayıları
 try {
@@ -26,7 +26,7 @@ try {
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Yönetim Paneli - <?php echo htmlspecialchars($restaurantName); ?></title>
     
     <!-- Google Fonts & FontAwesome -->
@@ -35,8 +35,8 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Admin CSS -->
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- Admin CSS (Cache-Busting) -->
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo time(); ?>">
 </head>
 <body>
 
@@ -47,10 +47,10 @@ try {
     <aside class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo-icon">
-                <i class="fas fa-qrcode"></i>
+                <img src="../assets/images/maremonte_logo.svg" alt="Mare & Monte">
             </div>
             <div class="sidebar-brand-text">
-                <h2>QR Menü</h2>
+                <h2>Mare &amp; Monte</h2>
                 <span>Yönetim Paneli</span>
             </div>
             <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Menüyü Kapat">
@@ -144,14 +144,20 @@ try {
     <div class="admin-main">
         <!-- ÜST ÇUBUK (TOPBAR) -->
         <header class="admin-topbar">
-            <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menüyü Aç">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="topbar-brand" style="display:flex; align-items:center; gap:8px;">
+                    <img src="../assets/images/maremonte_logo.svg" style="width:30px; height:30px; border-radius:50%;" alt="Logo">
+                    <span style="font-size:0.92rem; font-weight:800; color:#fff;">Mare &amp; Monte</span>
+                </div>
+            </div>
 
             <div class="topbar-actions">
                 <a href="../index.php" target="_blank" class="btn-preview" title="Müşteri Görünümü">
                     <i class="fas fa-arrow-up-right-from-square"></i>
-                    <span>Menüyü Önizle</span>
+                    <span>Menüyü Gör</span>
                 </a>
             </div>
         </header>

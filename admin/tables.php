@@ -93,7 +93,7 @@ $restaurantName = getSetting('restaurant_name', 'Gusto QR Menü');
 <!-- GENEL RESTORAN QR KOD KARTI -->
 <div class="card" style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, rgba(22, 31, 48, 0.8) 100%); border-color: var(--border-focus); margin-bottom: 24px;">
     <div class="card-body" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
-        <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 20px;">
             <?php
                 $mainMenuUrl = BASE_URL . '/index.php';
                 $mainQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' . urlencode($mainMenuUrl);
