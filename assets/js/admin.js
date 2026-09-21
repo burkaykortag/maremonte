@@ -3,22 +3,34 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. MOBİL SIDEBAR TOGGLE
+    // 1. MOBİL SIDEBAR TOGGLE & BACKDROP
     const mobileToggle = document.getElementById('mobileMenuToggle');
     const sidebar = document.querySelector('.admin-sidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
 
-    if (mobileToggle && sidebar) {
-        mobileToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-        });
-
-        // Dışarı tıklandığında kapat
-        document.addEventListener('click', (e) => {
-            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== mobileToggle) {
-                sidebar.classList.remove('open');
-            }
-        });
+    function openSidebar() {
+        if (sidebar) sidebar.classList.add('open');
+        if (sidebarBackdrop) sidebarBackdrop.classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
+
+    function closeSidebar() {
+        if (sidebar) sidebar.classList.remove('open');
+        if (sidebarBackdrop) sidebarBackdrop.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    if (mobileToggle) mobileToggle.addEventListener('click', openSidebar);
+    if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+    if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeSidebar();
+            document.querySelectorAll('.admin-modal.active').forEach(m => m.classList.remove('active'));
+        }
+    });
 
     // 2. ÜRÜN & KATEGORİ DURUM DEĞİŞTİRİCİLERİ (AJAX SWITCH TOGGLE)
     document.querySelectorAll('.status-toggle').forEach(checkbox => {

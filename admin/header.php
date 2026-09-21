@@ -40,8 +40,11 @@ try {
 </head>
 <body>
 
+    <!-- SİDEBAR MOBİL KARARTMA (BACKDROP) -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
     <!-- YAN MENÜ (SIDEBAR) -->
-    <aside class="admin-sidebar">
+    <aside class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo-icon">
                 <i class="fas fa-qrcode"></i>
@@ -50,6 +53,9 @@ try {
                 <h2>QR Menü</h2>
                 <span>Yönetim Paneli</span>
             </div>
+            <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Menüyü Kapat">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
         <nav class="sidebar-nav">
