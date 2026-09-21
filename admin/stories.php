@@ -114,7 +114,8 @@ $popupBtnLink = getSetting('popup_btn_link', '#cat-2');
             <h3 class="card-title"><i class="fas fa-circle-play" style="color:var(--primary);"></i> Menü Üstü Hikayeleri (<?php echo count($stories); ?> Hikaye)</h3>
         </div>
         <div class="card-body" style="padding: 0;">
-            <div class="table-responsive">
+            <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+            <div class="table-responsive desktop-table-view">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -161,6 +162,48 @@ $popupBtnLink = getSetting('popup_btn_link', '#cat-2');
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+            <div class="mobile-cards-view" style="padding: 12px;">
+                <?php if (empty($stories)): ?>
+                    <div style="text-align: center; padding: 24px; color: var(--text-dim);">Henüz hikaye eklenmedi.</div>
+                <?php else: ?>
+                    <?php foreach ($stories as $s): ?>
+                        <div class="mobile-card" id="card-story-<?php echo $s['id']; ?>">
+                            <div class="mobile-card-top">
+                                <img src="<?php echo htmlspecialchars($s['image']); ?>" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--primary); flex-shrink:0;">
+                                <div class="mobile-card-info">
+                                    <div class="mobile-card-title"><?php echo htmlspecialchars($s['title']); ?></div>
+                                    <div class="mobile-card-tags">
+                                        <span class="mobile-tag"><i class="fas fa-arrow-down-1-9"></i> Sıra: <?php echo $s['sort_order']; ?></span>
+                                        <?php if (!empty($s['link'])): ?>
+                                            <span class="mobile-tag" style="color: var(--info);"><i class="fas fa-link"></i> <?php echo htmlspecialchars($s['link']); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div style="flex-shrink: 0;">
+                                    <label class="switch" title="Aktif / Pasif">
+                                        <input type="checkbox" class="story-toggle" data-id="<?php echo $s['id']; ?>" <?php echo $s['is_active'] ? 'checked' : ''; ?>>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mobile-card-footer">
+                                <span style="font-size: 0.75rem; color: var(--text-dim);">Durum: <?php echo $s['is_active'] ? '<strong style="color:var(--success);">Yayında</strong>' : '<strong style="color:var(--danger);">Kapalı</strong>'; ?></span>
+                                <div style="display: flex; gap: 6px;">
+                                    <button type="button" class="btn btn-secondary btn-icon" onclick='editStory(<?php echo json_encode($s); ?>)'>
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-icon" onclick="deleteStory(<?php echo $s['id']; ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -294,7 +337,10 @@ async function deleteStory(id) {
     const data = await res.json();
     if (data.success) {
         showAdminToast('Hikaye silindi.', 'success');
-        document.getElementById(`row-story-${id}`).remove();
+        const row = document.getElementById(`row-story-${id}`);
+        if (row) row.remove();
+        const card = document.getElementById(`card-story-${id}`);
+        if (card) card.remove();
     }
 }
 

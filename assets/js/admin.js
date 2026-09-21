@@ -87,7 +87,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (row) {
                         row.style.opacity = '0';
                         setTimeout(() => row.remove(), 300);
-                    } else {
+                    }
+                    const card = document.getElementById(`card-${type}-${id}`);
+                    if (card) {
+                        card.style.opacity = '0';
+                        setTimeout(() => card.remove(), 300);
+                    }
+                    if (!row && !card) {
                         setTimeout(() => location.reload(), 500);
                     }
                 } else {
@@ -110,7 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            this.style.borderColor = '#f59e0b';
+            // Diğer eşleşen inputları da güncelle (mobil <-> masaüstü senkronu)
+            document.querySelectorAll(`.quick-price-input[data-id="${id}"]`).forEach(el => {
+                el.value = price.toFixed(2);
+                el.style.borderColor = '#f59e0b';
+            });
 
             try {
                 const formData = new FormData();
@@ -122,14 +132,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
 
                 if (data.success) {
-                    this.style.borderColor = '#10b981';
+                    document.querySelectorAll(`.quick-price-input[data-id="${id}"]`).forEach(el => {
+                        el.style.borderColor = '#10b981';
+                    });
+                    const currPriceEl = document.getElementById(`current-price-${id}`);
+                    if (currPriceEl) currPriceEl.textContent = price.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺';
+                    const currMobilePriceEl = document.getElementById(`mobile-current-price-${id}`);
+                    if (currMobilePriceEl) currMobilePriceEl.textContent = price.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₺';
                     showAdminToast('Fiyat güncellendi! ✓', 'success');
                 } else {
-                    this.style.borderColor = '#ef4444';
+                    document.querySelectorAll(`.quick-price-input[data-id="${id}"]`).forEach(el => {
+                        el.style.borderColor = '#ef4444';
+                    });
                     showAdminToast(data.message || 'Hata oluştu', 'error');
                 }
             } catch (err) {
-                this.style.borderColor = '#ef4444';
+                document.querySelectorAll(`.quick-price-input[data-id="${id}"]`).forEach(el => {
+                    el.style.borderColor = '#ef4444';
+                });
                 showAdminToast('Bağlantı hatası', 'error');
             }
         });

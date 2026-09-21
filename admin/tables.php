@@ -124,7 +124,8 @@ $restaurantName = getSetting('restaurant_name', 'Gusto QR Menü');
         <h3 class="card-title"><i class="fas fa-qrcode" style="color:var(--primary);"></i> Tanımlı Masalar ve QR Kodları (<?php echo count($tables); ?> Masa)</h3>
     </div>
     <div class="card-body" style="padding: 0;">
-        <div class="table-responsive">
+        <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+        <div class="table-responsive desktop-table-view">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -179,6 +180,53 @@ $restaurantName = getSetting('restaurant_name', 'Gusto QR Menü');
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+        <div class="mobile-cards-view" style="padding: 12px;">
+            <?php if (empty($tables)): ?>
+                <div style="text-align: center; padding: 24px; color: var(--text-dim);">Henüz masa tanımlanmadı.</div>
+            <?php else: ?>
+                <?php foreach ($tables as $t): 
+                    $tableUrl = BASE_URL . '/index.php?table=' . urlencode($t['table_number']);
+                    $qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($tableUrl);
+                ?>
+                    <div class="mobile-card" id="card-table-<?php echo $t['id']; ?>">
+                        <div class="mobile-card-top">
+                            <a href="<?php echo $qrImgUrl; ?>" target="_blank" style="flex-shrink: 0;">
+                                <img src="<?php echo $qrImgUrl; ?>" alt="QR" style="width: 54px; height: 54px; border-radius: var(--radius-sm); background: #fff; padding: 3px; display: block;">
+                            </a>
+                            <div class="mobile-card-info">
+                                <div class="mobile-card-title">
+                                    <span style="background: rgba(var(--primary-rgb), 0.15); color: var(--primary); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border-focus); font-size: 0.85rem;">
+                                        Masa <?php echo htmlspecialchars($t['table_number']); ?>
+                                    </span>
+                                    <span><?php echo htmlspecialchars($t['table_name']); ?></span>
+                                </div>
+                                <div style="margin-top: 4px;">
+                                    <a href="<?php echo $tableUrl; ?>" target="_blank" style="color: var(--info); font-size: 0.75rem; text-decoration: none; word-break: break-all;">
+                                        <i class="fas fa-external-link-alt"></i> Menüyü Aç
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mobile-card-footer">
+                            <a href="<?php echo $qrImgUrl; ?>" download="masa_<?php echo $t['table_number']; ?>_qr.png" class="btn btn-secondary btn-sm" target="_blank">
+                                <i class="fas fa-download"></i> İndir
+                            </a>
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="printSingleQR('<?php echo htmlspecialchars($restaurantName); ?>', '<?php echo htmlspecialchars($t['table_name']); ?>', '<?php echo $qrImgUrl; ?>', '<?php echo $tableUrl; ?>')">
+                                    <i class="fas fa-print"></i> Yazdır
+                                </button>
+                                <button type="button" class="btn btn-danger btn-icon btn-delete-item" title="Sil" data-type="table" data-id="<?php echo $t['id']; ?>" data-name="<?php echo htmlspecialchars($t['table_name']); ?>">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>

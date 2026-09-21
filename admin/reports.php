@@ -145,7 +145,8 @@ try {
         <h3 class="card-title"><i class="fas fa-clock-rotate-left" style="color:var(--primary);"></i> Son Sipariş Geçmişi</h3>
     </div>
     <div class="card-body" style="padding: 0;">
-        <div class="table-responsive">
+        <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+        <div class="table-responsive desktop-table-view">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -180,6 +181,47 @@ try {
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+        <div class="mobile-cards-view" style="padding: 12px;">
+            <?php if (empty($recentOrders)): ?>
+                <div style="text-align: center; padding: 24px; color: var(--text-dim);">Henüz sipariş kaydı yok.</div>
+            <?php else: ?>
+                <?php foreach ($recentOrders as $ord): 
+                    $statusBadge = '<span style="background:rgba(245,158,11,0.2);color:#fbbf24;padding:3px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;">Bekliyor</span>';
+                    if ($ord['status'] === 'preparing') $statusBadge = '<span style="background:rgba(59,130,246,0.2);color:#60a5fa;padding:3px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;">Hazırlanıyor</span>';
+                    elseif ($ord['status'] === 'ready') $statusBadge = '<span style="background:rgba(16,185,129,0.2);color:#34d399;padding:3px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;">Hazır</span>';
+                    elseif ($ord['status'] === 'served') $statusBadge = '<span style="background:rgba(100,116,139,0.2);color:#94a3b8;padding:3px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;">Servis Edildi</span>';
+                    elseif ($ord['status'] === 'cancelled') $statusBadge = '<span style="background:rgba(239,68,68,0.2);color:#f87171;padding:3px 8px;border-radius:4px;font-size:0.72rem;font-weight:700;">İptal</span>';
+                ?>
+                    <div class="mobile-card">
+                        <div class="mobile-card-top">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                    <span style="font-size: 0.95rem; font-weight: 800; color: #fff;">
+                                        #<?php echo $ord['id']; ?> - <span style="color:var(--primary);">Masa <?php echo htmlspecialchars($ord['table_number']); ?></span>
+                                    </span>
+                                    <?php echo $statusBadge; ?>
+                                </div>
+                                <div style="font-size: 1.1rem; font-weight: 800; color: #34d399;">
+                                    <?php echo formatPrice($ord['total_price']); ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php if (!empty($ord['customer_note'])): ?>
+                            <div style="background: var(--bg-input); padding: 8px 10px; border-radius: var(--radius-xs); font-size: 0.8rem; color: var(--text-muted); border: 1px solid var(--border);">
+                                <strong>Not:</strong> <?php echo htmlspecialchars($ord['customer_note']); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="mobile-card-footer">
+                            <span style="font-size: 0.75rem; color: var(--text-dim);"><i class="far fa-clock"></i> <?php echo date('d.m.Y H:i', strtotime($ord['created_at'])); ?></span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>

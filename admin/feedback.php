@@ -70,7 +70,8 @@ $feedbacks = $pdo->query($query)->fetchAll();
         </div>
     </div>
     <div class="card-body" style="padding: 0;">
-        <div class="table-responsive">
+        <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+        <div class="table-responsive desktop-table-view">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -119,6 +120,46 @@ $feedbacks = $pdo->query($query)->fetchAll();
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+        <div class="mobile-cards-view" style="padding: 12px;">
+            <?php if (empty($feedbacks)): ?>
+                <div style="text-align: center; padding: 24px; color: var(--text-dim);">Henüz değerlendirme bulunmamaktadır.</div>
+            <?php else: ?>
+                <?php foreach ($feedbacks as $fb): ?>
+                    <div class="mobile-card" id="card-feedback-<?php echo $fb['id']; ?>">
+                        <div class="mobile-card-top">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                                    <strong style="color:var(--primary); font-size: 0.95rem;">Masa <?php echo htmlspecialchars($fb['table_number'] ?: '-'); ?></strong>
+                                    <div style="color: #fbbf24; font-size: 0.85rem;">
+                                        <?php for ($i=1; $i<=5; $i++): ?>
+                                            <i class="<?php echo $i <= $fb['rating'] ? 'fas fa-star' : 'far fa-star'; ?>"></i>
+                                        <?php endfor; ?>
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.85rem; font-weight: 700; color: #fff;">
+                                    <?php echo htmlspecialchars($fb['name'] ?: 'Misafir'); ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php if (!empty($fb['comment'])): ?>
+                            <div style="background: var(--bg-input); padding: 8px 10px; border-radius: var(--radius-xs); font-size: 0.82rem; color: var(--text-muted); border: 1px solid var(--border);">
+                                "<?php echo htmlspecialchars($fb['comment']); ?>"
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="mobile-card-footer">
+                            <span style="font-size: 0.75rem; color: var(--text-dim);"><i class="far fa-calendar"></i> <?php echo date('d.m.Y H:i', strtotime($fb['created_at'])); ?></span>
+                            <button type="button" class="btn btn-danger btn-icon" onclick="deleteFeedback(<?php echo $fb['id']; ?>)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>

@@ -96,7 +96,8 @@ try {
             <a href="waiter-calls.php" class="btn btn-secondary btn-sm">Tümünü Gör</a>
         </div>
         <div class="card-body" style="padding: 0;">
-            <div class="table-responsive">
+            <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+            <div class="table-responsive desktop-table-view">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -157,6 +158,56 @@ try {
                     </tbody>
                 </table>
             </div>
+
+            <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+            <div class="mobile-cards-view" style="padding: 12px;">
+                <?php if (empty($recentCalls)): ?>
+                    <div style="text-align: center; padding: 20px; color: var(--text-dim);">Gelen çağrı yok.</div>
+                <?php else: ?>
+                    <?php foreach ($recentCalls as $call): 
+                        $typeLabel = 'Garson Çağrısı';
+                        $typeIcon = 'fa-user-tie';
+                        if ($call['call_type'] === 'card_bill') { $typeLabel = 'Kartlı Hesap'; $typeIcon = 'fa-credit-card'; }
+                        elseif ($call['call_type'] === 'cash_bill') { $typeLabel = 'Nakit Hesap'; $typeIcon = 'fa-money-bill-wave'; }
+                        elseif ($call['call_type'] === 'custom') { $typeLabel = 'Özel İstek'; $typeIcon = 'fa-comment-dots'; }
+                    ?>
+                        <div class="mobile-card">
+                            <div class="mobile-card-top">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                                        <span style="font-weight: 800; color: #fff; background: rgba(217, 119, 6, 0.2); padding: 2px 8px; border-radius: var(--radius-xs); border: 1px solid var(--border-focus); font-size: 0.85rem;">
+                                            Masa <?php echo htmlspecialchars($call['table_number']); ?>
+                                        </span>
+                                        <?php if ($call['status'] === 'pending'): ?>
+                                            <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 2px 6px; border-radius: 999px; font-size: 0.68rem; font-weight: 700;">Bekliyor</span>
+                                        <?php else: ?>
+                                            <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 6px; border-radius: 999px; font-size: 0.68rem; font-weight: 700;">Tamamlandı</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--primary);">
+                                        <i class="fas <?php echo $typeIcon; ?>"></i> <?php echo $typeLabel; ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <?php if (!empty($call['note'])): ?>
+                                <div style="background: var(--bg-input); padding: 6px 8px; border-radius: var(--radius-xs); font-size: 0.78rem; color: var(--text-muted);">
+                                    <?php echo htmlspecialchars($call['note']); ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="mobile-card-footer">
+                                <span style="font-size: 0.72rem; color: var(--text-dim);"><i class="far fa-clock"></i> <?php echo date('H:i', strtotime($call['created_at'])); ?></span>
+                                <?php if ($call['status'] === 'pending'): ?>
+                                    <button type="button" class="btn btn-success btn-sm" onclick="markCallDone(<?php echo $call['id']; ?>)">
+                                        <i class="fas fa-check"></i> Tamamla
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 
@@ -167,7 +218,8 @@ try {
             <a href="products.php" class="btn btn-secondary btn-sm">Ürünleri Yönet</a>
         </div>
         <div class="card-body" style="padding: 0;">
-            <div class="table-responsive">
+            <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+            <div class="table-responsive desktop-table-view">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -217,6 +269,37 @@ try {
                         <?php endif; ?>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+            <div class="mobile-cards-view" style="padding: 12px;">
+                <?php if (empty($popularProducts)): ?>
+                    <div style="text-align: center; padding: 20px; color: var(--text-dim);">Görüntülenme yok.</div>
+                <?php else: ?>
+                    <?php foreach ($popularProducts as $prod): ?>
+                        <div class="mobile-card">
+                            <div class="mobile-card-top">
+                                <?php if (!empty($prod['image'])): ?>
+                                    <img src="<?php echo htmlspecialchars($prod['image']); ?>" class="mobile-card-thumb" alt="">
+                                <?php else: ?>
+                                    <div class="mobile-card-thumb"><i class="fas fa-utensils"></i></div>
+                                <?php endif; ?>
+                                <div class="mobile-card-info">
+                                    <div class="mobile-card-title"><?php echo htmlspecialchars($prod['name']); ?></div>
+                                    <div class="mobile-card-tags">
+                                        <span class="mobile-tag"><?php echo htmlspecialchars($prod['cat_name'] ?: 'Kategorisiz'); ?></span>
+                                        <span style="font-weight: 800; color: var(--primary); font-size: 0.95rem; margin-left: auto;">
+                                            <?php echo formatPrice($prod['price']); ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mobile-card-footer">
+                                <span style="font-size: 0.75rem; color: var(--text-muted);"><i class="fas fa-eye" style="color:var(--info);"></i> <?php echo (int)$prod['view_count']; ?> kez görüntülendi</span>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>

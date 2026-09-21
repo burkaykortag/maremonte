@@ -159,7 +159,8 @@ $products = $stmtP->fetchAll();
         <a href="quick-price.php" class="btn btn-secondary btn-sm"><i class="fas fa-tags"></i> Hızlı Fiyat Düzenleyici</a>
     </div>
     <div class="card-body" style="padding: 0;">
-        <div class="table-responsive">
+        <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+        <div class="table-responsive desktop-table-view">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -234,6 +235,67 @@ $products = $stmtP->fetchAll();
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+        <div class="mobile-cards-view" style="padding: 12px;">
+            <?php if (empty($products)): ?>
+                <div style="text-align: center; padding: 28px; color: var(--text-dim);">Kriterlere uygun ürün bulunamadı.</div>
+            <?php else: ?>
+                <?php foreach ($products as $p): ?>
+                    <div class="mobile-card" id="card-product-<?php echo $p['id']; ?>">
+                        <div class="mobile-card-top">
+                            <?php if (!empty($p['image'])): ?>
+                                <img src="<?php echo htmlspecialchars($p['image']); ?>" class="mobile-card-thumb" alt="">
+                            <?php else: ?>
+                                <div class="mobile-card-thumb"><i class="fas fa-utensils"></i></div>
+                            <?php endif; ?>
+                            <div class="mobile-card-info">
+                                <div class="mobile-card-title">
+                                    <?php echo htmlspecialchars($p['name']); ?>
+                                    <?php if (!empty($p['badge'])): ?>
+                                        <span style="background: rgba(217, 119, 6, 0.2); color: #fbbf24; border:1px solid rgba(217,119,6,0.3); font-size: 0.65rem; font-weight:700; padding:2px 6px; border-radius:4px;">
+                                            <?php echo htmlspecialchars($p['badge']); ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="mobile-card-tags">
+                                    <span class="mobile-tag"><i class="fas fa-layer-group"></i> <?php echo htmlspecialchars($p['cat_name'] ?: 'Kategorisiz'); ?></span>
+                                    <span style="font-weight: 800; color: var(--primary); font-size: 0.95rem; margin-left: auto;">
+                                        <?php echo formatPrice($p['price']); ?>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php if (!empty($p['description'])): ?>
+                            <div class="mobile-card-desc"><?php echo htmlspecialchars($p['description']); ?></div>
+                        <?php endif; ?>
+
+                        <div class="mobile-card-footer">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label class="switch" title="Stokta Var / Tükendi">
+                                    <input type="checkbox" class="status-toggle" data-type="product" data-id="<?php echo $p['id']; ?>" <?php echo $p['is_available'] ? 'checked' : ''; ?>>
+                                    <span class="slider"></span>
+                                </label>
+                                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Stok</span>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="openOptionsManager(<?php echo $p['id']; ?>, '<?php echo htmlspecialchars(addslashes($p['name'])); ?>')">
+                                    <i class="fas fa-sliders"></i> Ekstralar
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-icon" title="Düzenle" onclick='editProduct(<?php echo json_encode($p); ?>)'>
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-icon btn-delete-item" title="Sil" data-type="product" data-id="<?php echo $p['id']; ?>" data-name="<?php echo htmlspecialchars($p['name']); ?>">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>

@@ -47,7 +47,8 @@ $calls = $pdo->query($query)->fetchAll();
         <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="fas fa-satellite-dish" style="color:var(--success);"></i> Canlı İzleme Aktif (10 sn'de bir yenilenir)</span>
     </div>
     <div class="card-body" style="padding: 0;">
-        <div class="table-responsive">
+        <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+        <div class="table-responsive desktop-table-view">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -130,6 +131,78 @@ $calls = $pdo->query($query)->fetchAll();
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+        <div class="mobile-cards-view" style="padding: 12px;">
+            <?php if (empty($calls)): ?>
+                <div style="text-align: center; padding: 24px; color: var(--text-dim);">Bu filtrede çağrı bulunmamaktadır.</div>
+            <?php else: ?>
+                <?php foreach ($calls as $call): 
+                    $typeLabel = 'Garson Çağrısı';
+                    $typeIcon = 'fa-user-tie';
+                    $typeColor = '#fbbf24';
+                    if ($call['call_type'] === 'card_bill') {
+                        $typeLabel = 'Kredi Kartı ile Hesap';
+                        $typeIcon = 'fa-credit-card';
+                        $typeColor = '#60a5fa';
+                    } elseif ($call['call_type'] === 'cash_bill') {
+                        $typeLabel = 'Nakit Hesap';
+                        $typeIcon = 'fa-money-bill-wave';
+                        $typeColor = '#34d399';
+                    } elseif ($call['call_type'] === 'custom') {
+                        $typeLabel = 'Özel İstek';
+                        $typeIcon = 'fa-comment-dots';
+                        $typeColor = '#c084fc';
+                    }
+                ?>
+                    <div class="mobile-card" id="card-call-<?php echo $call['id']; ?>" style="<?php echo $call['status'] === 'pending' ? 'border-color: rgba(239, 68, 68, 0.4);' : ''; ?>">
+                        <div class="mobile-card-top">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                    <span style="font-size: 1.05rem; font-weight: 800; color: #fff; background: rgba(217, 119, 6, 0.2); padding: 3px 10px; border-radius: var(--radius-xs); border: 1px solid var(--border-focus);">
+                                        Masa <?php echo htmlspecialchars($call['table_number']); ?>
+                                    </span>
+                                    <?php if ($call['status'] === 'pending'): ?>
+                                        <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); padding: 3px 8px; border-radius: 999px; font-size: 0.70rem; font-weight: 700;">
+                                            <i class="fas fa-clock"></i> Bekliyor
+                                        </span>
+                                    <?php else: ?>
+                                        <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.3); padding: 3px 8px; border-radius: 999px; font-size: 0.70rem; font-weight: 700;">
+                                            <i class="fas fa-check"></i> Tamamlandı
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                                <div style="font-weight: 700; color: <?php echo $typeColor; ?>; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas <?php echo $typeIcon; ?>"></i> <?php echo $typeLabel; ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php if (!empty($call['note'])): ?>
+                            <div style="background: var(--bg-input); padding: 8px 10px; border-radius: var(--radius-xs); font-size: 0.82rem; color: var(--text-main); border: 1px solid var(--border);">
+                                <strong style="color: var(--text-dim); font-size: 0.75rem;">Müşteri Notu:</strong><br>
+                                <?php echo htmlspecialchars($call['note']); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="mobile-card-footer">
+                            <span style="font-size: 0.75rem; color: var(--text-dim);"><i class="far fa-clock"></i> <?php echo date('d.m.Y H:i', strtotime($call['created_at'])); ?></span>
+                            <div>
+                                <?php if ($call['status'] === 'pending'): ?>
+                                    <button type="button" class="btn btn-success btn-sm" onclick="changeStatus(<?php echo $call['id']; ?>, 'completed')">
+                                        <i class="fas fa-check"></i> Tamamla
+                                    </button>
+                                <?php else: ?>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="changeStatus(<?php echo $call['id']; ?>, 'pending')">
+                                        <i class="fas fa-rotate-left"></i> Tekrar Aç
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>

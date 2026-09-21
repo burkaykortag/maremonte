@@ -71,7 +71,8 @@ $products = $pdo->query($query)->fetchAll();
         <span style="font-size: 0.82rem; color: var(--text-muted);"><?php echo count($products); ?> Ürün Listeleniyor</span>
     </div>
     <div class="card-body" style="padding: 0;">
-        <div class="table-responsive">
+        <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+        <div class="table-responsive desktop-table-view">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -132,6 +133,59 @@ $products = $pdo->query($query)->fetchAll();
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+        <div class="mobile-cards-view" style="padding: 12px;">
+            <?php if (empty($products)): ?>
+                <div style="text-align: center; padding: 24px; color: var(--text-dim);">Ürün bulunamadı.</div>
+            <?php else: ?>
+                <?php foreach ($products as $p): ?>
+                    <div class="mobile-card" id="card-product-<?php echo $p['id']; ?>">
+                        <div class="mobile-card-top">
+                            <?php if (!empty($p['image'])): ?>
+                                <img src="<?php echo htmlspecialchars($p['image']); ?>" class="mobile-card-thumb" alt="">
+                            <?php else: ?>
+                                <div class="mobile-card-thumb"><i class="fas fa-utensils"></i></div>
+                            <?php endif; ?>
+                            <div class="mobile-card-info">
+                                <div class="mobile-card-title"><?php echo htmlspecialchars($p['name']); ?></div>
+                                <div class="mobile-card-tags">
+                                    <span class="mobile-tag"><i class="fas fa-layer-group"></i> <?php echo htmlspecialchars($p['cat_name'] ?: 'Kategorisiz'); ?></span>
+                                    <?php if (!empty($p['old_price'])): ?>
+                                        <span class="mobile-tag" style="color: #f87171; text-decoration: line-through;">Eski: <?php echo formatPrice($p['old_price']); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div style="flex-shrink: 0;">
+                                <label class="switch" title="Stok Durumu">
+                                    <input type="checkbox" class="status-toggle" data-type="product" data-id="<?php echo $p['id']; ?>" <?php echo $p['is_available'] ? 'checked' : ''; ?>>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mobile-card-meta">
+                            <div>
+                                <span style="font-size: 0.70rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; display: block;">Mevcut</span>
+                                <span class="mobile-price-main" id="mobile-current-price-<?php echo $p['id']; ?>">
+                                    <?php echo formatPrice($p['price']); ?>
+                                </span>
+                            </div>
+
+                            <div class="mobile-price-input-wrap">
+                                <label for="mob-price-<?php echo $p['id']; ?>">Yeni:</label>
+                                <input type="text" 
+                                       id="mob-price-<?php echo $p['id']; ?>"
+                                       class="form-control quick-price-input" 
+                                       data-id="<?php echo $p['id']; ?>" 
+                                       value="<?php echo number_format((float)$p['price'], 2, '.', ''); ?>">
+                                <span style="font-weight: 800; color: var(--primary);">₺</span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>

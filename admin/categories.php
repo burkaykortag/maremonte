@@ -87,7 +87,8 @@ $categories = $stmt->fetchAll();
         <h3 class="card-title"><i class="fas fa-layer-group" style="color:var(--primary);"></i> Mevcut Kategoriler (<?php echo count($categories); ?>)</h3>
     </div>
     <div class="card-body" style="padding: 0;">
-        <div class="table-responsive">
+        <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
+        <div class="table-responsive desktop-table-view">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -150,6 +151,52 @@ $categories = $stmt->fetchAll();
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
+        <div class="mobile-cards-view" style="padding: 12px;">
+            <?php if (empty($categories)): ?>
+                <div style="text-align: center; padding: 24px; color: var(--text-dim);">Henüz kategori eklenmedi.</div>
+            <?php else: ?>
+                <?php foreach ($categories as $c): ?>
+                    <div class="mobile-card" id="card-category-<?php echo $c['id']; ?>">
+                        <div class="mobile-card-top">
+                            <?php if (!empty($c['image'])): ?>
+                                <img src="<?php echo htmlspecialchars($c['image']); ?>" class="mobile-card-thumb" alt="">
+                            <?php else: ?>
+                                <div class="mobile-card-thumb"><i class="fas fa-<?php echo htmlspecialchars($c['icon'] ?: 'utensils'); ?>"></i></div>
+                            <?php endif; ?>
+                            <div class="mobile-card-info">
+                                <div class="mobile-card-title"><?php echo htmlspecialchars($c['name']); ?></div>
+                                <div class="mobile-card-tags">
+                                    <span class="mobile-tag"><i class="fas fa-arrow-down-1-9"></i> Sıra: <?php echo (int)$c['sort_order']; ?></span>
+                                    <a href="products.php?category=<?php echo $c['id']; ?>" class="mobile-tag" style="color: var(--info); text-decoration: none;">
+                                        <i class="fas fa-burger"></i> <?php echo (int)$c['product_count']; ?> Ürün
+                                    </a>
+                                </div>
+                            </div>
+                            <div style="flex-shrink: 0;">
+                                <label class="switch" title="Menüde Aktif / Pasif">
+                                    <input type="checkbox" class="status-toggle" data-type="category" data-id="<?php echo $c['id']; ?>" <?php echo $c['is_active'] ? 'checked' : ''; ?>>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mobile-card-footer">
+                            <span style="font-size: 0.75rem; color: var(--text-dim);">Menü Durumu: <?php echo $c['is_active'] ? '<strong style="color:var(--success);">Aktif</strong>' : '<strong style="color:var(--danger);">Pasif</strong>'; ?></span>
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" class="btn btn-secondary btn-icon" title="Düzenle" onclick='editCategory(<?php echo json_encode($c); ?>)'>
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-icon btn-delete-item" title="Sil" data-type="category" data-id="<?php echo $c['id']; ?>" data-name="<?php echo htmlspecialchars($c['name']); ?>">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>
