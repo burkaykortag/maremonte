@@ -1,6 +1,6 @@
 <?php
 /**
- * Modern Lüks QR Menü - Müşteri Arayüzü (Tüm Gelişmiş Modüller Entegre)
+ * Modern Lüks QR Menü - Müşteri Arayüzü (Hotel Mare & Monte Bistro - Est. 1985)
  */
 
 require_once __DIR__ . '/database.php';
@@ -32,10 +32,10 @@ if (!empty($tableNumber)) {
 }
 
 // Genel Ayarlar & Modül Durumları
-$restaurantName = html_entity_decode(getSetting('restaurant_name', 'HOTEL MARE MONTE'), ENT_QUOTES, 'UTF-8');
-$restaurantSlogan = html_entity_decode(getSetting('restaurant_slogan', 'Eşsiz Lezzetler & Keyifli Anlar'), ENT_QUOTES, 'UTF-8');
+$restaurantName = html_entity_decode(getSetting('restaurant_name', 'HOTEL MARE & MONTE BISTRO'), ENT_QUOTES, 'UTF-8');
+$restaurantSlogan = html_entity_decode(getSetting('restaurant_slogan', 'Altınoluk (Est. 1985)'), ENT_QUOTES, 'UTF-8');
 $currency = getSetting('currency', '₺');
-$themeColor = getSetting('theme_color', '#d97706');
+$themeColor = getSetting('theme_color', '#C5A059');
 $themeMode = getSetting('theme_mode', 'light');
 
 // Dark & Light Logo
@@ -44,18 +44,18 @@ $logoLightUrl = getSetting('logo_light_url', '');
 $legacyLogo = getSetting('logo_url', '');
 
 if ($themeMode === 'light') {
-    $activeLogo = !empty($logoLightUrl) ? $logoLightUrl : (!empty($logoDarkUrl) ? $logoDarkUrl : $legacyLogo);
+    $activeLogo = !empty($logoLightUrl) ? $logoLightUrl : (!empty($logoDarkUrl) ? $logoDarkUrl : (!empty($legacyLogo) ? $legacyLogo : 'assets/images/maremonte_logo.svg'));
 } else {
-    $activeLogo = !empty($logoDarkUrl) ? $logoDarkUrl : (!empty($logoLightUrl) ? $logoLightUrl : $legacyLogo);
+    $activeLogo = !empty($logoDarkUrl) ? $logoDarkUrl : (!empty($logoLightUrl) ? $logoLightUrl : (!empty($legacyLogo) ? $legacyLogo : 'assets/images/maremonte_logo.svg'));
 }
 
-$bannerUrl = getSetting('banner_url', 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80');
-$wifiName = getSetting('wifi_name', 'Gusto_Guest_5G');
-$wifiPass = getSetting('wifi_pass', 'Gusto2026!');
-$googleMapsUrl = getSetting('google_maps_url', 'https://maps.google.com/?q=Gusto+Gourmet');
+$bannerUrl = getSetting('banner_url', 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80');
+$wifiName = getSetting('wifi_name', 'MareMonte_Guest');
+$wifiPass = getSetting('wifi_pass', 'MareMonte1985');
+$googleMapsUrl = getSetting('google_maps_url', 'https://maps.google.com/?q=Hotel+Mare+Monte+Altinoluk');
 
 // Modül Aç/Kapa
-$enableOrder = getSetting('enable_order', '1') === '1';
+$enableOrder = getSetting('enable_order', '0') === '1';
 $enableMultiLang = getSetting('enable_multi_lang', '1') === '1';
 $enableKitchen = getSetting('enable_kitchen', '1') === '1';
 $enableStories = getSetting('enable_stories', '1') === '1';
@@ -65,11 +65,11 @@ $enableAllergensFilter = getSetting('enable_allergens_filter', '1') === '1';
 $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
 
 // Pop-up Kampanya
-$popupTitle = getSetting('popup_title', '🎉 Haftanın Özel Spesiyali!');
-$popupDesc = getSetting('popup_desc', 'Gusto Smokehouse Burger yanında çıtır patates ile şimdi %15 indirimli!');
-$popupImage = getSetting('popup_image', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80');
-$popupBtnText = getSetting('popup_btn_text', 'Hemen İncele');
-$popupBtnLink = getSetting('popup_btn_link', '#cat-2');
+$popupTitle = getSetting('popup_title', '🌊 Hotel Mare & Monte Bistro Hoş Geldiniz!');
+$popupDesc = getSetting('popup_desc', '1985\'ten beri Altınoluk sahilinde eşsiz lezzetler. Günlük taze deniz ürünlerimiz ve şefin spesiyallerini keşfedin!');
+$popupImage = getSetting('popup_image', 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&q=80');
+$popupBtnText = getSetting('popup_btn_text', 'İmza Kokteylleri İncele');
+$popupBtnLink = getSetting('popup_btn_link', '#cat-13');
 
 // Hikayeleri Çek
 $stories = [];
@@ -114,7 +114,7 @@ foreach ($categories as $cat) {
     <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Özel Menü CSS (Cache-Busting) -->
@@ -128,16 +128,12 @@ foreach ($categories as $cat) {
 </head>
 <body>
 
-    <!-- ÜST HEADER -->
+    <!-- ÜST HEADER (LUXURY GLASS HEADER) -->
     <header class="app-header">
         <a href="index.php?lang=<?php echo $currentLang; ?>" class="header-brand">
-            <?php if (!empty($activeLogo)): ?>
-                <img src="<?php echo htmlspecialchars($activeLogo); ?>" alt="<?php echo htmlspecialchars($restaurantName); ?>" class="brand-logo">
-            <?php else: ?>
-                <div class="brand-logo" style="display:flex;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-weight:800;font-size:1.2rem;border-radius:10px;">
-                    <?php echo mb_substr($restaurantName, 0, 1); ?>
-                </div>
-            <?php endif; ?>
+            <div class="brand-logo-wrap">
+                <img src="<?php echo htmlspecialchars($activeLogo); ?>" alt="<?php echo htmlspecialchars($restaurantName); ?>" class="brand-logo" onerror="this.src='assets/images/maremonte_logo.svg'">
+            </div>
             <div class="brand-info">
                 <h1><?php echo htmlspecialchars($restaurantName); ?></h1>
                 <p><?php echo htmlspecialchars($restaurantSlogan); ?></p>
@@ -196,7 +192,7 @@ foreach ($categories as $cat) {
             <?php foreach ($stories as $story): ?>
                 <div class="story-item" data-title="<?php echo htmlspecialchars($story['title']); ?>" data-image="<?php echo htmlspecialchars($story['image']); ?>" data-link="<?php echo htmlspecialchars($story['link']); ?>">
                     <div class="story-ring">
-                        <img src="<?php echo htmlspecialchars($story['image']); ?>" alt="" class="story-avatar">
+                        <img src="<?php echo htmlspecialchars($story['image']); ?>" alt="" class="story-avatar" onerror="this.src='https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=200&q=80'">
                     </div>
                     <span class="story-title"><?php echo htmlspecialchars($story['title']); ?></span>
                 </div>
@@ -204,14 +200,12 @@ foreach ($categories as $cat) {
         </div>
     <?php endif; ?>
 
-    <!-- HERO SECTION & BANNER -->
+    <!-- HERO & WELCOME SECTION -->
     <section class="hero-section">
-        <div class="hero-banner">
-            <img src="<?php echo htmlspecialchars($bannerUrl); ?>" alt="<?php echo htmlspecialchars($restaurantName); ?>">
-            <div class="hero-overlay">
-                <h2 class="hero-title"><?php echo htmlspecialchars($restaurantName); ?></h2>
-                <p class="hero-subtitle"><?php echo htmlspecialchars($restaurantSlogan); ?></p>
-            </div>
+        <div class="resort-welcome-card">
+            <div class="resort-badge"><i class="fas fa-crown"></i> EST. 1985 • ALTINOLUK</div>
+            <h2 class="resort-title"><?php echo htmlspecialchars($restaurantName); ?></h2>
+            <p class="resort-subtitle">Kazdağları ve Ege'nin buluştuğu eşsiz lezzet durağımıza hoş geldiniz.</p>
         </div>
 
         <!-- Canlı Arama Çubuğu -->
@@ -229,7 +223,7 @@ foreach ($categories as $cat) {
                 <i class="fas fa-border-all"></i> <?php echo __t('all', $currentLang); ?>
             </button>
             <button type="button" class="filter-badge" data-filter="chef">
-                <i class="fas fa-hat-chef"></i> <?php echo __t('chef_choice', $currentLang); ?>
+                <i class="fas fa-award"></i> <?php echo __t('chef_choice', $currentLang); ?>
             </button>
             <button type="button" class="filter-badge" data-filter="popular">
                 <i class="fas fa-fire"></i> <?php echo __t('popular', $currentLang); ?>
@@ -261,7 +255,7 @@ foreach ($categories as $cat) {
             ?>
                 <a href="#cat-<?php echo $cat['id']; ?>" class="category-item <?php echo $index === 0 ? 'active' : ''; ?>">
                     <div class="category-thumb-box">
-                        <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy">
+                        <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'">
                         <span class="category-item-badge"><?php echo count($cat['products']); ?></span>
                     </div>
                     <span class="category-item-name"><?php echo htmlspecialchars($catName); ?></span>
@@ -274,8 +268,8 @@ foreach ($categories as $cat) {
     <main class="menu-container">
         
         <div id="noResultsMessage" style="display: none; text-align: center; padding: 40px 20px;">
-            <i class="fas fa-search" style="font-size: 3rem; color: var(--text-dim); margin-bottom: 12px; display: block;"></i>
-            <h3 style="font-weight: 700; color: var(--text-main); margin-bottom: 6px;"><?php echo __t('no_results', $currentLang); ?></h3>
+            <i class="fas fa-search" style="font-size: 3rem; color: var(--primary); margin-bottom: 12px; display: block;"></i>
+            <h3 style="font-family: var(--font-serif); font-weight: 700; color: var(--text-serif); margin-bottom: 6px;"><?php echo __t('no_results', $currentLang); ?></h3>
             <p style="color: var(--text-muted); font-size: 0.88rem;"><?php echo __t('no_results_desc', $currentLang); ?></p>
         </div>
 
@@ -285,7 +279,7 @@ foreach ($categories as $cat) {
             <section class="category-section" id="cat-<?php echo $cat['id']; ?>">
                 <div class="section-header">
                     <h3 class="section-title">
-                        <i class="fas fa-<?php echo htmlspecialchars($cat['icon'] ?: 'utensils'); ?>" style="color:var(--primary);"></i>
+                        <i class="fas fa-<?php echo htmlspecialchars($cat['icon'] ?: 'utensils'); ?>"></i>
                         <?php echo htmlspecialchars($catName); ?>
                     </h3>
                     <span class="section-badge"><?php echo count($cat['products']); ?> <?php echo __t('items', $currentLang); ?></span>
@@ -324,9 +318,9 @@ foreach ($categories as $cat) {
 
                             <div class="product-image-wrap">
                                 <?php if (!empty($prod['image'])): ?>
-                                    <img src="<?php echo htmlspecialchars($prod['image']); ?>" alt="<?php echo htmlspecialchars($prodName); ?>" class="product-img" loading="lazy">
+                                    <img src="<?php echo htmlspecialchars($prod['image']); ?>" alt="<?php echo htmlspecialchars($prodName); ?>" class="product-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80'">
                                 <?php else: ?>
-                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.8rem;background:var(--bg-surface);">
+                                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.8rem;background:var(--bg-surface);">
                                         <i class="fas fa-utensils"></i>
                                     </div>
                                 <?php endif; ?>
@@ -367,7 +361,7 @@ foreach ($categories as $cat) {
         <!-- MÜŞTERİ DEĞERLENDİRME & GOOGLE YORUM MODÜLÜ -->
         <?php if ($enableFeedback): ?>
             <section class="feedback-section">
-                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
+                <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; color: var(--text-serif); margin-bottom: 4px;">
                     <i class="fas fa-star" style="color:var(--primary);"></i> <?php echo __t('rate_us', $currentLang); ?>
                 </h3>
                 <p style="font-size: 0.85rem; color: var(--text-muted);"><?php echo __t('rate_us_desc', $currentLang); ?></p>
@@ -391,10 +385,10 @@ foreach ($categories as $cat) {
                 </div>
 
                 <div id="googleReviewCtaBox" style="display:none; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                    <p style="font-size: 0.85rem; color: #34d399; font-weight: 700; margin-bottom: 10px;">
+                    <p style="font-size: 0.85rem; color: #10b981; font-weight: 700; margin-bottom: 10px;">
                         🎉 Bizi beğendiğinize çok sevindik!
                     </p>
-                    <a href="<?php echo htmlspecialchars($googleMapsUrl); ?>" target="_blank" class="btn btn-primary" style="padding: 10px 20px; border-radius: var(--radius-full); font-size: 0.85rem;">
+                    <a href="<?php echo htmlspecialchars($googleMapsUrl); ?>" target="_blank" class="bottom-cta-btn" style="display:inline-flex; padding: 10px 20px; font-size: 0.85rem;">
                         <i class="fab fa-google"></i> <?php echo __t('google_maps_cta', $currentLang); ?>
                     </a>
                 </div>
@@ -408,7 +402,7 @@ foreach ($categories as $cat) {
         <div class="drawer-modal">
             <div class="drawer-handle"></div>
             <div class="drawer-image-wrap">
-                <img src="" alt="" id="drawerImg">
+                <img src="" alt="" id="drawerImg" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80'">
                 <button type="button" class="drawer-close-btn" id="drawerClose">
                     <i class="fas fa-times"></i>
                 </button>
@@ -461,7 +455,7 @@ foreach ($categories as $cat) {
             <div class="drawer-modal" style="max-height:85vh;">
                 <div class="drawer-handle"></div>
                 <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-main);"><i class="fas fa-cart-shopping" style="color:var(--primary);margin-right:8px;"></i> <?php echo __t('cart', $currentLang); ?></h3>
+                    <h3 style="font-family:var(--font-serif); font-size:1.15rem; font-weight:700; color:var(--text-serif);"><i class="fas fa-cart-shopping" style="color:var(--primary);margin-right:8px;"></i> <?php echo __t('cart', $currentLang); ?></h3>
                     <button type="button" class="icon-btn" id="cartCloseBtn"><i class="fas fa-times"></i></button>
                 </div>
 
@@ -481,7 +475,7 @@ foreach ($categories as $cat) {
 
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                             <span style="font-weight:700; color:var(--text-muted);"><?php echo __t('total', $currentLang); ?>:</span>
-                            <strong style="font-size:1.35rem; color:var(--primary-light);" id="cartTotalEl">0,00 ₺</strong>
+                            <strong style="font-size:1.35rem; color:var(--primary-dark);" id="cartTotalEl">0,00 ₺</strong>
                         </div>
 
                         <button type="button" id="submitOrderBtn" class="bottom-cta-btn" style="width:100%; justify-content:center; padding:14px; font-size:0.95rem;">
@@ -524,13 +518,13 @@ foreach ($categories as $cat) {
         <div class="action-modal" id="popupModal">
             <div class="modal-content" style="padding:0; overflow:hidden; max-width:400px; text-align:center;">
                 <div style="position:relative; width:100%; height:200px;">
-                    <img src="<?php echo htmlspecialchars($popupImage); ?>" alt="" style="width:100%; height:100%; object-fit:cover;">
+                    <img src="<?php echo htmlspecialchars($popupImage); ?>" alt="" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&q=80'">
                     <button type="button" id="closePopupBtn" style="position:absolute; top:12px; right:12px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.6); color:#fff; border:none; cursor:pointer;">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
                 <div style="padding:20px;">
-                    <h3 style="font-size:1.25rem; font-weight:800; color:var(--text-main); margin-bottom:6px;"><?php echo htmlspecialchars($popupTitle); ?></h3>
+                    <h3 style="font-family:var(--font-serif); font-size:1.25rem; font-weight:700; color:var(--text-serif); margin-bottom:6px;"><?php echo htmlspecialchars($popupTitle); ?></h3>
                     <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5; margin-bottom:18px;"><?php echo htmlspecialchars($popupDesc); ?></p>
                     <a href="<?php echo htmlspecialchars($popupBtnLink); ?>" onclick="document.getElementById('popupModal').classList.remove('active');" class="bottom-cta-btn" style="width:100%; justify-content:center; padding:12px;">
                         <?php echo htmlspecialchars($popupBtnText); ?>
@@ -596,7 +590,7 @@ foreach ($categories as $cat) {
                 </div>
 
                 <div style="margin-bottom: 16px;">
-                    <textarea id="waiterNote" rows="2" placeholder="Örn: Su alabilir miyiz, kül tablası rica ediyoruz..." class="search-input" style="height:auto;padding:10px 14px;border-radius:var(--radius-md);"></textarea>
+                    <textarea id="waiterNote" rows="2" placeholder="Örn: Su alabilir miyiz, buz rica ediyoruz..." class="search-input" style="height:auto;padding:10px 14px;border-radius:var(--radius-md);"></textarea>
                 </div>
 
                 <button type="button" id="sendWaiterCallBtn" class="bottom-cta-btn" style="width:100%;justify-content:center;padding:14px;">
@@ -617,7 +611,7 @@ foreach ($categories as $cat) {
             </div>
 
             <div style="padding: 10px 0 20px;">
-                <div style="width:64px;height:64px;border-radius:50%;background:rgba(var(--primary-rgb),0.15);color:var(--primary-light);display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:12px;">
+                <div style="width:64px;height:64px;border-radius:50%;background:rgba(var(--primary-rgb),0.12);color:var(--primary-dark);display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:12px;border:1px solid var(--border-color);">
                     <i class="fas fa-wifi"></i>
                 </div>
                 <div style="background:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:14px;text-align:left;margin-bottom:16px;">
@@ -625,7 +619,7 @@ foreach ($categories as $cat) {
                     <div style="font-weight:800;color:var(--text-main);font-size:1rem;margin-bottom:10px;"><?php echo htmlspecialchars($wifiName); ?></div>
 
                     <div style="font-size:0.75rem;color:var(--text-dim);font-weight:600;margin-bottom:2px;">ŞİFRE</div>
-                    <div style="font-weight:800;color:var(--primary-light);font-size:1.1rem;letter-spacing:1px;" id="wifiPasswordText"><?php echo htmlspecialchars($wifiPass); ?></div>
+                    <div style="font-weight:800;color:var(--primary-dark);font-size:1.1rem;letter-spacing:1px;" id="wifiPasswordText"><?php echo htmlspecialchars($wifiPass); ?></div>
                 </div>
 
                 <button type="button" id="copyWifiBtn" class="bottom-cta-btn" style="width:100%;justify-content:center;padding:12px;">

@@ -154,7 +154,7 @@ $restaurantName = getSetting('restaurant_name', 'Gusto QR Menü');
                                     </a>
                                 </td>
                                 <td>
-                                    <span style="font-size: 1rem; font-weight: 800; color: var(--primary); background: rgba(217, 119, 6, 0.15); padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-focus);">
+                                    <span style="font-size: 1rem; font-weight: 800; color: var(--primary); background: rgba(var(--primary-rgb), 0.15); padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-focus);">
                                         <?php echo htmlspecialchars($t['table_number']); ?>
                                     </span>
                                 </td>

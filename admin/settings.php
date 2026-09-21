@@ -16,8 +16,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $restaurantName = clean($_POST['restaurant_name'] ?? '');
         $restaurantSlogan = clean($_POST['restaurant_slogan'] ?? '');
         $currency = clean($_POST['currency'] ?? '₺');
-        $themeColor = clean($_POST['theme_color'] ?? '#d97706');
-        $themeMode = clean($_POST['theme_mode'] ?? 'dark');
+        $themeColor = clean($_POST['theme_color'] ?? '#C5A059');
+        $themeMode = clean($_POST['theme_mode'] ?? 'light');
         $wifiName = clean($_POST['wifi_name'] ?? '');
         $wifiPass = clean($_POST['wifi_pass'] ?? '');
         $phone = clean($_POST['phone'] ?? '');
