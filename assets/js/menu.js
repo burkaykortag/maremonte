@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elementleri
     const searchInput = document.getElementById('menuSearch');
     const searchClear = document.getElementById('searchClear');
-    const categoryPills = document.querySelectorAll('.category-pill');
+    const categoryPills = document.querySelectorAll('.category-item, .category-pill');
     const filterBadges = document.querySelectorAll('.filter-badge');
     const productCards = document.querySelectorAll('.product-card');
     const categorySections = document.querySelectorAll('.category-section');
@@ -126,20 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 3. KATEGORİ SCROLL SPY & SHOWCASE KARTLARI
-    const showcaseCards = document.querySelectorAll('.category-showcase-card');
-
-    showcaseCards.forEach(card => {
-        card.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = card.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-            if (targetSection) {
-                targetSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    });
-
+    // 3. KATEGORİ SCROLL SPY
     categoryPills.forEach(pill => {
         pill.addEventListener('click', (e) => {
             e.preventDefault();

@@ -117,8 +117,8 @@ foreach ($categories as $cat) {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Özel Menü CSS -->
-    <link rel="stylesheet" href="assets/css/menu.css">
+    <!-- Özel Menü CSS (Cache-Busting) -->
+    <link rel="stylesheet" href="assets/css/menu.css?v=<?php echo time(); ?>">
 
     <style>
         :root {
@@ -250,58 +250,21 @@ foreach ($categories as $cat) {
             <?php endif; ?>
         </div>
 
-        <!-- GÖRSEL KATEGORİ VİTRİNİ (FEATURED CATEGORIES SHOWCASE) -->
-        <div class="category-showcase-section">
-            <div class="showcase-header">
-                <div class="showcase-title-box">
-                    <span class="showcase-tag"><?php echo __t('menu', $currentLang); ?></span>
-                    <h3 class="showcase-heading"><i class="fas fa-layer-group" style="color:var(--primary);"></i> <?php echo __t('categories', $currentLang); ?></h3>
-                </div>
-                <span class="showcase-counter"><?php echo count($menuData); ?> <?php echo __t('categories', $currentLang); ?></span>
-            </div>
-
-            <div class="category-showcase-slider">
-                <?php foreach ($menuData as $cat): 
-                    $catName = getLocalizedText($cat, 'name', $currentLang);
-                    $prodCount = count($cat['products']);
-                    $catImg = !empty($cat['image']) ? $cat['image'] : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
-                ?>
-                    <a href="#cat-<?php echo $cat['id']; ?>" class="category-showcase-card" data-cat-target="cat-<?php echo $cat['id']; ?>">
-                        <div class="showcase-card-img-wrap">
-                            <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy">
-                            <div class="showcase-card-overlay"></div>
-                        </div>
-                        <div class="showcase-card-body">
-                            <div class="showcase-card-top">
-                                <span class="showcase-icon-circle">
-                                    <i class="fas fa-<?php echo htmlspecialchars($cat['icon'] ?: 'utensils'); ?>"></i>
-                                </span>
-                                <span class="showcase-badge"><?php echo $prodCount; ?> <?php echo __t('items', $currentLang); ?></span>
-                            </div>
-                            <div class="showcase-card-title-wrap">
-                                <h4 class="showcase-cat-name"><?php echo htmlspecialchars($catName); ?></h4>
-                                <span class="showcase-nav-arrow"><i class="fas fa-chevron-right"></i></span>
-                            </div>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
     </section>
 
-    <!-- KATEGORİ CAROUSEL (STICKY HIZLI GEZİNTİ) -->
-    <nav class="categories-bar">
+    <!-- KATEGORİ GEZİNTİSİ (VISUAL STICKY CATEGORIES BAR) -->
+    <nav class="categories-bar" id="categoriesBar">
         <div class="categories-carousel">
             <?php foreach ($menuData as $index => $cat): 
                 $catName = getLocalizedText($cat, 'name', $currentLang);
+                $catImg = !empty($cat['image']) ? $cat['image'] : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
             ?>
-                <a href="#cat-<?php echo $cat['id']; ?>" class="category-pill <?php echo $index === 0 ? 'active' : ''; ?>">
-                    <?php if (!empty($cat['image'])): ?>
-                        <img src="<?php echo htmlspecialchars($cat['image']); ?>" alt="<?php echo htmlspecialchars($catName); ?>">
-                    <?php else: ?>
-                        <i class="fas fa-<?php echo htmlspecialchars($cat['icon'] ?: 'utensils'); ?>"></i>
-                    <?php endif; ?>
-                    <span><?php echo htmlspecialchars($catName); ?></span>
+                <a href="#cat-<?php echo $cat['id']; ?>" class="category-item <?php echo $index === 0 ? 'active' : ''; ?>">
+                    <div class="category-thumb-box">
+                        <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy">
+                        <span class="category-item-badge"><?php echo count($cat['products']); ?></span>
+                    </div>
+                    <span class="category-item-name"><?php echo htmlspecialchars($catName); ?></span>
                 </a>
             <?php endforeach; ?>
         </div>
@@ -672,7 +635,7 @@ foreach ($categories as $cat) {
         </div>
     </div>
 
-    <!-- JavaScript Motoru -->
-    <script src="assets/js/menu.js"></script>
+    <!-- JavaScript Motoru (Cache-Busting) -->
+    <script src="assets/js/menu.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
