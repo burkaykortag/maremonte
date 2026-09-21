@@ -32,11 +32,11 @@ if (!empty($tableNumber)) {
 }
 
 // Genel Ayarlar & Modül Durumları
-$restaurantName = getSetting('restaurant_name', 'Gusto Gourmet & Lounge');
-$restaurantSlogan = getSetting('restaurant_slogan', 'Eşsiz Lezzetler & Keyifli Anlar');
+$restaurantName = html_entity_decode(getSetting('restaurant_name', 'HOTEL MARE MONTE'), ENT_QUOTES, 'UTF-8');
+$restaurantSlogan = html_entity_decode(getSetting('restaurant_slogan', 'Eşsiz Lezzetler & Keyifli Anlar'), ENT_QUOTES, 'UTF-8');
 $currency = getSetting('currency', '₺');
 $themeColor = getSetting('theme_color', '#d97706');
-$themeMode = getSetting('theme_mode', 'dark');
+$themeMode = getSetting('theme_mode', 'light');
 
 // Dark & Light Logo
 $logoDarkUrl = getSetting('logo_dark_url', '');
@@ -249,9 +249,47 @@ foreach ($categories as $cat) {
                 </button>
             <?php endif; ?>
         </div>
+
+        <!-- GÖRSEL KATEGORİ VİTRİNİ (FEATURED CATEGORIES SHOWCASE) -->
+        <div class="category-showcase-section">
+            <div class="showcase-header">
+                <div class="showcase-title-box">
+                    <span class="showcase-tag"><?php echo __t('menu', $currentLang); ?></span>
+                    <h3 class="showcase-heading"><i class="fas fa-layer-group" style="color:var(--primary);"></i> <?php echo __t('categories', $currentLang); ?></h3>
+                </div>
+                <span class="showcase-counter"><?php echo count($menuData); ?> <?php echo __t('categories', $currentLang); ?></span>
+            </div>
+
+            <div class="category-showcase-slider">
+                <?php foreach ($menuData as $cat): 
+                    $catName = getLocalizedText($cat, 'name', $currentLang);
+                    $prodCount = count($cat['products']);
+                    $catImg = !empty($cat['image']) ? $cat['image'] : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
+                ?>
+                    <a href="#cat-<?php echo $cat['id']; ?>" class="category-showcase-card" data-cat-target="cat-<?php echo $cat['id']; ?>">
+                        <div class="showcase-card-img-wrap">
+                            <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy">
+                            <div class="showcase-card-overlay"></div>
+                        </div>
+                        <div class="showcase-card-body">
+                            <div class="showcase-card-top">
+                                <span class="showcase-icon-circle">
+                                    <i class="fas fa-<?php echo htmlspecialchars($cat['icon'] ?: 'utensils'); ?>"></i>
+                                </span>
+                                <span class="showcase-badge"><?php echo $prodCount; ?> <?php echo __t('items', $currentLang); ?></span>
+                            </div>
+                            <div class="showcase-card-title-wrap">
+                                <h4 class="showcase-cat-name"><?php echo htmlspecialchars($catName); ?></h4>
+                                <span class="showcase-nav-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </div>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
     </section>
 
-    <!-- KATEGORİ CAROUSEL (STICKY) -->
+    <!-- KATEGORİ CAROUSEL (STICKY HIZLI GEZİNTİ) -->
     <nav class="categories-bar">
         <div class="categories-carousel">
             <?php foreach ($menuData as $index => $cat): 

@@ -126,7 +126,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 3. KATEGORİ SCROLL SPY
+    // 3. KATEGORİ SCROLL SPY & SHOWCASE KARTLARI
+    const showcaseCards = document.querySelectorAll('.category-showcase-card');
+
+    showcaseCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = card.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
     categoryPills.forEach(pill => {
         pill.addEventListener('click', (e) => {
             e.preventDefault();
