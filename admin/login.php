@@ -132,13 +132,6 @@ $restaurantName = getSetting('restaurant_name', 'Gusto QR Menü');
                 <i class="fas fa-right-to-bracket"></i> Giriş Yap
             </button>
         </form>
-
-        <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center;">
-            <div style="font-size: 0.78rem; color: var(--text-dim);">
-                Varsayılan Giriş Bilgileri:<br>
-                <strong style="color: var(--primary);">admin</strong> / <strong style="color: var(--primary);">admin123</strong>
-            </div>
-        </div>
     </div>
 
 </body>
