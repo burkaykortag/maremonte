@@ -90,6 +90,10 @@ try {
                 <i class="fas fa-burger"></i>
                 <span>Ürün Yönetimi</span>
             </a>
+            <a href="ai_assistant.php" class="nav-link <?php echo $currentPage === 'ai_assistant.php' ? 'active' : ''; ?>" style="color:#fbbf24;">
+                <i class="fas fa-wand-magic-sparkles"></i>
+                <span>AI Şef &amp; Eşleştirme</span>
+            </a>
             <a href="quick-price.php" class="nav-link <?php echo $currentPage === 'quick-price.php' ? 'active' : ''; ?>">
                 <i class="fas fa-tags"></i>
                 <span>Hızlı Fiyat Düzenle</span>

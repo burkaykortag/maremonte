@@ -548,6 +548,77 @@ switch ($action) {
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Hesap kapatılamadı: ' . $e->getMessage()]);
         }
+    // 13. GENEL MODÜL AYARI AÇ / KAPA (TOGGLE SETTING)
+    case 'toggle_setting':
+        $key = clean($_POST['key'] ?? '');
+        $val = clean($_POST['value'] ?? '0');
+        if (!empty($key)) {
+            updateSetting($key, $val);
+            $statusText = ($val === '1') ? 'aktif edildi' : 'pasife alındı';
+            echo json_encode(['success' => true, 'message' => "Ayar başarıyla {$statusText}."]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz ayar anahtarı.']);
+        }
+        break;
+
+    // 14. AI ŞEF ÖNERİSİ ÜRET (TEKİL)
+    case 'generate_ai_pairing':
+        $name = clean($_POST['name'] ?? '');
+        $categoryId = (int)($_POST['category_id'] ?? 0);
+        $description = clean($_POST['description'] ?? '');
+
+        $catName = '';
+        if ($categoryId > 0) {
+            $stmtC = $pdo->prepare("SELECT name FROM categories WHERE id = ?");
+            $stmtC->execute([$categoryId]);
+            $catName = $stmtC->fetchColumn() ?: '';
+        }
+
+        $pairing = generateAiChefPairing($name, $catName, $description);
+        echo json_encode([
+            'success' => true,
+            'pairing' => $pairing,
+            'message' => 'AI Şef önerisi hazır!'
+        ]);
+        break;
+
+    // 15. TÜM MENÜYÜ AI İLE OTOMATİK EŞLEŞTİR (TOPLU)
+    case 'batch_generate_ai_pairings':
+        try {
+            $stmtProds = $pdo->query("SELECT p.id, p.name, p.description, c.name as cat_name FROM products p LEFT JOIN categories c ON p.category_id = c.id");
+            $prods = $stmtProds->fetchAll();
+
+            $updateStmt = $pdo->prepare("UPDATE products SET pairing_suggestion = ? WHERE id = ?");
+            $count = 0;
+            foreach ($prods as $p) {
+                $pairing = generateAiChefPairing($p['name'], $p['cat_name'] ?? '', $p['description'] ?? '');
+                $updateStmt->execute([$pairing, $p['id']]);
+                $count++;
+            }
+
+            echo json_encode([
+                'success' => true,
+                'count' => $count,
+                'message' => "Toplam {$count} adet ürün için AI Şef eşleştirme önerileri başarıyla üretildi ve kaydedildi! ✨"
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Toplu eşleştirme hatası: ' . $e->getMessage()]);
+        }
+    // 16. TEKİL EŞLEŞTİRME KAYDET
+    case 'save_single_pairing':
+        $id = (int)($_POST['id'] ?? 0);
+        $pairing = clean($_POST['pairing_suggestion'] ?? '');
+        if ($id > 0) {
+            try {
+                $stmt = $pdo->prepare("UPDATE products SET pairing_suggestion = ? WHERE id = ?");
+                $stmt->execute([$pairing, $id]);
+                echo json_encode(['success' => true, 'message' => 'Eşleştirme başarıyla kaydedildi!']);
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'message' => 'Veritabanı hatası: ' . $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz ürün ID.']);
+        }
         break;
 
     default:

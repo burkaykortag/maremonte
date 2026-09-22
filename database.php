@@ -214,6 +214,13 @@ function initDatabase($pdo) {
         created_at $dateTimeDefault
     )");
 
+    // Migration: Ürünlere pairing_suggestion kolonu ekle
+    try {
+        $pdo->exec("ALTER TABLE products ADD COLUMN pairing_suggestion $textType DEFAULT ''");
+    } catch (Exception $e) {
+        // Kolon zaten mevcut
+    }
+
     // Modül ayarları ve demo verileri kontrol et
     seedInitialData($pdo);
 }
@@ -2762,6 +2769,146 @@ function sendTelegramAlert($text) {
     } catch (Exception $e) {
         return false;
     }
+}
+
+/**
+ * AI Sommelier & Şef Eşleştirme Motoru (Gastronomi Kuralları ile Akıllı Öneri Üretici)
+ */
+function generateAiChefPairing($productName, $categoryName = '', $description = '') {
+    $text = mb_strtolower($productName . ' ' . $categoryName . ' ' . $description, 'UTF-8');
+    
+    // 1. Bira ve Malt İçecekler
+    if (preg_match('/(bira|beer|efes|tuborg|bomonti|corona|heineken|miller|carlsberg|craft|lager|ipa|stout|draft|fıçı|pilsen)/u', $text)) {
+        $pairings = [
+            '🥜 Çıtır Bira Tabağı, Tuzlu Fıstık & Baharatlı Soğan Halkası',
+            '🍟 Trüflü Parmesanlı Patates Kızartması & Jalapeno Poppers',
+            '🍗 Çıtır Tavuk Sepeti & Ballı Hardal Sos',
+            '🧀 Izgara Hellim Peyniri & Nachos Tabağı'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 2. Kırmızı Şaraplar & Ağır Etler
+    if (preg_match('/(kırmızı şarap|red wine|cabernet|merlot|öküzgözü|boğazkere|shiraz|syrah|pinot noir|bonfile|antrikot|steak|dana|pirzola|kuzu)/u', $text)) {
+        $pairings = [
+            '🧀 Gurme İsli Peynir Tabağı, Kuru İncir & Ceviz',
+            '🍷 Kazdağları Meşe Fıçı Cabernet Sauvignon & Kuru Meyveler',
+            '🧄 Fırınlanmış Sarımsaklı Focaccia & Trüflü Tereyağı',
+            '🥩 Biberiyeli Izgara Dana Antrikot & Fırın Patates'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 3. Beyaz / Roze Şaraplar & Hafif Lezzetler
+    if (preg_match('/(beyaz şarap|white wine|roze|sauvignon|chardonnay|narince|emir|blush)/u', $text)) {
+        $pairings = [
+            '🦐 Tereyağlı Sarımsaklı Karides Güveç & Ege Roka Salatası',
+            '🧀 Keçi Peynirli & Cevizli İncir Salatası',
+            '🐟 Izgara Ege Levreği & Deniz Börülcesi Mezesi',
+            '🥖 Çıtır Bruschetta & Taze Fesleğenli Mozzarella'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 4. Rakı & Çilingir Sofrası
+    if (preg_match('/(rakı|raki|yeni rakı|tekirdağ|beylerbeyi|kulüp|altınbaş|meze|çilingir)/u', $text)) {
+        $pairings = [
+            '🐟 Izgara Çipura, Fava, Kavun & Ezine Peyniri Tabağı',
+            '🐙 Izgara Ahtapot Bacağı, Şakşuka & Köz Patlıcan',
+            '🦐 Güveçte Tereyağlı Karides & Haydari',
+            '🥗 Ayvalık Cunda Meze Üçlüsü & Sıcak Ot Kavurması'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 5. Kokteyller & Alkollü İçecekler
+    if (preg_match('/(kokteyl|cocktail|margarita|mojito|aperol|gin|cin|vodka|viski|whiskey|tequila|rom|martini)/u', $text)) {
+        $pairings = [
+            '🍤 Çıtır Kalamar Tava & Ev Yapımı Tarator Sos',
+            '🧀 Karışık Akdeniz Tapas Tabağı & Fesleğenli Zeytinler',
+            '🌮 Mini Guacamole Nachos & Çıtır Karides',
+            '🍢 Mini Izgara Şişler & Füme Peynir'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 6. Burgerler & Sandviçler
+    if (preg_match('/(burger|cheeseburger|hamburger|sandviç|wrap|dürüm|tost)/u', $text)) {
+        $pairings = [
+            '🍟 Çıtır Baharatlı Patates & Buz Gibi Fıçı Bira',
+            '🥤 Soğuk Ev Yapımı Fesleğenli Ayran veya Craft Kola',
+            '🧅 Çıtır Soğan Halkası & Trüflü Mayonez Sos',
+            '🍹 Buzlu Naneli Limonata'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 7. Pizzalar & Pideler
+    if (preg_match('/(pizza|pide|calzone|margherita|quattro|lahmacun)/u', $text)) {
+        $pairings = [
+            '🍹 Taze Fesleğenli Ev Yapımı Limonata & Akdeniz Salatası',
+            '🍺 Buz Gibi Soğuk İtalyan Birası veya Draft Lager',
+            '🍷 Kadehte Hafif Gövdeli Ege Kırmızı Şarabı',
+            '🧄 Sarımsaklı Zeytinyağlı Çıtır Ekmek Dilimleri'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 8. Makarnalar & Risotto
+    if (preg_match('/(makarna|pasta|spaghetti|fettuccine|penne|ravioli|risotto|lasagna|lazanya)/u', $text)) {
+        $pairings = [
+            '🍷 Ege Roze Şarabı & Taze Parmesanlı Focaccia Ekmeği',
+            '🥗 Balzamik Soslu Akdeniz Yeşillikleri & Çeri Domates',
+            '🧄 Sarımsaklı Fırın Ekmek & Taze Fesleğen Pesto',
+            '🥂 Soğuk Kadeh Chardonnay'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 9. Balık & Deniz Ürünleri
+    if (preg_match('/(balık|levrek|çipura|somon|kalamar|karides|ahtapot|midye|deniz)/u', $text)) {
+        $pairings = [
+            '🥂 Soğuk Ege Beyaz Şarabı & Taze Deniz Börülcesi',
+            '🥗 Nar Ekşili Roka Salatası & Zeytinyağlı Fava',
+            '🍋 Taze Sıkılmış Çilekli & Naneli Limonata',
+            '🍶 Tekirdağ Altın Seri Rakı & Kavun Dilimleri'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 10. Tatlılar
+    if (preg_match('/(tatlı|sufle|cheesecake|tiramisu|pasta|baklava|dondurma|künefe|magnolia|brownie|waffle|fondü)/u', $text)) {
+        $pairings = [
+            '☕ Damla Sakızlı Türk Kahvesi veya Double Espresso',
+            '🍨 Bir Top Hakiki Maraş Dondurması',
+            '🥃 Baileys Likörü veya Sıcak Sütlü Latte',
+            '🍵 Bergamot Aromalı Taze Demleme Çay'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 11. Kahvaltı & Yumurta
+    if (preg_match('/(kahvaltı|omlet|menemen|serpme|kuymak|pancake|poşe)/u', $text)) {
+        $pairings = [
+            '🫖 Taze Demleme Rize Çayı & Taze Sıkılmış Portakal Suyu',
+            '🥑 Avokado Dilimleri & Köy Tereyağı',
+            '🍯 Petek Bal & Kaymak İkilisi'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // 12. Kahveler & Sıcak İçecekler
+    if (preg_match('/(kahve|coffee|espresso|latte|cappuccino|americano|çay|tea|salep)/u', $text)) {
+        $pairings = [
+            '🍪 Fındıklı Ev Yapımı Kurabiye & Mini Macaron',
+            '🍫 Şefin El Yapımı Belçika Çikolatası',
+            '🍰 Dilim Frambuazlı Cheesecake'
+        ];
+        return $pairings[array_rand($pairings)];
+    }
+
+    // Genel Akdeniz Şef Önerisi
+    return '🍷 Şefin Önerisi: Şarap menümüz ve serinletici imza içeceklerimiz ile lezzeti taçlandırın.';
 }
 
 // Veritabanını otomatik başlat

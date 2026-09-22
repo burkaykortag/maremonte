@@ -57,6 +57,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
 // Tüm Etkinlikleri Çek
 $events = $pdo->query("SELECT * FROM events ORDER BY event_date ASC, sort_order ASC, id ASC")->fetchAll();
+$enableEvents = getSetting('enable_events', '1') === '1';
 ?>
 
 <div class="page-header">
@@ -65,7 +66,17 @@ $events = $pdo->query("SELECT * FROM events ORDER BY event_date ASC, sort_order 
         <p>Konserleri, akustik geceleri, şarap tadımı ve özel etkinlikleri yönetin</p>
     </div>
 
-    <div>
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px; background: var(--bg-card); padding: 7px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
+                <i class="fas fa-eye" style="color:var(--primary);margin-right:4px;"></i> Menüde Göster:
+            </span>
+            <label class="switch" style="margin: 0;">
+                <input type="checkbox" id="toggleEventsModule" <?php echo $enableEvents ? 'checked' : ''; ?> onchange="toggleEventsModuleStatus(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+
         <button type="button" class="btn btn-primary" onclick="openEventModal()">
             <i class="fas fa-plus"></i> Yeni Etkinlik Ekle
         </button>
@@ -361,6 +372,25 @@ async function deleteEvent(id) {
             if (card) card.remove();
         } else {
             showAdminToast('Silinemedi: ' + data.message, 'error');
+        }
+    } catch(e) {
+        showAdminToast('Bağlantı hatası', 'error');
+    }
+}
+
+async function toggleEventsModuleStatus(isActive) {
+    try {
+        const formData = new FormData();
+        formData.append('action', 'toggle_setting');
+        formData.append('key', 'enable_events');
+        formData.append('value', isActive ? '1' : '0');
+
+        const res = await fetch('ajax.php', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+            showAdminToast(isActive ? 'Canlı Müzik & Etkinlikler menüde aktif edildi! 🎷' : 'Etkinlikler menüden gizlendi (pasif).', 'success');
+        } else {
+            showAdminToast('Ayar kaydedilemedi', 'error');
         }
     } catch(e) {
         showAdminToast('Bağlantı hatası', 'error');

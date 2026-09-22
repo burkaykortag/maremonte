@@ -257,8 +257,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================================
-    // KATEGORİ SCROLL SPY & GEZİNTİ
+    // KATEGORİ SLIDE BAR & SCROLL SPY
     // =========================================================================
+    const categoriesCarousel = document.getElementById('categoriesCarousel');
+    const catSlidePrev = document.getElementById('catSlidePrev');
+    const catSlideNext = document.getElementById('catSlideNext');
+
+    function updateCatSlideButtons() {
+        if (!categoriesCarousel || !catSlidePrev || !catSlideNext) return;
+        const maxScroll = categoriesCarousel.scrollWidth - categoriesCarousel.clientWidth;
+        catSlidePrev.disabled = categoriesCarousel.scrollLeft <= 4;
+        catSlideNext.disabled = categoriesCarousel.scrollLeft >= maxScroll - 4;
+    }
+
+    if (categoriesCarousel) {
+        categoriesCarousel.addEventListener('scroll', updateCatSlideButtons, { passive: true });
+        window.addEventListener('resize', updateCatSlideButtons);
+        setTimeout(updateCatSlideButtons, 300);
+    }
+
+    if (catSlidePrev && categoriesCarousel) {
+        catSlidePrev.addEventListener('click', () => {
+            categoriesCarousel.scrollBy({ left: -220, behavior: 'smooth' });
+        });
+    }
+
+    if (catSlideNext && categoriesCarousel) {
+        catSlideNext.addEventListener('click', () => {
+            categoriesCarousel.scrollBy({ left: 220, behavior: 'smooth' });
+        });
+    }
+
     categoryPills.forEach(pill => {
         pill.addEventListener('click', (e) => {
             e.preventDefault();
@@ -268,6 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 targetSection.scrollIntoView({ behavior: 'smooth' });
                 categoryPills.forEach(p => p.classList.remove('active'));
                 pill.classList.add('active');
+                pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
         });
     });
@@ -325,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: card.dataset.name,
                 desc: card.dataset.desc,
                 category: card.dataset.category || '',
+                pairing: card.dataset.pairing || '',
                 basePrice: parseFloat(card.dataset.price || '0'),
                 oldPrice: card.dataset.oldPrice ? parseFloat(card.dataset.oldPrice) : null,
                 image: card.dataset.image,
@@ -371,8 +402,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (drawerPairingBox && drawerPairingText) {
             const pairingEnabled = document.body.dataset.pairingsEnabled === '1';
             if (pairingEnabled) {
-                drawerPairingText.textContent = getSmartPairing(p);
-                drawerPairingBox.style.display = 'block';
+                const suggestion = p.pairing ? p.pairing : getSmartPairing(p);
+                if (suggestion) {
+                    drawerPairingText.textContent = suggestion;
+                    drawerPairingBox.style.display = 'block';
+                } else {
+                    drawerPairingBox.style.display = 'none';
+                }
             } else {
                 drawerPairingBox.style.display = 'none';
             }

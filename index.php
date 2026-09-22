@@ -326,9 +326,12 @@ foreach ($categories as $cat) {
         </section>
     <?php endif; ?>
 
-    <!-- KATEGORİ GEZİNTİSİ (VISUAL STICKY CATEGORIES BAR) -->
+    <!-- KATEGORİ GEZİNTİSİ (LUXURY SLIDE BAR) -->
     <nav class="categories-bar" id="categoriesBar">
-        <div class="categories-carousel">
+        <button type="button" class="category-slide-btn prev" id="catSlidePrev" aria-label="Önceki Kategori">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="categories-carousel" id="categoriesCarousel">
             <?php foreach ($menuData as $index => $cat): 
                 $catName = getLocalizedText($cat, 'name', $currentLang);
                 $catImg = !empty($cat['image']) ? $cat['image'] : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
@@ -342,6 +345,9 @@ foreach ($categories as $cat) {
                 </a>
             <?php endforeach; ?>
         </div>
+        <button type="button" class="category-slide-btn next" id="catSlideNext" aria-label="Sonraki Kategori">
+            <i class="fas fa-chevron-right"></i>
+        </button>
     </nav>
 
     <!-- MENÜ İÇERİK ALANI -->
@@ -394,6 +400,7 @@ foreach ($categories as $cat) {
                              data-featured="<?php echo $prod['is_featured']; ?>"
                              data-discount="<?php echo $hasDiscount ? '1' : '0'; ?>"
                              data-available="<?php echo $prod['is_available']; ?>"
+                             data-pairing="<?php echo htmlspecialchars($prod['pairing_suggestion'] ?? ''); ?>"
                              data-options='<?php echo json_encode($prodOptions, JSON_UNESCAPED_UNICODE); ?>'>
 
                             <div class="product-image-wrap">

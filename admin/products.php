@@ -37,6 +37,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $isFeatured = !empty($_POST['is_featured']) ? 1 : 0;
     $isAvailable = !empty($_POST['is_available']) ? 1 : 0;
     $imageUrl = clean($_POST['image_url'] ?? '');
+    $pairingSuggestion = clean($_POST['pairing_suggestion'] ?? '');
 
     // Dosya Yüklendi mi?
     if (!empty($_FILES['image_file']['name'])) {
@@ -55,17 +56,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             if ($productId > 0) {
                 // Güncelleme
                 if (!empty($imageUrl)) {
-                    $stmt = $pdo->prepare("UPDATE products SET category_id = ?, name = ?, description = ?, name_en = ?, desc_en = ?, name_ar = ?, desc_ar = ?, name_ru = ?, desc_ru = ?, name_de = ?, desc_de = ?, price = ?, old_price = ?, image = ?, badge = ?, calories = ?, prep_time = ?, allergens = ?, is_featured = ?, is_available = ? WHERE id = ?");
-                    $stmt->execute([$categoryId, $name, $description, $nameEn, $descEn, $nameAr, $descAr, $nameRu, $descRu, $nameDe, $descDe, $price, $oldPrice, $imageUrl, $badge, $calories, $prepTime, $allergens, $isFeatured, $isAvailable, $productId]);
+                    $stmt = $pdo->prepare("UPDATE products SET category_id = ?, name = ?, description = ?, name_en = ?, desc_en = ?, name_ar = ?, desc_ar = ?, name_ru = ?, desc_ru = ?, name_de = ?, desc_de = ?, price = ?, old_price = ?, image = ?, badge = ?, calories = ?, prep_time = ?, allergens = ?, is_featured = ?, is_available = ?, pairing_suggestion = ? WHERE id = ?");
+                    $stmt->execute([$categoryId, $name, $description, $nameEn, $descEn, $nameAr, $descAr, $nameRu, $descRu, $nameDe, $descDe, $price, $oldPrice, $imageUrl, $badge, $calories, $prepTime, $allergens, $isFeatured, $isAvailable, $pairingSuggestion, $productId]);
                 } else {
-                    $stmt = $pdo->prepare("UPDATE products SET category_id = ?, name = ?, description = ?, name_en = ?, desc_en = ?, name_ar = ?, desc_ar = ?, name_ru = ?, desc_ru = ?, name_de = ?, desc_de = ?, price = ?, old_price = ?, badge = ?, calories = ?, prep_time = ?, allergens = ?, is_featured = ?, is_available = ? WHERE id = ?");
-                    $stmt->execute([$categoryId, $name, $description, $nameEn, $descEn, $nameAr, $descAr, $nameRu, $descRu, $nameDe, $descDe, $price, $oldPrice, $badge, $calories, $prepTime, $allergens, $isFeatured, $isAvailable, $productId]);
+                    $stmt = $pdo->prepare("UPDATE products SET category_id = ?, name = ?, description = ?, name_en = ?, desc_en = ?, name_ar = ?, desc_ar = ?, name_ru = ?, desc_ru = ?, name_de = ?, desc_de = ?, price = ?, old_price = ?, badge = ?, calories = ?, prep_time = ?, allergens = ?, is_featured = ?, is_available = ?, pairing_suggestion = ? WHERE id = ?");
+                    $stmt->execute([$categoryId, $name, $description, $nameEn, $descEn, $nameAr, $descAr, $nameRu, $descRu, $nameDe, $descDe, $price, $oldPrice, $badge, $calories, $prepTime, $allergens, $isFeatured, $isAvailable, $pairingSuggestion, $productId]);
                 }
                 $successMsg = 'Ürün başarıyla güncellendi!';
             } else {
                 // Yeni Ürün Ekle
-                $stmt = $pdo->prepare("INSERT INTO products (category_id, name, description, name_en, desc_en, name_ar, desc_ar, name_ru, desc_ru, name_de, desc_de, price, old_price, image, badge, calories, prep_time, allergens, is_featured, is_available) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$categoryId, $name, $description, $nameEn, $descEn, $nameAr, $descAr, $nameRu, $descRu, $nameDe, $descDe, $price, $oldPrice, $imageUrl, $badge, $calories, $prepTime, $allergens, $isFeatured, $isAvailable]);
+                $stmt = $pdo->prepare("INSERT INTO products (category_id, name, description, name_en, desc_en, name_ar, desc_ar, name_ru, desc_ru, name_de, desc_de, price, old_price, image, badge, calories, prep_time, allergens, is_featured, is_available, pairing_suggestion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$categoryId, $name, $description, $nameEn, $descEn, $nameAr, $descAr, $nameRu, $descRu, $nameDe, $descDe, $price, $oldPrice, $imageUrl, $badge, $calories, $prepTime, $allergens, $isFeatured, $isAvailable, $pairingSuggestion]);
                 $successMsg = 'Yeni ürün başarıyla eklendi!';
             }
         } catch (Exception $e) {
@@ -103,9 +104,15 @@ $products = $stmtP->fetchAll();
         <p>Menünüzdeki ürünleri, fiyatları, görselleri, çoklu dilleri ve ekstra malzemeleri yönetin</p>
     </div>
 
-    <button type="button" class="btn btn-primary" onclick="openProductModal()">
-        <i class="fas fa-plus"></i> Yeni Ürün Ekle
-    </button>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary" onclick="batchGenerateAiPairings()" style="background: linear-gradient(135deg, #1A4B4B 0%, #0E2D2D 100%); color: var(--primary-light); border: 1px solid var(--primary);">
+            <i class="fas fa-wand-magic-sparkles" style="color: var(--primary);"></i> ✨ AI ile Tüm Menüyü Eşleştir
+        </button>
+
+        <button type="button" class="btn btn-primary" onclick="openProductModal()">
+            <i class="fas fa-plus"></i> Yeni Ürün Ekle
+        </button>
+    </div>
 </div>
 
 <?php if (!empty($successMsg)): ?>
@@ -439,6 +446,22 @@ $products = $stmtP->fetchAll();
                     </div>
                 </div>
 
+                <!-- Şefin Eşleştirmesi & AI Asistanı -->
+                <div class="form-group" style="background: rgba(197, 160, 89, 0.08); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px dashed var(--primary); margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label class="form-label" style="color: var(--primary); font-weight: 700; margin: 0; font-size: 0.82rem;">
+                            <i class="fas fa-wine-glass"></i> 👨‍🍳 Şefin Eşleştirme Önerisi (Birlikte İyi Gider)
+                        </label>
+                        <button type="button" class="btn btn-secondary" style="padding: 3px 10px; font-size: 0.75rem; background: var(--primary-grad); color: #fff; border: none;" onclick="generateAiProductPairing()">
+                            <i class="fas fa-wand-magic-sparkles"></i> ✨ AI ile Öneri Üret
+                        </button>
+                    </div>
+                    <input type="text" name="pairing_suggestion" id="formPairingSuggestion" class="form-control" placeholder="Örn: Çıtır Bira Tabağı & Tuzlu Fıstık / Gurme İsli Peynir Tabağı">
+                    <span style="font-size: 0.72rem; color: var(--text-dim); display: block; margin-top: 4px;">
+                        Müşteri bu ürünü incelediğinde şefin tavsiyesi olarak birlikte sunulur.
+                    </span>
+                </div>
+
                 <div style="display: flex; gap: 24px; padding-top: 6px;">
                     <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-main); cursor: pointer;">
                         <input type="checkbox" name="is_available" id="formIsAvailable" value="1" checked>
@@ -527,6 +550,7 @@ function openProductModal() {
     document.getElementById('formNameDe').value = '';
     document.getElementById('formDescDe').value = '';
     document.getElementById('formImageUrl').value = '';
+    document.getElementById('formPairingSuggestion').value = '';
     document.getElementById('formPrepTime').value = '15';
     document.getElementById('formCalories').value = '0';
     document.getElementById('formAllergens').value = '';
@@ -554,6 +578,7 @@ function editProduct(p) {
     document.getElementById('formNameDe').value = p.name_de || '';
     document.getElementById('formDescDe').value = p.desc_de || '';
     document.getElementById('formImageUrl').value = p.image || '';
+    document.getElementById('formPairingSuggestion').value = p.pairing_suggestion || '';
     document.getElementById('formPrepTime').value = p.prep_time || 15;
     document.getElementById('formCalories').value = p.calories || 0;
     document.getElementById('formAllergens').value = p.allergens || '';
@@ -569,6 +594,64 @@ function editProduct(p) {
     }
 
     openModal('productModal');
+}
+
+async function generateAiProductPairing() {
+    const name = document.getElementById('formName').value.trim();
+    const catId = document.getElementById('formCategory').value;
+    const desc = document.getElementById('formDesc').value.trim();
+
+    if (!name) {
+        showAdminToast('Lütfen önce ürün adını giriniz.', 'error');
+        return;
+    }
+
+    const btn = event.currentTarget;
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Üretiliyor...';
+    btn.disabled = true;
+
+    try {
+        const formData = new FormData();
+        formData.append('action', 'generate_ai_pairing');
+        formData.append('name', name);
+        formData.append('category_id', catId);
+        formData.append('description', desc);
+
+        const res = await fetch('ajax.php', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success && data.pairing) {
+            document.getElementById('formPairingSuggestion').value = data.pairing;
+            showAdminToast('AI Şef önerisi başarıyla oluşturuldu! ✨', 'success');
+        } else {
+            showAdminToast('Öneri üretilemedi', 'error');
+        }
+    } catch(e) {
+        showAdminToast('Bağlantı hatası', 'error');
+    } finally {
+        btn.innerHTML = origHtml;
+        btn.disabled = false;
+    }
+}
+
+async function batchGenerateAiPairings() {
+    if (!confirm('Tüm menüdeki ürünler için yapay zeka şef önerileri otomatik üretilip kaydedilecek. Onaylıyor musunuz?')) return;
+
+    try {
+        const formData = new FormData();
+        formData.append('action', 'batch_generate_ai_pairings');
+
+        const res = await fetch('ajax.php', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+            showAdminToast(data.message, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAdminToast('Hata: ' + data.message, 'error');
+        }
+    } catch(e) {
+        showAdminToast('Bağlantı hatası', 'error');
+    }
 }
 
 // OPSİYON YÖNETİCİSİ
