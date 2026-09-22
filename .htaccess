@@ -1,20 +1,18 @@
-﻿# Hotel Mare Monte QR Menu - Apache / Plesk Configuration
+# Hotel Mare Monte QR Menu - Apache / Plesk / LiteSpeed Configuration
 
 DirectoryIndex index.php index.html
 
 # UTF-8 Charset
-AddDefaultCharset UTF-8
+<IfModule mod_mime.c>
+    AddDefaultCharset UTF-8
+</IfModule>
 
 # Protect sensitive files and directories
-<FilesMatch "^(\.env|\.git|\.sqlite|\.sql|composer\.(json|lock)|package\.(json|lock))$">
-    <IfModule mod_authz_core.c>
+<IfModule mod_authz_core.c>
+    <FilesMatch "^(\.env|\.git|\.sqlite|\.sql|composer\.(json|lock)|package\.(json|lock))$">
         Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Deny from all
-    </IfModule>
-</FilesMatch>
+    </FilesMatch>
+</IfModule>
 
 # Enable Gzip / Deflate Compression
 <IfModule mod_deflate.c>
@@ -29,6 +27,7 @@ AddDefaultCharset UTF-8
     ExpiresByType image/gif "access plus 1 month"
     ExpiresByType image/png "access plus 1 month"
     ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
     ExpiresByType text/css "access plus 1 week"
     ExpiresByType application/javascript "access plus 1 week"
 </IfModule>

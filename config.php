@@ -15,13 +15,13 @@ error_reporting(E_ALL & ~E_NOTICE);
 ini_set('display_errors', 0);
 
 // Veritabanı Ayarları
-// 'mysql' (Canlı Sunucu) veya 'sqlite' (Sıfır Ayar)
-define('DB_DRIVER', 'mysql'); 
+// 'sqlite' (Sıfır Ayar, Anında Çalışır) veya 'mysql' (MySQL Sunucu)
+define('DB_DRIVER', 'sqlite'); 
 
 // SQLite Veritabanı Dosya Yolu
 define('DB_SQLITE_PATH', __DIR__ . '/data/menu.sqlite');
 
-// MySQL Bağlantı Bilgileri
+// MySQL Bağlantı Bilgileri (DB_DRIVER = 'mysql' yapıldığında geçerli)
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'Maremonte');
 define('DB_USER', 'Maremonte');
@@ -32,14 +32,23 @@ define('DB_CHARSET', 'utf8mb4');
 define('BASE_PATH', __DIR__);
 define('UPLOAD_PATH', __DIR__ . '/uploads');
 
-// Otomatik URL Tespiti
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
+// Otomatik URL Tespiti (HTTPS / Reverse Proxy / Cloudflare Uyumlu)
+$isHttps = (
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+    (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) ||
+    (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+    (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') ||
+    (!empty($_SERVER['HTTP_CF_VISITOR']) && strpos($_SERVER['HTTP_CF_VISITOR'], 'https') !== false)
+);
+$protocol = $isHttps ? "https://" : "http://";
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '');
-$baseUrl = rtrim($protocol . $host . $scriptDir, '/\\');
-// Eğer admin dizinindeysek base_url bir üst dizin olsun
-if (basename($baseUrl) === 'admin') {
-    $baseUrl = dirname($baseUrl);
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
+if ($scriptDir === '/') {
+    $scriptDir = '';
+}
+$baseUrl = rtrim($protocol . $host . $scriptDir, '/');
+if (substr($baseUrl, -6) === '/admin') {
+    $baseUrl = substr($baseUrl, 0, -6);
 }
 define('BASE_URL', $baseUrl);
 
