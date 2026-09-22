@@ -155,6 +155,20 @@ try {
   `is_read` int(11) DEFAULT 0,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+
+        'events' => "CREATE TABLE `events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) NOT NULL,
+  `performer` varchar(150) DEFAULT '',
+  `event_date` date DEFAULT NULL,
+  `event_time` varchar(20) DEFAULT '20:30',
+  `description` text DEFAULT NULL,
+  `image` varchar(255) DEFAULT '',
+  `is_active` int(11) DEFAULT 1,
+  `sort_order` int(11) DEFAULT 0,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
     ];
 

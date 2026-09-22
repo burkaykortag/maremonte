@@ -15,17 +15,17 @@ error_reporting(E_ALL & ~E_NOTICE);
 ini_set('display_errors', 0);
 
 // Veritabanı Ayarları
-// 'sqlite' veya 'mysql' seçebilirsiniz. Varsayılan: sqlite (sıfır ayar, anında çalışır)
-define('DB_DRIVER', 'sqlite'); 
+// 'mysql' (Canlı Sunucu) veya 'sqlite' (Sıfır Ayar)
+define('DB_DRIVER', 'mysql'); 
 
 // SQLite Veritabanı Dosya Yolu
 define('DB_SQLITE_PATH', __DIR__ . '/data/menu.sqlite');
 
-// MySQL Bağlantı Bilgileri (DB_DRIVER = 'mysql' yapıldığında geçerli)
+// MySQL Bağlantı Bilgileri
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'qrmenu_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_NAME', 'Maremonte');
+define('DB_USER', 'Maremonte');
+define('DB_PASS', 'Maremonte1122334455..');
 define('DB_CHARSET', 'utf8mb4');
 
 // Temel Dizin & URL Tanımları

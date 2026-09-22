@@ -13,18 +13,70 @@ try {
         }
         $pdo = new PDO('sqlite:' . DB_SQLITE_PATH);
     } else {
-        $pdo = new PDO(
-            'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET,
-            DB_USER,
-            DB_PASS
-        );
+        try {
+            $pdo = new PDO(
+                'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET,
+                DB_USER,
+                DB_PASS
+            );
+        } catch (PDOException $mySqlErr) {
+            // Eğer veritabanı henüz oluşturulmamışsa (CREATE DATABASE yetkisi varsa dene)
+            try {
+                $pdoRoot = new PDO('mysql:host=' . DB_HOST . ';charset=' . DB_CHARSET, DB_USER, DB_PASS);
+                $pdoRoot->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET, DB_USER, DB_PASS);
+            } catch (Exception $e2) {
+                // Yerel SQLite yedeği varsa ve yereldeysek fallback yap
+                if (file_exists(DB_SQLITE_PATH) && in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1'])) {
+                    $pdo = new PDO('sqlite:' . DB_SQLITE_PATH);
+                } else {
+                    throw $mySqlErr;
+                }
+            }
+        }
     }
 
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    die("Veritabanı bağlantı hatası: " . $e->getMessage());
+    if (basename($_SERVER['PHP_SELF'] ?? '') !== 'install.php') {
+        http_response_code(500);
+        ?>
+        <!DOCTYPE html>
+        <html lang="tr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Veritabanı Kurulum Gerekli - Mare &amp; Monte</title>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            <style>
+                body { background: #090D16; color: #F8FAFC; font-family: 'Plus Jakarta Sans', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+                .error-box { background: #161F30; border: 1px solid rgba(197,160,89,0.3); border-radius: 16px; padding: 36px 28px; max-width: 560px; width: 100%; box-shadow: 0 10px 35px rgba(0,0,0,0.6); text-align: center; }
+                .error-icon { width: 64px; height: 64px; background: rgba(197,160,89,0.15); color: #C5A059; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 20px; }
+                h2 { margin: 0 0 10px; color: #fff; font-size: 1.3rem; }
+                p { color: #94A3B8; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
+                .error-msg { background: rgba(0,0,0,0.35); padding: 12px; border-radius: 8px; color: #fca5a5; font-family: monospace; font-size: 0.82rem; margin-bottom: 24px; text-align: left; word-break: break-all; border: 1px solid rgba(255,255,255,0.06); }
+                .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; background: #C5A059; color: #000; font-weight: 800; border-radius: 8px; text-decoration: none; font-size: 0.95rem; transition: background 0.2s; box-shadow: 0 4px 15px rgba(197,160,89,0.3); }
+                .btn:hover { background: #B38E46; color: #fff; }
+            </style>
+        </head>
+        <body>
+            <div class="error-box">
+                <div class="error-icon"><i class="fas fa-database"></i></div>
+                <h2>Veritabanı Kurulumu Gerekli</h2>
+                <p>Veritabanı sunucusuna bağlanılamadı. Canlı sunucunuzda ilk kurulumu yapmak için lütfen Kurulum Sihirbazını başlatın:</p>
+                <div class="error-msg"><?php echo htmlspecialchars($e->getMessage()); ?></div>
+                <a href="<?php echo defined('BASE_URL') ? BASE_URL : ''; ?>/install.php" class="btn">
+                    <i class="fas fa-wand-magic-sparkles"></i> 1-Tıkla Kurulum Sihirbazını Başlat (install.php)
+                </a>
+            </div>
+        </body>
+        </html>
+        <?php
+        exit;
+    }
 }
 
 /**
