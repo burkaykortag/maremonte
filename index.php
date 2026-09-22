@@ -179,16 +179,6 @@ foreach ($categories as $cat) {
                 </div>
             <?php endif; ?>
 
-            <!-- Çoklu Para Birimi Seçici -->
-            <?php if ($enableCurrencyConverter): ?>
-                <div class="currency-switcher" id="currencySwitcher">
-                    <button type="button" class="currency-btn active" data-currency="TRY">₺</button>
-                    <button type="button" class="currency-btn" data-currency="EUR">€</button>
-                    <button type="button" class="currency-btn" data-currency="USD">$</button>
-                    <button type="button" class="currency-btn" data-currency="GBP">£</button>
-                </div>
-            <?php endif; ?>
-
             <!-- Çoklu Dil Seçici -->
             <?php if ($enableMultiLang): ?>
                 <div style="position: relative;">
@@ -207,10 +197,6 @@ foreach ($categories as $cat) {
                     </div>
                 </div>
             <?php endif; ?>
-
-            <button type="button" class="icon-btn" id="openWifiBtn" title="<?php echo __t('wifi', $currentLang); ?>">
-                <i class="fas fa-wifi"></i>
-            </button>
         </div>
     </header>
 
@@ -230,10 +216,17 @@ foreach ($categories as $cat) {
 
     <!-- HERO & WELCOME SECTION -->
     <section class="hero-section">
-        <div class="resort-welcome-card">
+        <div class="resort-welcome-card" style="background: linear-gradient(180deg, rgba(14, 25, 36, 0.40) 0%, rgba(12, 18, 23, 0.90) 100%), url('<?php echo htmlspecialchars($bannerUrl ?: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80'); ?>') center/cover no-repeat;">
             <div class="resort-badge"><i class="fas fa-crown"></i> EST. 1985 • ALTINOLUK</div>
             <h2 class="resort-title"><?php echo htmlspecialchars($restaurantName); ?></h2>
-            <p class="resort-subtitle">Kazdağları ve Ege'nin buluştuğu eşsiz lezzet durağımıza hoş geldiniz.</p>
+            <p class="resort-subtitle"><?php echo htmlspecialchars($restaurantSlogan); ?> • Kazdağları ve Ege'nin buluştuğu eşsiz gurme lezzet durağımıza hoş geldiniz.</p>
+            
+            <div class="resort-features-row">
+                <span class="resort-feature-chip"><i class="fas fa-water"></i> Sahil &amp; İskele</span>
+                <span class="resort-feature-chip"><i class="fas fa-music"></i> Canlı Müzik</span>
+                <span class="resort-feature-chip"><i class="fas fa-martini-glass"></i> Kokteyl Bar</span>
+                <span class="resort-feature-chip"><i class="fas fa-fish"></i> Taze Balık</span>
+            </div>
         </div>
 
         <!-- SUNSET HAPPY HOUR ŞERİDİ -->

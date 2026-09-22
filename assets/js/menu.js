@@ -112,6 +112,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =========================================================================
+    // TEMA YÖNETİCİSİ (LIGHT / DARK THEME SWITCHER)
+    // =========================================================================
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeToggleIcon = document.getElementById('themeToggleIcon');
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('maremonte_theme', theme);
+        if (themeToggleIcon) {
+            if (theme === 'dark') {
+                themeToggleIcon.className = 'fas fa-sun';
+            } else {
+                themeToggleIcon.className = 'fas fa-moon';
+            }
+        }
+    }
+
+    // Başlangıç temasını uygula (localStorage > html attribute)
+    const savedTheme = localStorage.getItem('maremonte_theme') || document.documentElement.getAttribute('data-theme') || 'light';
+    applyTheme(savedTheme);
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const nextTheme = current === 'dark' ? 'light' : 'dark';
+            applyTheme(nextTheme);
+            showToast(nextTheme === 'dark' ? 'Koyu Tema Aktif 🌙' : 'Açık Tema Aktif ☀️', 'info');
+        });
+    }
+
+    // =========================================================================
     // SUNSET HAPPY HOUR SAAT KONTROLÜ
     // =========================================================================
     const happyHourBanner = document.getElementById('happyHourBanner');
