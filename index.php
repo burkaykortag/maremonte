@@ -55,6 +55,7 @@ $wifiPass = getSetting('wifi_pass', 'MareMonte1985');
 $googleMapsUrl = getSetting('google_maps_url', 'https://maps.google.com/?q=Hotel+Mare+Monte+Altinoluk');
 
 // Modül Aç/Kapa Durumları
+$enableHeroBanner = getSetting('enable_hero_banner', '1') === '1';
 $enableOrder = getSetting('enable_order', '0') === '1';
 $enableMultiLang = getSetting('enable_multi_lang', '1') === '1';
 $enableKitchen = getSetting('enable_kitchen', '1') === '1';
@@ -216,18 +217,20 @@ foreach ($categories as $cat) {
 
     <!-- HERO & WELCOME SECTION -->
     <section class="hero-section">
-        <div class="resort-welcome-card" style="background: linear-gradient(180deg, rgba(14, 25, 36, 0.40) 0%, rgba(12, 18, 23, 0.90) 100%), url('<?php echo htmlspecialchars($bannerUrl ?: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80'); ?>') center/cover no-repeat;">
-            <div class="resort-badge"><i class="fas fa-crown"></i> EST. 1985 • ALTINOLUK</div>
-            <h2 class="resort-title"><?php echo htmlspecialchars($restaurantName); ?></h2>
-            <p class="resort-subtitle"><?php echo htmlspecialchars($restaurantSlogan); ?> • Kazdağları ve Ege'nin buluştuğu eşsiz gurme lezzet durağımıza hoş geldiniz.</p>
-            
-            <div class="resort-features-row">
-                <span class="resort-feature-chip"><i class="fas fa-water"></i> Sahil &amp; İskele</span>
-                <span class="resort-feature-chip"><i class="fas fa-music"></i> Canlı Müzik</span>
-                <span class="resort-feature-chip"><i class="fas fa-martini-glass"></i> Kokteyl Bar</span>
-                <span class="resort-feature-chip"><i class="fas fa-fish"></i> Taze Balık</span>
+        <?php if ($enableHeroBanner): ?>
+            <div class="resort-welcome-card" style="background: linear-gradient(180deg, rgba(14, 25, 36, 0.40) 0%, rgba(12, 18, 23, 0.90) 100%), url('<?php echo htmlspecialchars($bannerUrl ?: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80'); ?>') center/cover no-repeat;">
+                <div class="resort-badge"><i class="fas fa-crown"></i> EST. 1985 • ALTINOLUK</div>
+                <h2 class="resort-title"><?php echo htmlspecialchars($restaurantName); ?></h2>
+                <p class="resort-subtitle"><?php echo htmlspecialchars($restaurantSlogan); ?> • Kazdağları ve Ege'nin buluştuğu eşsiz gurme lezzet durağımıza hoş geldiniz.</p>
+                
+                <div class="resort-features-row">
+                    <span class="resort-feature-chip"><i class="fas fa-water"></i> Sahil &amp; İskele</span>
+                    <span class="resort-feature-chip"><i class="fas fa-music"></i> Canlı Müzik</span>
+                    <span class="resort-feature-chip"><i class="fas fa-martini-glass"></i> Kokteyl Bar</span>
+                    <span class="resort-feature-chip"><i class="fas fa-fish"></i> Taze Balık</span>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
 
         <!-- SUNSET HAPPY HOUR ŞERİDİ -->
         <?php if ($enableHappyHour): ?>
@@ -326,7 +329,7 @@ foreach ($categories as $cat) {
         </section>
     <?php endif; ?>
 
-    <!-- KATEGORİ GEZİNTİSİ (LUXURY SLIDE BAR) -->
+    <!-- KATEGORİ GEZİNTİSİ (LUXURY SLIDE BAR - 2'Lİ KART GÖRÜNÜMÜ) -->
     <nav class="categories-bar" id="categoriesBar">
         <button type="button" class="category-slide-btn prev" id="catSlidePrev" aria-label="Önceki Kategori">
             <i class="fas fa-chevron-left"></i>
@@ -335,13 +338,16 @@ foreach ($categories as $cat) {
             <?php foreach ($menuData as $index => $cat): 
                 $catName = getLocalizedText($cat, 'name', $currentLang);
                 $catImg = !empty($cat['image']) ? $cat['image'] : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
+                $prodCount = count($cat['products']);
             ?>
                 <a href="#cat-<?php echo $cat['id']; ?>" class="category-item <?php echo $index === 0 ? 'active' : ''; ?>">
                     <div class="category-thumb-box">
                         <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'">
-                        <span class="category-item-badge"><?php echo count($cat['products']); ?></span>
                     </div>
-                    <span class="category-item-name"><?php echo htmlspecialchars($catName); ?></span>
+                    <div class="category-item-info">
+                        <span class="category-item-name"><?php echo htmlspecialchars($catName); ?></span>
+                        <span class="category-item-count"><?php echo $prodCount; ?> <?php echo __t('items', $currentLang); ?></span>
+                    </div>
                 </a>
             <?php endforeach; ?>
         </div>

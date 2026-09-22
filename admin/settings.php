@@ -26,6 +26,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $googleMapsUrl = clean($_POST['google_maps_url'] ?? '');
 
         // Modül Aç/Kapa Değerleri (Checkbox)
+        $enableHeroBanner = !empty($_POST['enable_hero_banner']) ? '1' : '0';
         $enableOrder = !empty($_POST['enable_order']) ? '1' : '0';
         $enableMultiLang = !empty($_POST['enable_multi_lang']) ? '1' : '0';
         $enableKitchen = !empty($_POST['enable_kitchen']) ? '1' : '0';
@@ -128,6 +129,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             updateSetting('google_maps_url', $googleMapsUrl);
 
             // Modül Ayarlarını Güncelle
+            updateSetting('enable_hero_banner', $enableHeroBanner);
             updateSetting('enable_order', $enableOrder);
             updateSetting('enable_multi_lang', $enableMultiLang);
             updateSetting('enable_kitchen', $enableKitchen);
@@ -219,6 +221,7 @@ $address = getSetting('address', 'İskele Mah. Sahil Cad. No:14, Altınoluk / Ba
 $googleMapsUrl = getSetting('google_maps_url', 'https://maps.google.com/?q=Hotel+Mare+Monte+Altinoluk');
 
 // Modül Durumları
+$enableHeroBanner = getSetting('enable_hero_banner', '1') === '1';
 $enableOrder = getSetting('enable_order', '0') === '1';
 $enableMultiLang = getSetting('enable_multi_lang', '1') === '1';
 $enableKitchen = getSetting('enable_kitchen', '1') === '1';
@@ -400,6 +403,18 @@ $popupBtnLink = getSetting('popup_btn_link', '#cat-8');
 
                 <div class="modules-toggle-grid">
                     
+                    <!-- 0. Restoran Tanıtım / Hero Kartı -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-id-card" style="color:var(--primary);margin-right:6px;"></i> Restoran Tanıtım &amp; Karşılama Kartı</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">Menü üstündeki karşılama kartı, slogan ve özellik çipleri</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_hero_banner" value="1" <?php echo $enableHeroBanner ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
                     <!-- 1. Sipariş & Sepet -->
                     <div class="module-toggle-item">
                         <div>

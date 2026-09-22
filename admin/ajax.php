@@ -604,6 +604,8 @@ switch ($action) {
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Toplu eşleştirme hatası: ' . $e->getMessage()]);
         }
+        break;
+
     // 16. TEKİL EŞLEŞTİRME KAYDET
     case 'save_single_pairing':
         $id = (int)($_POST['id'] ?? 0);
@@ -618,6 +620,22 @@ switch ($action) {
             }
         } else {
             echo json_encode(['success' => false, 'message' => 'Geçersiz ürün ID.']);
+        }
+        break;
+
+    // 17. MODÜL / AYAR HIZLI AÇ-KAPA (TOGGLE)
+    case 'toggle_setting':
+        $key = clean($_POST['key'] ?? '');
+        $value = clean($_POST['value'] ?? '0');
+        if (!empty($key)) {
+            try {
+                updateSetting($key, $value);
+                echo json_encode(['success' => true, 'message' => 'Ayar güncellendi.']);
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'message' => 'Ayar kaydedilemedi: ' . $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz anahtar.']);
         }
         break;
 

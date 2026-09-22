@@ -278,13 +278,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (catSlidePrev && categoriesCarousel) {
         catSlidePrev.addEventListener('click', () => {
-            categoriesCarousel.scrollBy({ left: -220, behavior: 'smooth' });
+            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.95;
+            categoriesCarousel.scrollBy({ left: -scrollDist, behavior: 'smooth' });
         });
     }
 
     if (catSlideNext && categoriesCarousel) {
         catSlideNext.addEventListener('click', () => {
-            categoriesCarousel.scrollBy({ left: 220, behavior: 'smooth' });
+            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.95;
+            categoriesCarousel.scrollBy({ left: scrollDist, behavior: 'smooth' });
         });
     }
 

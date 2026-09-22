@@ -253,6 +253,7 @@ function seedInitialData($pdo) {
         'address' => 'İskele Mah. Sahil Cad. No:14, Altınoluk / Balıkesir',
         
         // MODÜL AÇ/KAPA (AÇIK = 1, KAPALI = 0)
+        'enable_hero_banner' => '1',      // Restoran Tanıtım & Karşılama Kartı (Hero Banner)
         'enable_order' => '0',            // Masadan Canlı Sipariş Pasif (Garson Çağrısı Aktif)
         'enable_multi_lang' => '1',       // Çoklu Dil Desteği (TR, EN, AR, RU, DE)
         'enable_kitchen' => '1',          // Canlı Mutfak & Bar Ekranı (KDS)
