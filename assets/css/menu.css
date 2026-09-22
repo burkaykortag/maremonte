@@ -1406,3 +1406,347 @@ body {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ===================================================
+   11. NEW MODULES: CURRENCY, HAPPY HOUR, EVENTS, WHEEL
+   =================================================== */
+
+/* Currency Switcher */
+.currency-switcher {
+  display: inline-flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 2px;
+  gap: 2px;
+}
+
+.currency-btn {
+  background: none;
+  border: none;
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.currency-btn:hover {
+  color: var(--text-main);
+}
+
+.currency-btn.active {
+  background: var(--primary-grad);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(197, 160, 89, 0.35);
+}
+
+/* Sunset Happy Hour Ribbon */
+.happy-hour-banner {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+  color: #FFFFFF;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  animation: glowPulse 3s infinite;
+}
+
+@keyframes glowPulse {
+  0% { box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 4px 24px rgba(245, 158, 11, 0.6); }
+  100% { box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3); }
+}
+
+.happy-hour-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-wrap: wrap;
+}
+
+.happy-hour-time-badge {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* Events & Live Music Section */
+.events-section {
+  margin-bottom: 30px;
+}
+
+.events-carousel {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 6px 2px 14px;
+  scrollbar-width: thin;
+}
+
+.event-card {
+  flex: 0 0 280px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.event-poster-wrap {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: var(--bg-surface);
+}
+
+.event-poster-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-date-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  color: var(--primary-light);
+  border: 1px solid var(--primary);
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.event-info {
+  padding: 12px 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.event-title {
+  font-family: var(--font-serif);
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-serif);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.event-performer {
+  font-size: 0.80rem;
+  color: var(--primary-dark);
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+[data-theme="dark"] .event-performer {
+  color: var(--primary-light);
+}
+
+.event-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+/* Chef's Smart Pairing Box */
+.drawer-pairing-box {
+  background: linear-gradient(135deg, rgba(197, 160, 89, 0.12) 0%, rgba(26, 75, 75, 0.12) 100%);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.pairing-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="dark"] .pairing-badge {
+  color: var(--primary-light);
+}
+
+.pairing-title {
+  font-size: 0.84rem;
+  color: var(--text-main);
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+/* Resort Area Chips Selector */
+.resort-area-selector {
+  margin-bottom: 12px;
+}
+
+.resort-area-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.resort-area-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.resort-chip {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resort-chip:hover {
+  color: var(--text-main);
+  border-color: var(--primary);
+}
+
+.resort-chip.active {
+  background: var(--primary-grad);
+  color: #FFFFFF;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Lucky Wheel Gamification */
+.floating-wheel-btn {
+  position: fixed;
+  bottom: 84px;
+  right: 18px;
+  z-index: 100;
+  background: linear-gradient(135deg, #C5A059 0%, #D4AF37 50%, #9E7A2E 100%);
+  color: #FFFFFF;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-full);
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  box-shadow: 0 8px 24px rgba(197, 160, 89, 0.45);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: floatBounce 3s infinite ease-in-out;
+}
+
+@keyframes floatBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.floating-wheel-btn:hover {
+  transform: scale(1.06) translateY(-4px);
+  box-shadow: 0 12px 30px rgba(197, 160, 89, 0.65);
+}
+
+.wheel-icon-pulse {
+  font-size: 1.25rem;
+  animation: rotateWiggle 2s infinite ease-in-out;
+}
+
+@keyframes rotateWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
+}
+
+.wheel-canvas-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 10px auto;
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.6rem;
+  color: #EF4444;
+  z-index: 10;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+#luckyWheelCanvas {
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  border: 4px solid var(--primary);
+}
+
+.reward-box {
+  background: rgba(var(--primary-rgb), 0.15);
+  border: 2px dashed var(--primary);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-bottom: 10px;
+}
+
+[data-theme="dark"] .reward-box {
+  color: var(--primary-light);
+}
+
+.reward-code-box {
+  background: #0f172a;
+  color: #fbbf24;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  display: inline-block;
+}
+

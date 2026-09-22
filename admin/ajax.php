@@ -213,6 +213,28 @@ switch ($action) {
         }
         break;
 
+    // 9b. ETKİNLİK (EVENT) DURUM / SİLME
+    case 'toggle_event_status':
+        $id = (int)($_POST['id'] ?? 0);
+        $status = (int)($_POST['status'] ?? 0);
+        try {
+            $pdo->prepare("UPDATE events SET is_active = ? WHERE id = ?")->execute([$status, $id]);
+            echo json_encode(['success' => true, 'message' => 'Etkinlik durumu güncellendi.']);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        break;
+
+    case 'delete_event':
+        $id = (int)($_POST['id'] ?? 0);
+        try {
+            $pdo->prepare("DELETE FROM events WHERE id = ?")->execute([$id]);
+            echo json_encode(['success' => true, 'message' => 'Etkinlik silindi.']);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        break;
+
     // 10. ÜRÜN OPSİYONLARI YÖNETİMİ
     case 'get_product_options':
         $productId = (int)($_GET['product_id'] ?? $_POST['product_id'] ?? 0);

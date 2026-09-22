@@ -14,7 +14,7 @@ if (!in_array($currentLang, ['tr', 'en', 'ar', 'ru', 'de'])) {
 $_SESSION['current_lang'] = $currentLang;
 $isRtl = ($currentLang === 'ar');
 
-// Masa Numarası Tespiti (?table=5 veya ?t=token)
+// Masa / Konum Numarası Tespiti (?table=5 veya ?t=token)
 $tableNumber = clean($_GET['table'] ?? $_GET['t'] ?? $_SESSION['current_table'] ?? '');
 if (!empty($tableNumber)) {
     $stmtT = $pdo->prepare("SELECT table_number, table_name FROM tables WHERE token = ? OR table_number = ? LIMIT 1");
@@ -54,7 +54,7 @@ $wifiName = getSetting('wifi_name', 'MareMonte_Guest');
 $wifiPass = getSetting('wifi_pass', 'MareMonte1985');
 $googleMapsUrl = getSetting('google_maps_url', 'https://maps.google.com/?q=Hotel+Mare+Monte+Altinoluk');
 
-// Modül Aç/Kapa
+// Modül Aç/Kapa Durumları
 $enableOrder = getSetting('enable_order', '0') === '1';
 $enableMultiLang = getSetting('enable_multi_lang', '1') === '1';
 $enableKitchen = getSetting('enable_kitchen', '1') === '1';
@@ -63,6 +63,27 @@ $enablePopup = getSetting('enable_popup', '1') === '1';
 $enableFeedback = getSetting('enable_feedback', '1') === '1';
 $enableAllergensFilter = getSetting('enable_allergens_filter', '1') === '1';
 $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
+
+// Yeni Modüller
+$enableCurrencyConverter = getSetting('enable_currency_converter', '1') === '1';
+$currencyEurRate = (float)getSetting('currency_eur_rate', '38.50');
+$currencyUsdRate = (float)getSetting('currency_usd_rate', '35.00');
+$currencyGbpRate = (float)getSetting('currency_gbp_rate', '46.00');
+
+$enablePairings = getSetting('enable_pairings', '1') === '1';
+
+$enableHappyHour = getSetting('enable_happy_hour', '1') === '1';
+$happyHourTitle = getSetting('happy_hour_title', '🌅 Gün Batımı Happy Hour (Tüm Kokteyllerde %15 İndirim)');
+$happyHourStart = getSetting('happy_hour_start', '17:00');
+$happyHourEnd = getSetting('happy_hour_end', '19:30');
+$happyHourDiscount = (int)getSetting('happy_hour_discount', '15');
+
+$enableResortService = getSetting('enable_resort_service', '1') === '1';
+$enableEvents = getSetting('enable_events', '1') === '1';
+$enableConcierge = getSetting('enable_concierge', '1') === '1';
+
+$enableLuckyWheel = getSetting('enable_lucky_wheel', '1') === '1';
+$wheelRewards = getSetting('wheel_rewards', 'Günün Tatlısı İkramı,%10 Hesap İndirimi,Türk Kahvesi İkramı,Şefin Özel Kokteyli,%15 İndirim,Teşekkürler');
 
 // Pop-up Kampanya
 $popupTitle = getSetting('popup_title', '🌊 Hotel Mare & Monte Bistro Hoş Geldiniz!');
@@ -75,6 +96,13 @@ $popupBtnLink = getSetting('popup_btn_link', '#cat-13');
 $stories = [];
 if ($enableStories) {
     $stories = $pdo->query("SELECT * FROM stories WHERE is_active = 1 ORDER BY sort_order ASC, id ASC")->fetchAll();
+}
+
+// Canlı Müzik & Etkinlikleri Çek
+$events = [];
+if ($enableEvents) {
+    $stmtEvents = $pdo->query("SELECT * FROM events WHERE is_active = 1 ORDER BY event_date ASC, sort_order ASC LIMIT 10");
+    $events = $stmtEvents->fetchAll();
 }
 
 // Kategorileri ve Ürünleri Çek
@@ -109,6 +137,9 @@ foreach ($categories as $cat) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="<?php echo htmlspecialchars($themeColor); ?>">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/images/maremonte_logo.svg">
     <title><?php echo htmlspecialchars($restaurantName); ?> - <?php echo __t('menu', $currentLang); ?></title>
     
     <!-- Google Fonts & FontAwesome -->
@@ -126,7 +157,7 @@ foreach ($categories as $cat) {
         }
     </style>
 </head>
-<body>
+<body data-eur-rate="<?php echo $currencyEurRate; ?>" data-usd-rate="<?php echo $currencyUsdRate; ?>" data-gbp-rate="<?php echo $currencyGbpRate; ?>" data-pairings-enabled="<?php echo $enablePairings ? '1' : '0'; ?>" data-wheel-rewards="<?php echo htmlspecialchars($wheelRewards); ?>">
 
     <!-- ÜST HEADER (LUXURY GLASS HEADER) -->
     <header class="app-header">
@@ -142,16 +173,26 @@ foreach ($categories as $cat) {
 
         <div class="header-actions">
             <?php if (!empty($tableNumber)): ?>
-                <div class="table-pill" title="Masa Numarası">
-                    <i class="fas fa-utensils"></i>
+                <div class="table-pill" title="Masa / Konum">
+                    <i class="fas fa-location-dot"></i>
                     <span><?php echo htmlspecialchars($tableName); ?></span>
+                </div>
+            <?php endif; ?>
+
+            <!-- Çoklu Para Birimi Seçici -->
+            <?php if ($enableCurrencyConverter): ?>
+                <div class="currency-switcher" id="currencySwitcher">
+                    <button type="button" class="currency-btn active" data-currency="TRY">₺</button>
+                    <button type="button" class="currency-btn" data-currency="EUR">€</button>
+                    <button type="button" class="currency-btn" data-currency="USD">$</button>
+                    <button type="button" class="currency-btn" data-currency="GBP">£</button>
                 </div>
             <?php endif; ?>
 
             <!-- Çoklu Dil Seçici -->
             <?php if ($enableMultiLang): ?>
                 <div style="position: relative;">
-                    <button type="button" class="lang-selector-btn" onclick="document.getElementById('langDropdown').classList.toggle('active');">
+                    <button type="button" class="lang-selector-btn" id="langSelectorBtn">
                         <span><?php echo $translations[$currentLang]['flag']; ?></span>
                         <span style="text-transform:uppercase;"><?php echo $currentLang; ?></span>
                         <i class="fas fa-chevron-down" style="font-size:0.65rem;"></i>
@@ -165,19 +206,6 @@ foreach ($categories as $cat) {
                         <?php endforeach; ?>
                     </div>
                 </div>
-                <script>
-                    document.addEventListener('click', (e) => {
-                        const dd = document.getElementById('langDropdown');
-                        if (dd && !e.target.closest('.lang-selector-btn') && !e.target.closest('#langDropdown')) {
-                            dd.style.display = 'none';
-                        }
-                    });
-                    document.querySelector('.lang-selector-btn')?.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const dd = document.getElementById('langDropdown');
-                        dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
-                    });
-                </script>
             <?php endif; ?>
 
             <button type="button" class="icon-btn" id="openWifiBtn" title="<?php echo __t('wifi', $currentLang); ?>">
@@ -208,6 +236,24 @@ foreach ($categories as $cat) {
             <p class="resort-subtitle">Kazdağları ve Ege'nin buluştuğu eşsiz lezzet durağımıza hoş geldiniz.</p>
         </div>
 
+        <!-- SUNSET HAPPY HOUR ŞERİDİ -->
+        <?php if ($enableHappyHour): ?>
+            <div class="happy-hour-banner" id="happyHourBanner" 
+                 data-start="<?php echo htmlspecialchars($happyHourStart); ?>" 
+                 data-end="<?php echo htmlspecialchars($happyHourEnd); ?>" 
+                 data-discount="<?php echo htmlspecialchars($happyHourDiscount); ?>">
+                <div class="happy-hour-content">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-sun" style="font-size:1.2rem; color:#fff;"></i>
+                        <span><?php echo htmlspecialchars($happyHourTitle); ?></span>
+                    </div>
+                    <span class="happy-hour-time-badge">
+                        <i class="far fa-clock"></i> <?php echo htmlspecialchars($happyHourStart); ?> - <?php echo htmlspecialchars($happyHourEnd); ?> (%<?php echo $happyHourDiscount; ?> İndirim)
+                    </span>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Canlı Arama Çubuğu -->
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
@@ -217,7 +263,7 @@ foreach ($categories as $cat) {
             </button>
         </div>
 
-        <!-- Hızlı Filtre Rozetleri -->
+        <!-- Hızlı Diyet & Alerjen Filtre Barı -->
         <div class="quick-filters">
             <button type="button" class="filter-badge active" data-filter="all">
                 <i class="fas fa-border-all"></i> <?php echo __t('all', $currentLang); ?>
@@ -238,6 +284,9 @@ foreach ($categories as $cat) {
                 <button type="button" class="filter-badge" data-filter="gluten_free">
                     <i class="fas fa-wheat-awn-circle-exclamation"></i> <?php echo __t('gluten_free', $currentLang); ?>
                 </button>
+                <button type="button" class="filter-badge" data-filter="lactose_free">
+                    <i class="fas fa-prescription-bottle"></i> <?php echo __t('lactose_free', $currentLang); ?>
+                </button>
                 <button type="button" class="filter-badge" data-filter="low_cal">
                     <i class="fas fa-bolt"></i> <?php echo __t('low_cal', $currentLang); ?>
                 </button>
@@ -245,6 +294,44 @@ foreach ($categories as $cat) {
         </div>
 
     </section>
+
+    <!-- CANLI MÜZİK & ETKİNLİK TAKVİMİ -->
+    <?php if ($enableEvents && !empty($events)): ?>
+        <section class="events-section" style="max-width: 1140px; margin: 0 auto; padding: 0 16px;">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-music"></i>
+                    <?php echo __t('events_title', $currentLang); ?>
+                </h3>
+                <span class="section-badge"><?php echo __t('upcoming_events', $currentLang); ?></span>
+            </div>
+            <div class="events-carousel">
+                <?php foreach ($events as $ev): ?>
+                    <div class="event-card">
+                        <div class="event-poster-wrap">
+                            <img src="<?php echo htmlspecialchars($ev['image'] ?: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&q=80'); ?>" alt="<?php echo htmlspecialchars($ev['title']); ?>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&q=80'">
+                            <span class="event-date-badge">
+                                <i class="far fa-calendar"></i> <?php echo date('d.m.Y', strtotime($ev['event_date'])); ?> • <?php echo htmlspecialchars($ev['event_time']); ?>
+                            </span>
+                        </div>
+                        <div class="event-info">
+                            <div>
+                                <h4 class="event-title"><?php echo htmlspecialchars($ev['title']); ?></h4>
+                                <?php if (!empty($ev['performer'])): ?>
+                                    <div class="event-performer">
+                                        <i class="fas fa-microphone"></i> <?php echo htmlspecialchars($ev['performer']); ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (!empty($ev['description'])): ?>
+                                    <p class="event-desc"><?php echo htmlspecialchars($ev['description']); ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php endif; ?>
 
     <!-- KATEGORİ GEZİNTİSİ (VISUAL STICKY CATEGORIES BAR) -->
     <nav class="categories-bar" id="categoriesBar">
@@ -304,8 +391,8 @@ foreach ($categories as $cat) {
                              data-name="<?php echo htmlspecialchars($prodName); ?>"
                              data-desc="<?php echo htmlspecialchars($prodDesc); ?>"
                              data-price="<?php echo $prod['price']; ?>"
-                             data-price-formatted="<?php echo formatPrice($prod['price'], $currency); ?>"
-                             data-old-price-formatted="<?php echo $hasDiscount ? formatPrice($prod['old_price'], $currency) : ''; ?>"
+                             data-old-price="<?php echo $prod['old_price'] ?: ''; ?>"
+                             data-category="<?php echo htmlspecialchars($cat['slug'] ?? $cat['name']); ?>"
                              data-image="<?php echo htmlspecialchars($prod['image']); ?>"
                              data-badge="<?php echo htmlspecialchars($badge); ?>"
                              data-calories="<?php echo (int)$prod['calories']; ?>"
@@ -342,9 +429,9 @@ foreach ($categories as $cat) {
 
                                 <div class="product-footer">
                                     <div class="product-price-box">
-                                        <span class="product-price"><?php echo formatPrice($prod['price'], $currency); ?></span>
+                                        <span class="product-price" data-raw-price="<?php echo $prod['price']; ?>"><?php echo formatPrice($prod['price'], $currency); ?></span>
                                         <?php if ($hasDiscount): ?>
-                                            <span class="product-old-price"><?php echo formatPrice($prod['old_price'], $currency); ?></span>
+                                            <span class="product-old-price" data-raw-old-price="<?php echo $prod['old_price']; ?>"><?php echo formatPrice($prod['old_price'], $currency); ?></span>
                                         <?php endif; ?>
                                     </div>
                                     <span class="product-action-btn" title="Detay">
@@ -418,6 +505,14 @@ foreach ($categories as $cat) {
                 <h3 class="drawer-title" id="drawerTitle">Ürün Adı</h3>
                 <p class="drawer-description" id="drawerDesc">Ürün açıklaması burada yer alacak.</p>
 
+                <!-- Şefin Akıllı Eşleştirme Önerisi ("Birlikte İyi Gider") -->
+                <?php if ($enablePairings): ?>
+                    <div class="drawer-pairing-box" id="drawerPairingBox" style="display:none;">
+                        <div class="pairing-badge"><i class="fas fa-wine-glass"></i> <?php echo __t('chef_pairing', $currentLang); ?></div>
+                        <div class="pairing-title" id="drawerPairingText"></div>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Opsiyonlar / Ekstra Seçenekler -->
                 <div id="drawerOptionsContainer" style="display:none;"></div>
 
@@ -463,12 +558,26 @@ foreach ($categories as $cat) {
                     <div id="cartItemsContainer"></div>
 
                     <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--border-color);">
+                        
+                        <?php if ($enableResortService): ?>
+                            <div class="resort-area-selector">
+                                <span class="resort-area-label"><i class="fas fa-map-pin" style="color:var(--primary);"></i> <?php echo __t('resort_area', $currentLang); ?></span>
+                                <div class="resort-area-chips" id="cartAreaChips">
+                                    <button type="button" class="resort-chip active" data-area="Masa"><?php echo __t('area_table', $currentLang); ?></button>
+                                    <button type="button" class="resort-chip" data-area="Şezlong"><?php echo __t('area_sunbed', $currentLang); ?></button>
+                                    <button type="button" class="resort-chip" data-area="Cabana"><?php echo __t('area_cabana', $currentLang); ?></button>
+                                    <button type="button" class="resort-chip" data-area="Oda"><?php echo __t('area_room', $currentLang); ?></button>
+                                    <button type="button" class="resort-chip" data-area="İskele"><?php echo __t('area_pier', $currentLang); ?></button>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
                         <div style="margin-bottom:14px;">
                             <label style="font-size:0.78rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; margin-bottom:6px;">
                                 <i class="fas fa-chair" style="color:var(--primary);"></i>
                                 <?php echo __t('table_number', $currentLang); ?> *
                             </label>
-                            <input type="text" id="orderTableNumber" value="<?php echo htmlspecialchars($tableNumber); ?>" class="search-input" placeholder="Masanızdaki No (Örn: 4, 12, B2...)" style="height:42px; border-radius:var(--radius-sm); font-weight:700; margin-bottom:6px;">
+                            <input type="text" id="orderTableNumber" value="<?php echo htmlspecialchars($tableNumber); ?>" class="search-input" placeholder="Masa / Şezlong / Oda No (Örn: 4, 12, B2...)" style="height:42px; border-radius:var(--radius-sm); font-weight:700; margin-bottom:6px;">
                             <div style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--text-muted); background:rgba(var(--primary-rgb),0.08); border:1px solid rgba(var(--primary-rgb),0.2); padding:6px 10px; border-radius:var(--radius-sm); line-height:1.35;">
                                 <i class="fas fa-qrcode" style="color:var(--primary); font-size:0.95rem; flex-shrink:0;"></i>
                                 <span><?php echo __t('enter_table_qr_hint', $currentLang); ?></span>
@@ -499,6 +608,49 @@ foreach ($categories as $cat) {
             <span class="cart-badge" id="cartFloatingCount">0</span>
             <span style="font-weight:800;" id="cartFloatingTotal">0,00 ₺</span>
         </button>
+    <?php endif; ?>
+
+    <!-- ŞANS ÇARKI YÜZEN BUTON & MODALI (GAMIFICATION) -->
+    <?php if ($enableLuckyWheel): ?>
+        <button type="button" class="floating-wheel-btn" id="openWheelBtn" title="<?php echo __t('spin_to_win', $currentLang); ?>">
+            <span class="wheel-icon-pulse">🎁</span>
+            <span class="wheel-btn-label"><?php echo __t('lucky_wheel', $currentLang); ?></span>
+        </button>
+
+        <div class="action-modal" id="wheelModal">
+            <div class="modal-content" style="text-align:center; max-width:380px; padding:20px;">
+                <div class="modal-header" style="justify-content:space-between; margin-bottom:10px;">
+                    <h3 class="modal-title"><i class="fas fa-gift" style="color:var(--primary);margin-right:6px;"></i> <?php echo __t('lucky_wheel', $currentLang); ?></h3>
+                    <button type="button" class="icon-btn" id="closeWheelBtn"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div id="wheelActiveView">
+                    <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px;"><?php echo __t('spin_to_win', $currentLang); ?></p>
+                    
+                    <div class="wheel-canvas-container">
+                        <div class="wheel-pointer">▼</div>
+                        <canvas id="luckyWheelCanvas" width="280" height="280"></canvas>
+                    </div>
+
+                    <button type="button" id="spinWheelBtn" class="bottom-cta-btn" style="width:100%; justify-content:center; padding:12px; margin-top:14px; font-size:0.95rem;">
+                        <i class="fas fa-rotate"></i> <?php echo __t('spin_now', $currentLang); ?>
+                    </button>
+                </div>
+
+                <div id="wheelRewardView" style="display:none; padding:15px 0;">
+                    <div style="font-size:3rem; margin-bottom:6px;">🎉</div>
+                    <h4 style="font-family:var(--font-serif); font-size:1.25rem; color:var(--primary); font-weight:800;"><?php echo __t('congratulations', $currentLang); ?></h4>
+                    <p style="font-size:0.84rem; color:var(--text-muted); margin:4px 0 12px;"><?php echo __t('your_gift', $currentLang); ?></p>
+                    
+                    <div class="reward-box" id="rewardBoxText">Günün Tatlısı İkramı</div>
+                    <div class="reward-code-box" id="rewardCodeText">KOD: MM-7892</div>
+                    
+                    <p style="font-size:0.75rem; color:var(--text-dim); margin-top:12px; line-height:1.4;">
+                        <?php echo __t('show_to_waiter', $currentLang); ?>
+                    </p>
+                </div>
+            </div>
+        </div>
     <?php endif; ?>
 
     <!-- INSTAGRAM HİKAYE OYNATICI MODALI -->
@@ -561,7 +713,7 @@ foreach ($categories as $cat) {
         </button>
     </div>
 
-    <!-- GARSON & HESAP ÇAĞIRMA MODALI -->
+    <!-- GARSON, HESAP, VALE & CONCIERGE MODALI -->
     <?php if ($enableWaiterCall): ?>
         <div class="action-modal" id="waiterModal">
             <div class="modal-content">
@@ -572,11 +724,25 @@ foreach ($categories as $cat) {
                     </button>
                 </div>
 
+                <!-- Konum / Bölge Seçimi (Resort Modu) -->
+                <?php if ($enableResortService): ?>
+                    <div class="resort-area-selector">
+                        <span class="resort-area-label"><i class="fas fa-map-pin" style="color:var(--primary);"></i> <?php echo __t('resort_area', $currentLang); ?></span>
+                        <div class="resort-area-chips" id="waiterAreaChips">
+                            <button type="button" class="resort-chip active" data-area="Masa"><?php echo __t('area_table', $currentLang); ?></button>
+                            <button type="button" class="resort-chip" data-area="Şezlong"><?php echo __t('area_sunbed', $currentLang); ?></button>
+                            <button type="button" class="resort-chip" data-area="Cabana"><?php echo __t('area_cabana', $currentLang); ?></button>
+                            <button type="button" class="resort-chip" data-area="Oda"><?php echo __t('area_room', $currentLang); ?></button>
+                            <button type="button" class="resort-chip" data-area="İskele"><?php echo __t('area_pier', $currentLang); ?></button>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <div style="margin-bottom: 16px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                         <label style="font-size:0.82rem; font-weight:800; color:var(--text-main); margin-bottom:0; display:flex; align-items:center; gap:6px;">
                             <i class="fas fa-chair" style="color:var(--primary);"></i>
-                            <?php echo __t('table_number', $currentLang); ?> *
+                            <span id="waiterLocationLabel"><?php echo __t('table_number', $currentLang); ?></span> *
                         </label>
                         <?php if (!empty($tableNumber)): ?>
                             <span style="font-size:0.72rem; color:var(--success); font-weight:700; background:rgba(16,185,129,0.12); padding:2px 8px; border-radius:999px;">
@@ -586,7 +752,7 @@ foreach ($categories as $cat) {
                     </div>
                     
                     <div style="position:relative; margin-bottom:8px;">
-                        <input type="text" id="waiterTableNumber" value="<?php echo htmlspecialchars($tableNumber); ?>" placeholder="Masanızdaki No (Örn: 4, 12, B2...)" class="search-input" style="padding-left:38px; font-weight:700; font-size:0.95rem;">
+                        <input type="text" id="waiterTableNumber" value="<?php echo htmlspecialchars($tableNumber); ?>" placeholder="Masa / Şezlong / Oda No (Örn: 4, 12, B2...)" class="search-input" style="padding-left:38px; font-weight:700; font-size:0.95rem;">
                         <i class="fas fa-hashtag" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--primary); font-size:0.9rem;"></i>
                     </div>
 
@@ -609,6 +775,23 @@ foreach ($categories as $cat) {
                         <i class="fas fa-money-bill-wave"></i>
                         <span>Nakit Hesap</span>
                     </button>
+
+                    <!-- Concierge Talepleri -->
+                    <?php if ($enableConcierge): ?>
+                        <button type="button" class="call-option-btn" data-type="valet">
+                            <i class="fas fa-car" style="color:#f59e0b;"></i>
+                            <span><?php echo __t('valet', $currentLang); ?></span>
+                        </button>
+                        <button type="button" class="call-option-btn" data-type="taxi">
+                            <i class="fas fa-taxi" style="color:#eab308;"></i>
+                            <span><?php echo __t('taxi', $currentLang); ?></span>
+                        </button>
+                        <button type="button" class="call-option-btn" data-type="reception">
+                            <i class="fas fa-bell-concierge" style="color:#ec4899;"></i>
+                            <span><?php echo __t('reception', $currentLang); ?></span>
+                        </button>
+                    <?php endif; ?>
+
                     <button type="button" class="call-option-btn" data-type="custom">
                         <i class="fas fa-comment-dots"></i>
                         <span>Özel İstek</span>
@@ -616,7 +799,7 @@ foreach ($categories as $cat) {
                 </div>
 
                 <div style="margin-bottom: 16px;">
-                    <textarea id="waiterNote" rows="2" placeholder="Örn: Su alabilir miyiz, buz rica ediyoruz..." class="search-input" style="height:auto;padding:10px 14px;border-radius:var(--radius-md);"></textarea>
+                    <textarea id="waiterNote" rows="2" placeholder="Örn: Su alabilir miyiz, aracım hazır olsun..." class="search-input" style="height:auto;padding:10px 14px;border-radius:var(--radius-md);"></textarea>
                 </div>
 
                 <button type="button" id="sendWaiterCallBtn" class="bottom-cta-btn" style="width:100%;justify-content:center;padding:14px;">
@@ -654,6 +837,15 @@ foreach ($categories as $cat) {
             </div>
         </div>
     </div>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        });
+    }
+    </script>
 
     <!-- JavaScript Motoru (Cache-Busting) -->
     <script src="assets/js/menu.js?v=<?php echo time(); ?>"></script>

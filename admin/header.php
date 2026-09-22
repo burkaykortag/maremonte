@@ -96,6 +96,10 @@ try {
             </a>
 
             <div class="nav-section-label">PAZARLAMA & MASA</div>
+            <a href="events.php" class="nav-link <?php echo $currentPage === 'events.php' ? 'active' : ''; ?>" style="color:#c084fc;">
+                <i class="fas fa-music"></i>
+                <span>Canlı Müzik & Etkinlik</span>
+            </a>
             <a href="stories.php" class="nav-link <?php echo $currentPage === 'stories.php' ? 'active' : ''; ?>">
                 <i class="fas fa-circle-play"></i>
                 <span>Hikayeler & Pop-up</span>

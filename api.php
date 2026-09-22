@@ -10,6 +10,54 @@ require_once __DIR__ . '/languages.php';
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 $lang = clean($_GET['lang'] ?? $_POST['lang'] ?? 'tr');
 
+/**
+ * Telegram Canlı Bildirim Gönderici
+ */
+function sendTelegramAlert($text) {
+    if (getSetting('enable_telegram_notify', '0') !== '1') {
+        return false;
+    }
+    $token = getSetting('telegram_bot_token', '');
+    $chatId = getSetting('telegram_chat_id', '');
+    if (empty($token) || empty($chatId)) {
+        return false;
+    }
+
+    try {
+        $url = "https://api.telegram.org/bot{$token}/sendMessage";
+        $data = [
+            'chat_id' => $chatId,
+            'text' => $text,
+            'parse_mode' => 'HTML'
+        ];
+
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_exec($ch);
+            curl_close($ch);
+        } else {
+            $opts = [
+                'http' => [
+                    'method'  => 'POST',
+                    'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'content' => http_build_query($data),
+                    'timeout' => 3
+                ]
+            ];
+            $context = stream_context_create($opts);
+            @file_get_contents($url, false, $context);
+        }
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
 switch ($action) {
 
     // 1. MENÜYÜ VE MODÜLLERİ GETİR
@@ -58,22 +106,47 @@ switch ($action) {
                 $stories = $stmtStories->fetchAll();
             }
 
+            // Aktif Etkinlikler
+            $events = [];
+            if (getSetting('enable_events', '1') === '1') {
+                $stmtEvents = $pdo->query("SELECT * FROM events WHERE is_active = 1 AND event_date >= date('now', '-1 day') ORDER BY event_date ASC, sort_order ASC");
+                $events = $stmtEvents->fetchAll();
+            }
+
             echo json_encode([
                 'success' => true,
                 'data' => $menu,
                 'stories' => $stories,
+                'events' => $events,
                 'settings' => [
-                    'restaurant_name' => getSetting('restaurant_name', 'Gusto QR Menü'),
+                    'restaurant_name' => getSetting('restaurant_name', 'HOTEL MARE & MONTE BISTRO'),
                     'currency' => getSetting('currency', '₺'),
-                    'theme_color' => getSetting('theme_color', '#d97706'),
-                    'theme_mode' => getSetting('theme_mode', 'dark'),
-                    'enable_order' => getSetting('enable_order', '1'),
+                    'theme_color' => getSetting('theme_color', '#C5A059'),
+                    'theme_mode' => getSetting('theme_mode', 'light'),
+                    'enable_order' => getSetting('enable_order', '0'),
                     'enable_multi_lang' => getSetting('enable_multi_lang', '1'),
                     'enable_stories' => getSetting('enable_stories', '1'),
                     'enable_popup' => getSetting('enable_popup', '1'),
                     'enable_feedback' => getSetting('enable_feedback', '1'),
                     'enable_allergens_filter' => getSetting('enable_allergens_filter', '1'),
                     'enable_waiter_call' => getSetting('enable_waiter_call', '1'),
+                    'enable_currency_converter' => getSetting('enable_currency_converter', '1'),
+                    'currency_eur_rate' => getSetting('currency_eur_rate', '38.50'),
+                    'currency_usd_rate' => getSetting('currency_usd_rate', '35.00'),
+                    'currency_gbp_rate' => getSetting('currency_gbp_rate', '46.00'),
+                    'enable_pairings' => getSetting('enable_pairings', '1'),
+                    'enable_happy_hour' => getSetting('enable_happy_hour', '1'),
+                    'happy_hour_title' => getSetting('happy_hour_title', '🌅 Gün Batımı Happy Hour (Tüm Kokteyllerde %15 İndirim)'),
+                    'happy_hour_start' => getSetting('happy_hour_start', '17:00'),
+                    'happy_hour_end' => getSetting('happy_hour_end', '19:30'),
+                    'happy_hour_discount' => getSetting('happy_hour_discount', '15'),
+                    'enable_resort_service' => getSetting('enable_resort_service', '1'),
+                    'enable_events' => getSetting('enable_events', '1'),
+                    'enable_concierge' => getSetting('enable_concierge', '1'),
+                    'enable_lucky_wheel' => getSetting('enable_lucky_wheel', '1'),
+                    'wheel_rewards' => getSetting('wheel_rewards', 'Günün Tatlısı İkramı,%10 Hesap İndirimi,Türk Kahvesi İkramı,Şefin Özel Kokteyli,%15 İndirim,Teşekkürler'),
+                    'enable_whatsapp_notify' => getSetting('enable_whatsapp_notify', '0'),
+                    'whatsapp_phone' => getSetting('whatsapp_phone', '+902663960000'),
                     'google_maps_url' => getSetting('google_maps_url', '')
                 ]
             ], JSON_UNESCAPED_UNICODE);
@@ -147,6 +220,7 @@ switch ($action) {
 
             $totalPrice = 0.00;
             $orderItemsToInsert = [];
+            $summaryLines = [];
 
             foreach ($items as $item) {
                 $prodId = (int)($item['id'] ?? 0);
@@ -183,6 +257,8 @@ switch ($action) {
                     'price' => $unitPrice,
                     'options_json' => json_encode($selectedOptions, JSON_UNESCAPED_UNICODE)
                 ];
+
+                $summaryLines[] = "• {$quantity}x {$prodDb['name']} (" . number_format($itemSubtotal, 2) . " ₺)";
             }
 
             if (empty($orderItemsToInsert)) {
@@ -210,6 +286,18 @@ switch ($action) {
             }
 
             $pdo->commit();
+
+            // Telegram Canlı Bildirim
+            $telegramMsg = "🍽️ <b>YENİ SİPARİŞ ALINDI!</b>\n";
+            $telegramMsg .= "📍 <b>Konum / Masa:</b> {$tableNumber}\n";
+            $telegramMsg .= "🧾 <b>Sipariş No:</b> #{$orderId}\n";
+            $telegramMsg .= "💰 <b>Toplam:</b> " . number_format($totalPrice, 2) . " ₺\n";
+            $telegramMsg .= "📋 <b>Ürünler:</b>\n" . implode("\n", $summaryLines) . "\n";
+            if (!empty($customerNote)) {
+                $telegramMsg .= "💬 <b>Not:</b> {$customerNote}\n";
+            }
+            $telegramMsg .= "⏰ <b>Saat:</b> " . date('H:i:s');
+            sendTelegramAlert($telegramMsg);
 
             echo json_encode([
                 'success' => true,
@@ -251,7 +339,7 @@ switch ($action) {
         }
         break;
 
-    // 5. GARSON ÇAĞIRMA & HESAP İSTEME
+    // 5. GARSON ÇAĞIRMA, HESAP, VALE & CONCIERGE
     case 'call_waiter':
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             echo json_encode(['success' => false, 'message' => 'Sadece POST isteği kabul edilir']);
@@ -263,17 +351,39 @@ switch ($action) {
         $note = clean($_POST['note'] ?? '');
 
         if (empty($tableNumber)) {
-            echo json_encode(['success' => false, 'message' => 'Lütfen masa numaranızı belirtin']);
+            echo json_encode(['success' => false, 'message' => 'Lütfen masa veya konum numaranızı belirtin']);
             exit;
         }
 
         try {
             $stmt = $pdo->prepare("INSERT INTO waiter_calls (table_number, call_type, note, status) VALUES (?, ?, ?, 'pending')");
             $stmt->execute([$tableNumber, $callType, $note]);
+            $callId = $pdo->lastInsertId();
+
+            $callLabels = [
+                'waiter' => '🔔 Garson Çağrısı',
+                'card_bill' => '💳 Kredi Kartı ile Hesap',
+                'cash_bill' => '💵 Nakit Hesap',
+                'valet' => '🚗 Vale / Aracım',
+                'taxi' => '🚕 Taksi Çağrısı',
+                'reception' => '🛎️ Resepsiyon Talebi',
+                'custom' => '💬 Özel İstek'
+            ];
+            $typeName = $callLabels[$callType] ?? '🔔 Garson Çağrısı';
+
+            // Telegram Bildirimi
+            $telegramMsg = "🔔 <b>YENİ SERVİS ÇAĞRISI!</b>\n";
+            $telegramMsg .= "📍 <b>Konum:</b> {$tableNumber}\n";
+            $telegramMsg .= "🏷️ <b>Talep:</b> {$typeName}\n";
+            if (!empty($note)) {
+                $telegramMsg .= "💬 <b>Not:</b> {$note}\n";
+            }
+            $telegramMsg .= "⏰ <b>Saat:</b> " . date('H:i:s');
+            sendTelegramAlert($telegramMsg);
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Talebiniz personele iletildi. En kısa sürede masanıza gelinecektir.'
+                'message' => 'Talebiniz personele iletildi. En kısa sürede yanınıza gelinecektir.'
             ], JSON_UNESCAPED_UNICODE);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Talep gönderilemedi: ' . $e->getMessage()]);

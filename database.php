@@ -171,6 +171,20 @@ function initDatabase($pdo) {
         created_at $dateTimeDefault
     )");
 
+    // 12. Canlı Müzik & Etkinlikler Tablosu (Events)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS events (
+        id $autoInc,
+        title VARCHAR(200) NOT NULL,
+        performer VARCHAR(150) DEFAULT '',
+        event_date DATE,
+        event_time VARCHAR(20) DEFAULT '20:30',
+        description $textType,
+        image VARCHAR(255) DEFAULT '',
+        is_active INT DEFAULT 1,
+        sort_order INT DEFAULT 0,
+        created_at $dateTimeDefault
+    )");
+
     // Modül ayarları ve demo verileri kontrol et
     seedInitialData($pdo);
 }
@@ -212,6 +226,34 @@ function seedInitialData($pdo) {
         'enable_allergens_filter' => '1', // Gelişmiş Diyet & Alerjen Filtresi
         'enable_waiter_call' => '1',      // Garson Çağırma & Hesap İsteme
         
+        // YENİ MODÜLLER (HEPSİ AÇIK/KAPALI YÖNETİLEBİLİR)
+        'enable_currency_converter' => '1', // Çoklu Para Birimi (EUR / USD / GBP / TRY)
+        'currency_eur_rate' => '38.50',
+        'currency_usd_rate' => '35.00',
+        'currency_gbp_rate' => '46.00',
+        
+        'enable_pairings' => '1',           // Şefin Akıllı Eşleştirme & Birlikte İyi Gider
+        
+        'enable_happy_hour' => '1',         // Sunset Happy Hour & Özel İndirim
+        'happy_hour_title' => '🌅 Gün Batımı Happy Hour (Tüm Kokteyllerde %15 İndirim)',
+        'happy_hour_start' => '17:00',
+        'happy_hour_end' => '19:30',
+        'happy_hour_discount' => '15',
+        
+        'enable_resort_service' => '1',     // Plaj, Şezlong, Cabana & Oda Servisi
+        'enable_events' => '1',             // Canlı Müzik & Haftalık Etkinlik Takvimi
+        'enable_concierge' => '1',          // Vale, Taksi & Resepsiyon Servisi
+        
+        'enable_telegram_notify' => '0',    // Telegram Bot Canlı Bildirimi
+        'telegram_bot_token' => '',
+        'telegram_chat_id' => '',
+        
+        'enable_whatsapp_notify' => '0',    // WhatsApp Bildirimi
+        'whatsapp_phone' => '+902663960000',
+        
+        'enable_lucky_wheel' => '1',        // Şans Çarkı / İkram Kuponu
+        'wheel_rewards' => 'Günün Tatlısı İkramı,%10 Hesap İndirimi,Türk Kahvesi İkramı,Şefin Özel Kokteyli,%15 İndirim,Teşekkürler',
+
         // POP-UP KAMPANYA BİLGİLERİ
         'popup_title' => '🌊 Hotel Mare & Monte Bistro Hoş Geldiniz!',
         'popup_desc' => '1985\'ten beri Altınoluk sahilinde eşsiz lezzetler. Günlük taze deniz ürünlerimiz ve şefin spesiyallerini keşfedin!',
@@ -258,10 +300,54 @@ function seedInitialData($pdo) {
             ['title' => 'Taş Fırın Pizza', 'image' => 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=600&q=80', 'link' => '#cat-4', 'sort_order' => 3],
             ['title' => 'Mare Burger', 'image' => 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80', 'link' => '#cat-5', 'sort_order' => 4],
             ['title' => 'Atıştırmalıklar', 'image' => 'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=600&q=80', 'link' => '#cat-2', 'sort_order' => 5],
+            ['title' => 'Kokteyller', 'image' => 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80', 'link' => '#cat-11', 'sort_order' => 6],
+            ['title' => 'Tatlılar & Kahve', 'image' => 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=600&q=80', 'link' => '#cat-10', 'sort_order' => 7]
         ];
-        $stmtS = $pdo->prepare("INSERT INTO stories (title, image, link, sort_order, is_active) VALUES (?, ?, ?, ?, 1)");
+        $stmtStory = $pdo->prepare("INSERT INTO stories (title, image, link, sort_order) VALUES (?, ?, ?, ?)");
         foreach ($demoStories as $s) {
-            $stmtS->execute([$s['title'], $s['image'], $s['link'], $s['sort_order']]);
+            $stmtStory->execute([$s['title'], $s['image'], $s['link'], $s['sort_order']]);
+        }
+    }
+
+    // 5. Canlı Müzik & Etkinlikler (Events)
+    $stmtEventCheck = $pdo->query("SELECT COUNT(*) as cnt FROM events");
+    if ($stmtEventCheck->fetch()['cnt'] == 0) {
+        $demoEvents = [
+            [
+                'title' => 'Gün Batımı Akustik Caz & Saksafon',
+                'performer' => 'Tuna Trio & Zeynep (Saksafon)',
+                'event_date' => date('Y-m-d'),
+                'event_time' => '20:30',
+                'description' => 'Altınoluk Körfezi gün batımında şarap ve özel kokteyller eşliğinde canlı caz ziyafeti.',
+                'image' => 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80',
+                'sort_order' => 1,
+                'is_active' => 1
+            ],
+            [
+                'title' => 'Ege & Akdeniz Şarap ve Peynir Tadımı',
+                'performer' => 'Mare & Monte Sommelier Atölyesi',
+                'event_date' => date('Y-m-d', strtotime('+2 days')),
+                'event_time' => '19:00',
+                'description' => 'Kaz Dağları eteklerinden yerel peynirler ve seçkin şarap eşleştirmeleri.',
+                'image' => 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80',
+                'sort_order' => 2,
+                'is_active' => 1
+            ],
+            [
+                'title' => 'Gitar & Akustik Riviera Melodileri',
+                'performer' => 'Caner Arslan (Solo Akustik)',
+                'event_date' => date('Y-m-d', strtotime('+4 days')),
+                'event_time' => '21:00',
+                'description' => 'Deniz kenarında nostaljik Akdeniz şarkıları ve İtalyan ezgileri.',
+                'image' => 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=800&q=80',
+                'sort_order' => 3,
+                'is_active' => 1
+            ]
+        ];
+
+        $stmtEvent = $pdo->prepare("INSERT INTO events (title, performer, event_date, event_time, description, image, sort_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        foreach ($demoEvents as $ev) {
+            $stmtEvent->execute([$ev['title'], $ev['performer'], $ev['event_date'], $ev['event_time'], $ev['description'], $ev['image'], $ev['sort_order'], $ev['is_active']]);
         }
     }
 

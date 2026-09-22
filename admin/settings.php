@@ -35,6 +35,41 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $enableAllergensFilter = !empty($_POST['enable_allergens_filter']) ? '1' : '0';
         $enableWaiterCall = !empty($_POST['enable_waiter_call']) ? '1' : '0';
 
+        // Yeni Modüller
+        $enableCurrencyConverter = !empty($_POST['enable_currency_converter']) ? '1' : '0';
+        $currencyEurRate = clean($_POST['currency_eur_rate'] ?? '38.50');
+        $currencyUsdRate = clean($_POST['currency_usd_rate'] ?? '35.00');
+        $currencyGbpRate = clean($_POST['currency_gbp_rate'] ?? '46.00');
+
+        $enablePairings = !empty($_POST['enable_pairings']) ? '1' : '0';
+
+        $enableHappyHour = !empty($_POST['enable_happy_hour']) ? '1' : '0';
+        $happyHourTitle = clean($_POST['happy_hour_title'] ?? '🌅 Gün Batımı Happy Hour (Tüm Kokteyllerde %15 İndirim)');
+        $happyHourStart = clean($_POST['happy_hour_start'] ?? '17:00');
+        $happyHourEnd = clean($_POST['happy_hour_end'] ?? '19:30');
+        $happyHourDiscount = clean($_POST['happy_hour_discount'] ?? '15');
+
+        $enableResortService = !empty($_POST['enable_resort_service']) ? '1' : '0';
+        $enableEvents = !empty($_POST['enable_events']) ? '1' : '0';
+        $enableConcierge = !empty($_POST['enable_concierge']) ? '1' : '0';
+
+        $enableTelegramNotify = !empty($_POST['enable_telegram_notify']) ? '1' : '0';
+        $telegramBotToken = clean($_POST['telegram_bot_token'] ?? '');
+        $telegramChatId = clean($_POST['telegram_chat_id'] ?? '');
+
+        $enableWhatsappNotify = !empty($_POST['enable_whatsapp_notify']) ? '1' : '0';
+        $whatsappPhone = clean($_POST['whatsapp_phone'] ?? '');
+
+        $enableLuckyWheel = !empty($_POST['enable_lucky_wheel']) ? '1' : '0';
+        $wheelRewards = clean($_POST['wheel_rewards'] ?? 'Günün Tatlısı İkramı,%10 Hesap İndirimi,Türk Kahvesi İkramı,Şefin Özel Kokteyli,%15 İndirim,Teşekkürler');
+
+        // Pop-up Ayarları
+        $popupTitle = clean($_POST['popup_title'] ?? '');
+        $popupDesc = clean($_POST['popup_desc'] ?? '');
+        $popupImage = clean($_POST['popup_image'] ?? '');
+        $popupBtnText = clean($_POST['popup_btn_text'] ?? '');
+        $popupBtnLink = clean($_POST['popup_btn_link'] ?? '');
+
         $logoDarkUrl = getSetting('logo_dark_url', '');
         $logoLightUrl = getSetting('logo_light_url', '');
         $bannerUrl = getSetting('banner_url', '');
@@ -101,7 +136,41 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             updateSetting('enable_allergens_filter', $enableAllergensFilter);
             updateSetting('enable_waiter_call', $enableWaiterCall);
 
-            $successMsg = 'Restoran ve modül ayarları başarıyla kaydedildi!';
+            // Yeni Modüller
+            updateSetting('enable_currency_converter', $enableCurrencyConverter);
+            updateSetting('currency_eur_rate', $currencyEurRate);
+            updateSetting('currency_usd_rate', $currencyUsdRate);
+            updateSetting('currency_gbp_rate', $currencyGbpRate);
+
+            updateSetting('enable_pairings', $enablePairings);
+
+            updateSetting('enable_happy_hour', $enableHappyHour);
+            updateSetting('happy_hour_title', $happyHourTitle);
+            updateSetting('happy_hour_start', $happyHourStart);
+            updateSetting('happy_hour_end', $happyHourEnd);
+            updateSetting('happy_hour_discount', $happyHourDiscount);
+
+            updateSetting('enable_resort_service', $enableResortService);
+            updateSetting('enable_events', $enableEvents);
+            updateSetting('enable_concierge', $enableConcierge);
+
+            updateSetting('enable_telegram_notify', $enableTelegramNotify);
+            updateSetting('telegram_bot_token', $telegramBotToken);
+            updateSetting('telegram_chat_id', $telegramChatId);
+
+            updateSetting('enable_whatsapp_notify', $enableWhatsappNotify);
+            updateSetting('whatsapp_phone', $whatsappPhone);
+
+            updateSetting('enable_lucky_wheel', $enableLuckyWheel);
+            updateSetting('wheel_rewards', $wheelRewards);
+
+            if (!empty($popupTitle)) updateSetting('popup_title', $popupTitle);
+            if (!empty($popupDesc)) updateSetting('popup_desc', $popupDesc);
+            if (!empty($popupImage)) updateSetting('popup_image', $popupImage);
+            if (!empty($popupBtnText)) updateSetting('popup_btn_text', $popupBtnText);
+            if (!empty($popupBtnLink)) updateSetting('popup_btn_link', $popupBtnLink);
+
+            $successMsg = 'Tüm restoran ve modül ayarları başarıyla kaydedildi!';
         }
     } elseif ($actionType === 'password') {
         $currentPass = $_POST['current_password'] ?? '';
@@ -156,6 +225,40 @@ $enablePopup = getSetting('enable_popup', '1') === '1';
 $enableFeedback = getSetting('enable_feedback', '1') === '1';
 $enableAllergensFilter = getSetting('enable_allergens_filter', '1') === '1';
 $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
+
+// Yeni Modül Durumları
+$enableCurrencyConverter = getSetting('enable_currency_converter', '1') === '1';
+$currencyEurRate = getSetting('currency_eur_rate', '38.50');
+$currencyUsdRate = getSetting('currency_usd_rate', '35.00');
+$currencyGbpRate = getSetting('currency_gbp_rate', '46.00');
+
+$enablePairings = getSetting('enable_pairings', '1') === '1';
+
+$enableHappyHour = getSetting('enable_happy_hour', '1') === '1';
+$happyHourTitle = getSetting('happy_hour_title', '🌅 Gün Batımı Happy Hour (Tüm Kokteyllerde %15 İndirim)');
+$happyHourStart = getSetting('happy_hour_start', '17:00');
+$happyHourEnd = getSetting('happy_hour_end', '19:30');
+$happyHourDiscount = getSetting('happy_hour_discount', '15');
+
+$enableResortService = getSetting('enable_resort_service', '1') === '1';
+$enableEvents = getSetting('enable_events', '1') === '1';
+$enableConcierge = getSetting('enable_concierge', '1') === '1';
+
+$enableTelegramNotify = getSetting('enable_telegram_notify', '0') === '1';
+$telegramBotToken = getSetting('telegram_bot_token', '');
+$telegramChatId = getSetting('telegram_chat_id', '');
+
+$enableWhatsappNotify = getSetting('enable_whatsapp_notify', '0') === '1';
+$whatsappPhone = getSetting('whatsapp_phone', '+902663960000');
+
+$enableLuckyWheel = getSetting('enable_lucky_wheel', '1') === '1';
+$wheelRewards = getSetting('wheel_rewards', 'Günün Tatlısı İkramı,%10 Hesap İndirimi,Türk Kahvesi İkramı,Şefin Özel Kokteyli,%15 İndirim,Teşekkürler');
+
+$popupTitle = getSetting('popup_title', '🌊 Hotel Mare & Monte Bistro Hoş Geldiniz!');
+$popupDesc = getSetting('popup_desc', '1985\'ten beri Altınoluk sahilinde eşsiz lezzetler. Günlük taze deniz ürünlerimiz ve şefin spesiyallerini keşfedin!');
+$popupImage = getSetting('popup_image', 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80');
+$popupBtnText = getSetting('popup_btn_text', 'Deniz Ürünlerini İncele');
+$popupBtnLink = getSetting('popup_btn_link', '#cat-8');
 ?>
 
 <style>
@@ -190,6 +293,12 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
     gap: 14px;
 }
 
+.form-3col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+}
+
 .form-1-2col-grid {
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -213,6 +322,14 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
     flex: 1;
 }
 
+.settings-subcard {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-top: 14px;
+}
+
 @media (max-width: 1024px) {
     .settings-layout-grid {
         grid-template-columns: 1fr;
@@ -221,7 +338,8 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
 }
 
 @media (max-width: 768px) {
-    .modules-toggle-grid {
+    .modules-toggle-grid,
+    .form-3col-grid {
         grid-template-columns: 1fr;
         gap: 10px;
     }
@@ -244,7 +362,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
 <div class="page-header">
     <div class="page-title">
         <h1>⚙️ Modül, Restoran & Görünüm Ayarları</h1>
-        <p>Menü modüllerini tek tıkla açıp kapatın, Dark/Light tema ve marka bilgilerinizi yönetin</p>
+        <p>Tüm gelişmiş otel & bistro özelliklerini tek tıkla açıp kapatın, kurları ve bildirimleri yönetin</p>
     </div>
 </div>
 
@@ -270,11 +388,11 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
         <div class="card" style="border: 2px solid var(--primary); background: linear-gradient(135deg, rgba(197, 160, 89, 0.08) 0%, rgba(22, 31, 48, 0.95) 100%);">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-toggle-on" style="color:var(--primary);"></i> Modül & Özellik Yönetimi (Aç / Kapa)</h3>
-                <span style="font-size: 0.75rem; background: var(--primary); color: #000; padding: 3px 10px; border-radius: 999px; font-weight: 800;">8 Modül</span>
+                <span style="font-size: 0.75rem; background: var(--primary); color: #000; padding: 3px 10px; border-radius: 999px; font-weight: 800;">14 Modül Aktif / Pasif</span>
             </div>
             <div class="card-body">
                 <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 18px;">
-                    İstediğiniz özellikleri tek tıkla menüden gizleyebilir veya aktif edebilirsiniz:
+                    İstediğiniz özellikleri tek tıkla menüden gizleyebilir veya anında aktif edebilirsiniz:
                 </p>
 
                 <div class="modules-toggle-grid">
@@ -303,7 +421,91 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                         </label>
                     </div>
 
-                    <!-- 3. Mutfak Ekranı -->
+                    <!-- 3. Çoklu Para Birimi -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-coins" style="color:#fbbf24;margin-right:6px;"></i> Döviz / Para Birimi Çevirici</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">EUR, USD, GBP, TRY anlık çevirici</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_currency_converter" value="1" <?php echo $enableCurrencyConverter ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 4. Şefin Eşleştirmesi (Birlikte İyi Gider) -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-wine-glass" style="color:#f43f5e;margin-right:6px;"></i> "Birlikte İyi Gider" (Eşleştirme)</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">Ürün detayında akıllı şarap/içecek önerisi</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_pairings" value="1" <?php echo $enablePairings ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 5. Sunset Happy Hour -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-sun" style="color:#f59e0b;margin-right:6px;"></i> Sunset Happy Hour</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">Belirli saatlerde otomatik indirim & şerit</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_happy_hour" value="1" <?php echo $enableHappyHour ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 6. Resort & Şezlong / Oda Servisi -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-umbrella-beach" style="color:#38bdf8;margin-right:6px;"></i> Resort & Şezlong / Oda Modu</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">Masa, Şezlong, Cabana, Oda, İskele</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_resort_service" value="1" <?php echo $enableResortService ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 7. Canlı Müzik & Etkinlik Takvimi -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-music" style="color:#a855f7;margin-right:6px;"></i> Canlı Müzik & Etkinlikler</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">Haftalık konser & sanatçı programı</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_events" value="1" <?php echo $enableEvents ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 8. Vale, Taksi & Concierge -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-car" style="color:#34d399;margin-right:6px;"></i> Vale, Taksi & Concierge</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">Garson çağrısına Vale / Taksi butonları</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_concierge" value="1" <?php echo $enableConcierge ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 9. Şans Çarkı / İkram Kuponu -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-gift" style="color:#ec4899;margin-right:6px;"></i> Şans Çarkı (Gamification)</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">Günde 1 kez çark çevirme & ikram kodu</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_lucky_wheel" value="1" <?php echo $enableLuckyWheel ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 10. Mutfak Ekranı (KDS) -->
                     <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-kitchen-set" style="color:#34d399;margin-right:6px;"></i> Mutfak Ekranı (KDS)</div>
@@ -315,7 +517,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                         </label>
                     </div>
 
-                    <!-- 4. Hikayeler -->
+                    <!-- 11. Hikayeler -->
                     <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-circle-play" style="color:#f43f5e;margin-right:6px;"></i> Kampanya Hikayeleri</div>
@@ -327,7 +529,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                         </label>
                     </div>
 
-                    <!-- 5. Giriş Pop-up -->
+                    <!-- 12. Giriş Pop-up -->
                     <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-bullhorn" style="color:#fbbf24;margin-right:6px;"></i> Açılış Pop-Up Duyuru</div>
@@ -339,7 +541,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                         </label>
                     </div>
 
-                    <!-- 6. Google Yorumları & Puanlama -->
+                    <!-- 13. Google Yorumları & Puanlama -->
                     <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-star" style="color:#fbbf24;margin-right:6px;"></i> Google Yorum & Puan</div>
@@ -351,7 +553,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                         </label>
                     </div>
 
-                    <!-- 7. Alerjen & Diyet Filtresi -->
+                    <!-- 14. Alerjen & Diyet Filtresi -->
                     <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-shield-halved" style="color:#10b981;margin-right:6px;"></i> Alerjen & Diyet Filtresi</div>
@@ -363,7 +565,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                         </label>
                     </div>
 
-                    <!-- 8. Garson & Hesap Çağrı -->
+                    <!-- 15. Garson & Hesap Çağrı -->
                     <div class="module-toggle-item">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-bell" style="color:var(--primary);margin-right:6px;"></i> Garson & Hesap Çağrı</div>
@@ -375,11 +577,127 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                         </label>
                     </div>
 
+                    <!-- 16. Telegram & WhatsApp Canlı Bildirim -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fab fa-telegram" style="color:#229ed9;margin-right:6px;"></i> Telegram / WhatsApp Bot</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">Sipariş ve çağrılarda anlık bildirim</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_telegram_notify" value="1" <?php echo $enableTelegramNotify ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- 2. TEMA MODU SEÇİMİ (DARK / LIGHT) -->
+        <!-- 2. DÖVİZ KURLARI & PARA BİRİMİ AYARLARI -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-money-bill-transfer" style="color:var(--primary);"></i> Döviz Kurları (Para Birimi Çevirici)</h3>
+                <span style="font-size:0.75rem; color:var(--text-muted);">1 TL Karşılığı Kur Değerleri</span>
+            </div>
+            <div class="card-body">
+                <div class="form-3col-grid">
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-euro-sign" style="color:#60a5fa;"></i> Euro (EUR) Kuru (TL Karşılığı)</label>
+                        <input type="number" step="0.01" name="currency_eur_rate" value="<?php echo htmlspecialchars($currencyEurRate); ?>" class="form-control" placeholder="38.50">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-dollar-sign" style="color:#34d399;"></i> Dolar (USD) Kuru (TL Karşılığı)</label>
+                        <input type="number" step="0.01" name="currency_usd_rate" value="<?php echo htmlspecialchars($currencyUsdRate); ?>" class="form-control" placeholder="35.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-sterling-sign" style="color:#f43f5e;"></i> Sterlin (GBP) Kuru (TL Karşılığı)</label>
+                        <input type="number" step="0.01" name="currency_gbp_rate" value="<?php echo htmlspecialchars($currencyGbpRate); ?>" class="form-control" placeholder="46.00">
+                    </div>
+                </div>
+                <small style="color:var(--text-dim); display:block; margin-top:4px;">
+                    * Müşteri menüden EUR / USD / GBP seçtiğinde tüm ürün ve seçenek fiyatları bu kurlara bölünerek anlık olarak döviz cinsinden gösterilir.
+                </small>
+            </div>
+        </div>
+
+        <!-- 3. SUNSET HAPPY HOUR AYARLARI -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-sun" style="color:#f59e0b;"></i> Sunset Happy Hour & Özel İndirim Ayarları</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Happy Hour Başlığı / Kampanya Duyurusu</label>
+                    <input type="text" name="happy_hour_title" value="<?php echo htmlspecialchars($happyHourTitle); ?>" class="form-control">
+                </div>
+                <div class="form-3col-grid">
+                    <div class="form-group">
+                        <label class="form-label">Başlangıç Saati</label>
+                        <input type="time" name="happy_hour_start" value="<?php echo htmlspecialchars($happyHourStart); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bitiş Saati</label>
+                        <input type="time" name="happy_hour_end" value="<?php echo htmlspecialchars($happyHourEnd); ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">İndirim Oranı (%)</label>
+                        <input type="number" name="happy_hour_discount" value="<?php echo htmlspecialchars($happyHourDiscount); ?>" class="form-control" placeholder="15">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. TELEGRAM VE WHATSAPP BİLDİRİM BOTU AYARLARI -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fab fa-telegram" style="color:#229ed9;"></i> Telegram & WhatsApp Canlı Bildirim Entegrasyonu</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-2col-grid">
+                    <div class="form-group">
+                        <label class="form-label">Telegram Bot Token</label>
+                        <input type="text" name="telegram_bot_token" value="<?php echo htmlspecialchars($telegramBotToken); ?>" placeholder="123456789:ABCdefGhI..." class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telegram Chat / Grup ID</label>
+                        <input type="text" name="telegram_chat_id" value="<?php echo htmlspecialchars($telegramChatId); ?>" placeholder="-100123456789 veya chat_id" class="form-control">
+                    </div>
+                </div>
+                <div class="form-2col-grid">
+                    <div class="form-group">
+                        <label class="form-label"><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp Bildirim Telefonu</label>
+                        <input type="text" name="whatsapp_phone" value="<?php echo htmlspecialchars($whatsappPhone); ?>" placeholder="+905xxxxxxxxx" class="form-control">
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:flex-end;">
+                        <label class="switch-container" style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:10px;">
+                            <input type="checkbox" name="enable_whatsapp_notify" value="1" <?php echo $enableWhatsappNotify ? 'checked' : ''; ?>>
+                            <span style="font-size:0.85rem; color:#fff; font-weight:700;">WhatsApp Butonunu Aktif Et</span>
+                        </label>
+                    </div>
+                </div>
+                <small style="color:var(--text-dim); display:block; margin-top:2px;">
+                    * Telegram Bot token ve Chat ID tanımlandığında masadan gelen her yeni garson çağrısı ve sipariş anında Telegram grubunuza bildirim olarak düşer.
+                </small>
+            </div>
+        </div>
+
+        <!-- 5. ŞANS ÇARKI / İKRAM KUPONU SEÇENEKLERİ -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-gift" style="color:#ec4899;"></i> Şans Çarkı İkram Seçenekleri</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Çark Dilimleri & Ödüller (Virgülle ayırarak yazın)</label>
+                    <textarea name="wheel_rewards" rows="2" class="form-control" placeholder="Günün Tatlısı İkramı,%10 İndirim,Türk Kahvesi İkramı..."><?php echo htmlspecialchars($wheelRewards); ?></textarea>
+                    <small style="color:var(--text-dim); display:block; margin-top:4px;">
+                        * Çarkta görüntülenecek hediye ve ikramları virgülle ayırarak giriniz.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. TEMA MODU SEÇİMİ (DARK / LIGHT) -->
         <div class="card" style="border: 2px solid var(--border-focus);">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-circle-half-stroke" style="color:var(--primary);"></i> Menü Tema Modu</h3>
@@ -410,7 +728,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
             </div>
         </div>
 
-        <!-- 3. DARK VE LIGHT LOGOLAR -->
+        <!-- 7. DARK VE LIGHT LOGOLAR -->
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-images" style="color:var(--primary);"></i> Tema Logoları (Dark & Light)</h3>
@@ -452,7 +770,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
             </div>
         </div>
 
-        <!-- 4. MENÜ KAPAK GÖRSELİ (BANNER) -->
+        <!-- 8. MENÜ KAPAK GÖRSELİ (BANNER) -->
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-panorama" style="color:var(--primary);"></i> Menü Üst Kapak Görseli (Banner)</h3>
@@ -471,7 +789,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
             </div>
         </div>
 
-        <!-- 5. RESTORAN BİLGİLERİ VE GOOGLE HARİTA -->
+        <!-- 9. RESTORAN BİLGİLERİ VE GOOGLE HARİTA -->
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-store" style="color:var(--primary);"></i> Restoran Bilgileri & Google Harita Linki</h3>
@@ -491,7 +809,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
 
                 <div class="form-1-2col-grid">
                     <div class="form-group">
-                        <label class="form-label">Para Birimi</label>
+                        <label class="form-label">Varsayılan Para Birimi</label>
                         <input type="text" name="currency" value="<?php echo htmlspecialchars($currency); ?>" class="form-control">
                     </div>
 
@@ -514,7 +832,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
             </div>
         </div>
 
-        <!-- 6. WI-FI & İLETİŞİM -->
+        <!-- 10. WI-FI & İLETİŞİM -->
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-wifi" style="color:var(--primary);"></i> Wi-Fi & İletişim</h3>
@@ -550,7 +868,7 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
                 </div>
             </div>
             <div class="card-header" style="justify-content: flex-end;">
-                <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 1rem; font-weight: 800; width: 100%; max-width: 280px; justify-content: center;">
+                <button type="submit" class="btn btn-primary" style="padding: 14px 32px; font-size: 1.05rem; font-weight: 800; width: 100%; max-width: 320px; justify-content: center;">
                     <i class="fas fa-save"></i> Tüm Ayarları Kaydet
                 </button>
             </div>
@@ -591,14 +909,19 @@ $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
         <div class="card" style="background: rgba(197, 160, 89, 0.08); border-color: rgba(197, 160, 89, 0.35);">
             <div class="card-body">
                 <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-light); margin-bottom: 10px;">
-                    <i class="fas fa-circle-check"></i> Sistem & Modül Durumu
+                    <i class="fas fa-circle-check"></i> Aktif Modül Durumları
                 </h4>
-                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.8;">
+                <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.9;">
                     • Masadan Sipariş: <strong style="color:#fff;"><?php echo $enableOrder ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
-                    • Çoklu Dil Desteği: <strong style="color:#fff;"><?php echo $enableMultiLang ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Çoklu Para Birimi: <strong style="color:#fff;"><?php echo $enableCurrencyConverter ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Sunset Happy Hour: <strong style="color:#fff;"><?php echo $enableHappyHour ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Şefin Eşleştirmesi: <strong style="color:#fff;"><?php echo $enablePairings ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Resort & Şezlong Servisi: <strong style="color:#fff;"><?php echo $enableResortService ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Canlı Müzik & Etkinlikler: <strong style="color:#fff;"><?php echo $enableEvents ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Vale, Taksi & Concierge: <strong style="color:#fff;"><?php echo $enableConcierge ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Şans Çarkı / İkram: <strong style="color:#fff;"><?php echo $enableLuckyWheel ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
+                    • Telegram Canlı Botu: <strong style="color:#fff;"><?php echo $enableTelegramNotify ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
                     • Mutfak Ekranı (KDS): <strong style="color:#fff;"><?php echo $enableKitchen ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
-                    • Hikayeler & Pop-Up: <strong style="color:#fff;"><?php echo $enableStories ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
-                    • Google Yorumları: <strong style="color:#fff;"><?php echo $enableFeedback ? 'Aktif ✓' : 'Kapalı ✗'; ?></strong><br>
                     • Aktif Menü Teması: <strong style="color:var(--primary-light); text-transform:uppercase;"><?php echo $themeMode; ?></strong>
                 </p>
             </div>

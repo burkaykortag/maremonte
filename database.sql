@@ -16,33 +16,53 @@ CREATE TABLE `settings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `updated_at`) VALUES
-('1', 'restaurant_name', 'HOTEL MARE & MONTE BISTRO', '2026-09-21 14:13:39'),
-('2', 'restaurant_slogan', 'Altınoluk (Est. 1985)', '2026-09-21 14:13:39'),
-('3', 'currency', '₺', '2026-09-21 14:13:39'),
-('4', 'theme_color', '#C5A059', '2026-09-21 14:13:39'),
-('5', 'theme_mode', 'light', '2026-09-21 14:13:39'),
-('6', 'logo_dark_url', 'assets/images/maremonte_logo.svg', '2026-09-21 14:13:39'),
-('7', 'logo_light_url', 'assets/images/maremonte_logo.svg', '2026-09-21 14:13:39'),
-('8', 'banner_url', 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80', '2026-09-21 14:13:39'),
-('9', 'wifi_name', 'MareMonte_Guest', '2026-09-21 14:13:39'),
-('10', 'wifi_pass', 'MareMonte1985', '2026-09-21 14:13:39'),
-('11', 'phone', '+90 (266) 396 00 00', '2026-09-21 14:13:39'),
-('12', 'instagram', 'hotelmaremonte', '2026-09-21 14:13:39'),
-('13', 'address', 'İskele Mah. Sahil Cad. No:14, Altınoluk / Balıkesir', '2026-09-21 14:13:39'),
-('14', 'enable_order', '0', '2026-09-21 14:13:39'),
-('15', 'enable_multi_lang', '1', '2026-09-21 14:13:39'),
-('16', 'enable_kitchen', '1', '2026-09-21 14:13:39'),
-('17', 'enable_stories', '1', '2026-09-21 14:13:39'),
-('18', 'enable_popup', '1', '2026-09-21 14:13:39'),
-('19', 'enable_feedback', '1', '2026-09-21 14:13:39'),
-('20', 'enable_allergens_filter', '1', '2026-09-21 14:13:39'),
-('21', 'enable_waiter_call', '1', '2026-09-21 14:13:39'),
+('1', 'restaurant_name', 'HOTEL MARE MONTE BISTRO', '2026-09-21 14:26:28'),
+('2', 'restaurant_slogan', 'Altınoluk (Est. 1985)', '2026-09-21 14:26:28'),
+('3', 'currency', '₺', '2026-09-21 14:26:28'),
+('4', 'theme_color', '#d97706', '2026-09-21 14:26:28'),
+('5', 'theme_mode', 'light', '2026-09-21 14:26:28'),
+('6', 'logo_dark_url', '', '2026-09-21 14:26:28'),
+('7', 'logo_light_url', '', '2026-09-21 14:26:28'),
+('8', 'banner_url', 'http://localhost/menu/uploads/branding/img_6ab13e946e0c69.39493137.jpg', '2026-09-21 14:26:28'),
+('9', 'wifi_name', 'MareMonte_Guest', '2026-09-21 14:26:28'),
+('10', 'wifi_pass', 'MareMonte1985', '2026-09-21 14:26:28'),
+('11', 'phone', '+90 (266) 396 00 00', '2026-09-21 14:26:28'),
+('12', 'instagram', 'hotelmaremonte', '2026-09-21 14:26:28'),
+('13', 'address', 'İskele Mah. Sahil Cad. No:14, Altınoluk / Balıkesir', '2026-09-21 14:26:28'),
+('14', 'enable_order', '0', '2026-09-21 14:26:28'),
+('15', 'enable_multi_lang', '1', '2026-09-21 14:26:28'),
+('16', 'enable_kitchen', '1', '2026-09-21 14:26:28'),
+('17', 'enable_stories', '1', '2026-09-21 14:26:28'),
+('18', 'enable_popup', '1', '2026-09-21 14:26:28'),
+('19', 'enable_feedback', '1', '2026-09-21 14:26:28'),
+('20', 'enable_allergens_filter', '1', '2026-09-21 14:26:28'),
+('21', 'enable_waiter_call', '1', '2026-09-21 14:26:28'),
 ('22', 'popup_title', '🌊 Hotel Mare & Monte Bistro Hoş Geldiniz!', '2026-09-21 14:13:39'),
 ('23', 'popup_desc', '1985\'ten beri Altınoluk sahilinde eşsiz lezzetler, taze deniz ürünleri ve imza kokteyllerimizi keşfedin!', '2026-09-21 14:13:39'),
 ('24', 'popup_image', 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=800&q=80', '2026-09-21 14:13:39'),
 ('25', 'popup_btn_text', 'İmza Kokteylleri İncele', '2026-09-21 14:13:39'),
 ('26', 'popup_btn_link', '#cat-13', '2026-09-21 14:13:39'),
-('27', 'google_maps_url', 'https://maps.google.com/?q=Hotel+Mare+Monte+Altinoluk', '2026-09-21 14:13:39');
+('27', 'google_maps_url', 'https://maps.google.com/?q=Hotel+Mare+Monte+Altinoluk', '2026-09-21 14:26:28'),
+('1443', 'enable_currency_converter', '1', '2026-09-22 05:36:04'),
+('1444', 'currency_eur_rate', '38.50', '2026-09-22 05:36:04'),
+('1445', 'currency_usd_rate', '35.00', '2026-09-22 05:36:04'),
+('1446', 'currency_gbp_rate', '46.00', '2026-09-22 05:36:04'),
+('1447', 'enable_pairings', '1', '2026-09-22 05:36:04'),
+('1448', 'enable_happy_hour', '1', '2026-09-22 05:36:04'),
+('1449', 'happy_hour_title', '🌅 Gün Batımı Happy Hour (Tüm Kokteyllerde %15 İndirim)', '2026-09-22 05:36:04'),
+('1450', 'happy_hour_start', '17:00', '2026-09-22 05:36:04'),
+('1451', 'happy_hour_end', '19:30', '2026-09-22 05:36:04'),
+('1452', 'happy_hour_discount', '15', '2026-09-22 05:36:04'),
+('1453', 'enable_resort_service', '1', '2026-09-22 05:36:04'),
+('1454', 'enable_events', '1', '2026-09-22 05:36:04'),
+('1455', 'enable_concierge', '1', '2026-09-22 05:36:04'),
+('1456', 'enable_telegram_notify', '0', '2026-09-22 05:36:04'),
+('1457', 'telegram_bot_token', '', '2026-09-22 05:36:04'),
+('1458', 'telegram_chat_id', '', '2026-09-22 05:36:04'),
+('1459', 'enable_whatsapp_notify', '0', '2026-09-22 05:36:04'),
+('1460', 'whatsapp_phone', '+902663960000', '2026-09-22 05:36:04'),
+('1461', 'enable_lucky_wheel', '1', '2026-09-22 05:36:04'),
+('1462', 'wheel_rewards', 'Günün Tatlısı İkramı,%10 Hesap İndirimi,Türk Kahvesi İkramı,Şefin Özel Kokteyli,%15 İndirim,Teşekkürler', '2026-09-22 05:36:04');
 
 DROP TABLE IF EXISTS `admins`;
 CREATE TABLE `admins` (
@@ -363,5 +383,25 @@ INSERT INTO `feedback` (`id`, `table_number`, `rating`, `name`, `comment`, `is_r
 ('2', 'I2', '5', 'Selin Yılmaz', 'İskelede gün batımı eşliğinde taze levrek, kalamar ve soğuk bira harikaydı, servis çok hızlı.', '1', '2026-09-21 14:13:40'),
 ('3', 'B1', '5', 'Mehmet Öz', 'Mare Burger, pizzalar ve buz gibi ev yapımı limonata çok lezzetli, bayıldık.', '1', '2026-09-21 14:13:40'),
 ('4', 'T1', '5', 'Canan D.', 'Whiskey Sour ve San Sebastian cheesecake harika bir ikili oldu. Manzara ve müzikler çok kaliteli.', '1', '2026-09-21 14:13:40');
+
+DROP TABLE IF EXISTS `events`;
+CREATE TABLE `events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) NOT NULL,
+  `performer` varchar(150) DEFAULT '',
+  `event_date` date DEFAULT NULL,
+  `event_time` varchar(20) DEFAULT '20:30',
+  `description` text DEFAULT NULL,
+  `image` varchar(255) DEFAULT '',
+  `is_active` int(11) DEFAULT 1,
+  `sort_order` int(11) DEFAULT 0,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `events` (`id`, `title`, `performer`, `event_date`, `event_time`, `description`, `image`, `is_active`, `sort_order`, `created_at`) VALUES
+('1', 'Gün Batımı Akustik Caz & Saksafon', 'Tuna Trio & Zeynep (Saksafon)', '2026-09-22', '20:30', 'Altınoluk Körfezi gün batımında şarap ve özel kokteyller eşliğinde canlı caz ziyafeti.', 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80', '1', '1', '2026-09-22 05:36:04'),
+('2', 'Ege & Akdeniz Şarap ve Peynir Tadımı', 'Mare & Monte Sommelier Atölyesi', '2026-09-24', '19:00', 'Kaz Dağları eteklerinden yerel peynirler ve seçkin şarap eşleştirmeleri.', 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80', '1', '2', '2026-09-22 05:36:04'),
+('3', 'Gitar & Akustik Riviera Melodileri', 'Caner Arslan (Solo Akustik)', '2026-09-26', '21:00', 'Deniz kenarında nostaljik Akdeniz şarkıları ve İtalyan ezgileri.', 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=800&q=80', '1', '3', '2026-09-22 05:36:04');
 
 SET FOREIGN_KEY_CHECKS = 1;
