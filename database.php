@@ -2687,5 +2687,54 @@ function updateSetting($key, $value) {
     }
 }
 
+/**
+ * Telegram Canlı Bildirim Gönderici
+ */
+function sendTelegramAlert($text) {
+    if (getSetting('enable_telegram_notify', '0') !== '1') {
+        return false;
+    }
+    $token = getSetting('telegram_bot_token', '');
+    $chatId = getSetting('telegram_chat_id', '');
+    if (empty($token) || empty($chatId)) {
+        return false;
+    }
+
+    try {
+        $url = "https://api.telegram.org/bot{$token}/sendMessage";
+        $data = [
+            'chat_id' => $chatId,
+            'text' => $text,
+            'parse_mode' => 'HTML'
+        ];
+
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_exec($ch);
+            curl_close($ch);
+        } else {
+            $opts = [
+                'http' => [
+                    'method'  => 'POST',
+                    'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'content' => http_build_query($data),
+                    'timeout' => 3
+                ]
+            ];
+            $context = stream_context_create($opts);
+            @file_get_contents($url, false, $context);
+        }
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
 // Veritabanını otomatik başlat
 initDatabase($pdo);
+

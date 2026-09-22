@@ -34,6 +34,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $enableFeedback = !empty($_POST['enable_feedback']) ? '1' : '0';
         $enableAllergensFilter = !empty($_POST['enable_allergens_filter']) ? '1' : '0';
         $enableWaiterCall = !empty($_POST['enable_waiter_call']) ? '1' : '0';
+        $enableWaiterPos = !empty($_POST['enable_waiter_pos']) ? '1' : '0';
 
         // Yeni Modüller
         $enableCurrencyConverter = !empty($_POST['enable_currency_converter']) ? '1' : '0';
@@ -135,6 +136,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             updateSetting('enable_feedback', $enableFeedback);
             updateSetting('enable_allergens_filter', $enableAllergensFilter);
             updateSetting('enable_waiter_call', $enableWaiterCall);
+            updateSetting('enable_waiter_pos', $enableWaiterPos);
 
             // Yeni Modüller
             updateSetting('enable_currency_converter', $enableCurrencyConverter);
@@ -225,6 +227,7 @@ $enablePopup = getSetting('enable_popup', '1') === '1';
 $enableFeedback = getSetting('enable_feedback', '1') === '1';
 $enableAllergensFilter = getSetting('enable_allergens_filter', '1') === '1';
 $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
+$enableWaiterPos = getSetting('enable_waiter_pos', '1') === '1';
 
 // Yeni Modül Durumları
 $enableCurrencyConverter = getSetting('enable_currency_converter', '1') === '1';
@@ -388,7 +391,7 @@ $popupBtnLink = getSetting('popup_btn_link', '#cat-8');
         <div class="card" style="border: 2px solid var(--primary); background: linear-gradient(135deg, rgba(197, 160, 89, 0.08) 0%, rgba(22, 31, 48, 0.95) 100%);">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-toggle-on" style="color:var(--primary);"></i> Modül & Özellik Yönetimi (Aç / Kapa)</h3>
-                <span style="font-size: 0.75rem; background: var(--primary); color: #000; padding: 3px 10px; border-radius: 999px; font-weight: 800;">14 Modül Aktif / Pasif</span>
+                <span style="font-size: 0.75rem; background: var(--primary); color: #000; padding: 3px 10px; border-radius: 999px; font-weight: 800;">16 Modül Aktif / Pasif</span>
             </div>
             <div class="card-body">
                 <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 18px;">
@@ -573,6 +576,18 @@ $popupBtnLink = getSetting('popup_btn_link', '#cat-8');
                         </div>
                         <label class="switch">
                             <input type="checkbox" name="enable_waiter_call" value="1" <?php echo $enableWaiterCall ? 'checked' : ''; ?>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 16. Garson Sipariş Terminali (POS) -->
+                    <div class="module-toggle-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-cash-register" style="color:#34d399;margin-right:6px;"></i> Garson Terminali (POS)</div>
+                            <div style="font-size: 0.72rem; color: var(--text-dim);">Garsonlar için hızlı masa sipariş ekranı</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="enable_waiter_pos" value="1" <?php echo $enableWaiterPos ? 'checked' : ''; ?>>
                             <span class="slider"></span>
                         </label>
                     </div>

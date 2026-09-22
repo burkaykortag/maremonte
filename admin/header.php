@@ -66,6 +66,10 @@ try {
             </a>
 
             <div class="nav-section-label">MUTFAK & SİPARİŞ</div>
+            <a href="pos.php" class="nav-link <?php echo $currentPage === 'pos.php' ? 'active' : ''; ?>" style="color: #34d399;">
+                <i class="fas fa-cash-register"></i>
+                <span>Garson Terminali (POS)</span>
+            </a>
             <a href="kitchen.php" class="nav-link <?php echo $currentPage === 'kitchen.php' ? 'active' : ''; ?>" style="color: #60a5fa;">
                 <i class="fas fa-kitchen-set"></i>
                 <span>Mutfak & Bar Ekranı</span>
@@ -158,7 +162,15 @@ try {
                 </div>
             </div>
 
-            <div class="topbar-actions">
+            <div class="topbar-actions" style="display:flex; align-items:center; gap:8px;">
+                <a href="pos.php" class="btn-preview" style="background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.4); color:#34d399;" title="Garson Terminali">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Garson POS</span>
+                </a>
+                <a href="kitchen.php" class="btn-preview" style="background:rgba(59,130,246,0.15); border-color:rgba(59,130,246,0.4); color:#60a5fa;" title="Mutfak & Bar Ekranı">
+                    <i class="fas fa-kitchen-set"></i>
+                    <span>Mutfak</span>
+                </a>
                 <a href="../index.php" target="_blank" class="btn-preview" title="Müşteri Görünümü">
                     <i class="fas fa-arrow-up-right-from-square"></i>
                     <span>Menüyü Gör</span>

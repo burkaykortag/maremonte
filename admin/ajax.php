@@ -310,6 +310,246 @@ switch ($action) {
         }
         break;
 
+    // =========================================================================
+    // 12. GARSON POS & SİPARİŞ TERMİNALİ İŞLEMLERİ
+    // =========================================================================
+
+    // 12.1. TÜM MASALARIN CANLI DURUMLARI & ÇAĞRILAR
+    case 'pos_get_tables_status':
+        try {
+            // Masaları al
+            $tables = $pdo->query("SELECT * FROM tables ORDER BY id ASC")->fetchAll();
+
+            // Açık siparişleri al (pending, preparing, ready)
+            $openOrders = $pdo->query("SELECT * FROM orders WHERE status IN ('pending', 'preparing', 'ready') ORDER BY id ASC")->fetchAll();
+
+            // Masalara göre grupla
+            $tableStats = [];
+            foreach ($openOrders as $ord) {
+                $tn = $ord['table_number'];
+                if (!isset($tableStats[$tn])) {
+                    $tableStats[$tn] = [
+                        'order_count' => 0,
+                        'total_price' => 0.0,
+                        'latest_order_time' => $ord['created_at'],
+                        'orders' => []
+                    ];
+                }
+                $tableStats[$tn]['order_count']++;
+                $tableStats[$tn]['total_price'] += (float)$ord['total_price'];
+                $tableStats[$tn]['orders'][] = $ord;
+            }
+
+            // Bekleyen Garson/Concierge Çağrıları
+            $pendingCalls = $pdo->query("SELECT * FROM waiter_calls WHERE status = 'pending' ORDER BY id DESC LIMIT 20")->fetchAll();
+
+            echo json_encode([
+                'success' => true,
+                'tables' => $tables,
+                'table_stats' => $tableStats,
+                'pending_calls' => $pendingCalls
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        break;
+
+    // 12.2. SEÇİLİ MASANIN ADİSYON / SİPARİŞ DETAYLARI
+    case 'pos_get_table_orders':
+        $tableNumber = clean($_GET['table_number'] ?? $_POST['table_number'] ?? '');
+        if (empty($tableNumber)) {
+            echo json_encode(['success' => false, 'message' => 'Masa numarası gerekli.']);
+            exit;
+        }
+
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM orders WHERE table_number = ? AND status IN ('pending', 'preparing', 'ready') ORDER BY id ASC");
+            $stmt->execute([$tableNumber]);
+            $orders = $stmt->fetchAll();
+
+            $totalBill = 0.0;
+            $allItems = [];
+
+            foreach ($orders as &$ord) {
+                $totalBill += (float)$ord['total_price'];
+                $stmtItems = $pdo->prepare("SELECT * FROM order_items WHERE order_id = ?");
+                $stmtItems->execute([$ord['id']]);
+                $items = $stmtItems->fetchAll();
+                foreach ($items as &$it) {
+                    $it['options'] = !empty($it['options_json']) ? json_decode($it['options_json'], true) : [];
+                    $allItems[] = $it;
+                }
+                $ord['items'] = $items;
+            }
+
+            echo json_encode([
+                'success' => true,
+                'table_number' => $tableNumber,
+                'total_bill' => $totalBill,
+                'orders' => $orders,
+                'all_items' => $allItems
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        break;
+
+    // 12.3. GARSONUN POS'TAN SİPARİŞ GİRMESİ
+    case 'pos_create_order':
+        $tableNumber = clean($_POST['table_number'] ?? '');
+        $customerNote = clean($_POST['customer_note'] ?? '');
+        $waiterName = clean($_POST['waiter_name'] ?? 'Garson');
+        $itemsJson = $_POST['items'] ?? '[]';
+        $items = json_decode($itemsJson, true);
+
+        if (empty($tableNumber)) {
+            echo json_encode(['success' => false, 'message' => 'Lütfen masa / konum belirtin.']);
+            exit;
+        }
+
+        if (empty($items) || !is_array($items)) {
+            echo json_encode(['success' => false, 'message' => 'Adisyonda ürün bulunmuyor.']);
+            exit;
+        }
+
+        try {
+            $pdo->beginTransaction();
+
+            $totalPrice = 0.00;
+            $orderItemsToInsert = [];
+            $summaryLines = [];
+
+            foreach ($items as $item) {
+                $prodId = (int)($item['id'] ?? 0);
+                $quantity = max(1, (int)($item['quantity'] ?? 1));
+                $selectedOptions = $item['options'] ?? [];
+                $itemNote = clean($item['item_note'] ?? '');
+
+                // Ürün doğrula
+                $stmtP = $pdo->prepare("SELECT id, name, price, is_available FROM products WHERE id = ?");
+                $stmtP->execute([$prodId]);
+                $prodDb = $stmtP->fetch();
+
+                if (!$prodDb) continue;
+
+                $itemBasePrice = (float)$prodDb['price'];
+                $extraTotal = 0.00;
+
+                if (!empty($selectedOptions)) {
+                    foreach ($selectedOptions as $opt) {
+                        $extraTotal += (float)($opt['extra_price'] ?? 0);
+                    }
+                }
+
+                $unitPrice = $itemBasePrice + $extraTotal;
+                $itemSubtotal = $unitPrice * $quantity;
+                $totalPrice += $itemSubtotal;
+
+                $orderItemsToInsert[] = [
+                    'product_id' => $prodDb['id'],
+                    'product_name' => $prodDb['name'] . ($itemNote ? " ({$itemNote})" : ""),
+                    'quantity' => $quantity,
+                    'price' => $unitPrice,
+                    'options_json' => json_encode($selectedOptions, JSON_UNESCAPED_UNICODE)
+                ];
+
+                $summaryLines[] = "• {$quantity}x {$prodDb['name']}" . ($itemNote ? " [{$itemNote}]" : "") . " (" . number_format($itemSubtotal, 2) . " ₺)";
+            }
+
+            if (empty($orderItemsToInsert)) {
+                $pdo->rollBack();
+                echo json_encode(['success' => false, 'message' => 'Geçerli ürün bulunamadı.']);
+                exit;
+            }
+
+            // Siparişi kaydet (Garson tarafından girilen sipariş doğrudan mutfağa 'preparing' gider)
+            $noteWithWaiter = "👨‍🍳 [Garson: {$waiterName}]" . ($customerNote ? " - {$customerNote}" : "");
+            $stmtOrder = $pdo->prepare("INSERT INTO orders (table_number, total_price, status, customer_note) VALUES (?, ?, 'preparing', ?)");
+            $stmtOrder->execute([$tableNumber, $totalPrice, $noteWithWaiter]);
+            $orderId = $pdo->lastInsertId();
+
+            // Kalemleri kaydet
+            $stmtItem = $pdo->prepare("INSERT INTO order_items (order_id, product_id, product_name, quantity, price, options_json) VALUES (?, ?, ?, ?, ?, ?)");
+            foreach ($orderItemsToInsert as $oi) {
+                $stmtItem->execute([
+                    $orderId,
+                    $oi['product_id'],
+                    $oi['product_name'],
+                    $oi['quantity'],
+                    $oi['price'],
+                    $oi['options_json']
+                ]);
+            }
+
+            $pdo->commit();
+
+            // Telegram Bildirimi
+            $telegramMsg = "👨‍🍳 <b>GARSON EL TERMİNALİ SİPARİŞİ!</b>\n";
+            $telegramMsg .= "📍 <b>Masa / Konum:</b> {$tableNumber}\n";
+            $telegramMsg .= "👤 <b>Personel:</b> {$waiterName}\n";
+            $telegramMsg .= "🧾 <b>Sipariş No:</b> #{$orderId}\n";
+            $telegramMsg .= "💰 <b>Tutar:</b> " . number_format($totalPrice, 2) . " ₺\n";
+            $telegramMsg .= "📋 <b>Ürünler:</b>\n" . implode("\n", $summaryLines) . "\n";
+            if (!empty($customerNote)) {
+                $telegramMsg .= "💬 <b>Not:</b> {$customerNote}\n";
+            }
+            $telegramMsg .= "⏰ <b>Saat:</b> " . date('H:i:s');
+            sendTelegramAlert($telegramMsg);
+
+            echo json_encode([
+                'success' => true,
+                'order_id' => $orderId,
+                'total_price' => $totalPrice,
+                'message' => 'Sipariş mutfağa iletildi!'
+            ]);
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            echo json_encode(['success' => false, 'message' => 'Sipariş oluşturulamadı: ' . $e->getMessage()]);
+        }
+        break;
+
+    // 12.4. HESAP KAPATMA & TAHSİLAT
+    case 'pos_close_table':
+        $tableNumber = clean($_POST['table_number'] ?? '');
+        $paymentMethod = clean($_POST['payment_method'] ?? 'cash'); // 'cash', 'card', 'room', 'complimentary'
+        $waiterName = clean($_POST['waiter_name'] ?? 'Garson');
+
+        if (empty($tableNumber)) {
+            echo json_encode(['success' => false, 'message' => 'Masa numarası gerekli.']);
+            exit;
+        }
+
+        try {
+            $stmt = $pdo->prepare("UPDATE orders SET status = 'served' WHERE table_number = ? AND status IN ('pending', 'preparing', 'ready')");
+            $stmt->execute([$tableNumber]);
+
+            $payLabels = [
+                'cash' => '💵 Nakit',
+                'card' => '💳 Kredi Kartı',
+                'room' => '🛎️ Odaya Yazıldı',
+                'complimentary' => '🎁 İkram / Yetkili'
+            ];
+            $payText = $payLabels[$paymentMethod] ?? 'Nakit';
+
+            // Telegram Bildirimi
+            $telegramMsg = "✅ <b>HESAP TAHSİL EDİLDİ & MASASI KAPATILDI</b>\n";
+            $telegramMsg .= "📍 <b>Masa:</b> {$tableNumber}\n";
+            $telegramMsg .= "💳 <b>Ödeme Türü:</b> {$payText}\n";
+            $telegramMsg .= "👤 <b>Personel:</b> {$waiterName}\n";
+            $telegramMsg .= "⏰ <b>Saat:</b> " . date('H:i:s');
+            sendTelegramAlert($telegramMsg);
+
+            echo json_encode([
+                'success' => true,
+                'message' => "Masa {$tableNumber} hesabı ({$payText}) başarıyla kapatıldı!"
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Hesap kapatılamadı: ' . $e->getMessage()]);
+        }
+        break;
+
     default:
         echo json_encode(['success' => false, 'message' => 'Bilinmeyen işlem.']);
         break;
