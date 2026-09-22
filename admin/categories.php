@@ -92,59 +92,71 @@ $categories = $stmt->fetchAll();
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th style="width: 60px;">Görsel / İkon</th>
-                        <th>Kategori Adı</th>
-                        <th>Sıra No</th>
-                        <th>Ürün Sayısı</th>
-                        <th>Menüde Aktif</th>
-                        <th style="text-align: right;">İşlemler</th>
+                        <th style="width: 70px; text-align: center;">Görsel / İkon</th>
+                        <th style="min-width: 180px;">Kategori Bilgisi</th>
+                        <th style="width: 100px; text-align: center;">Sıra No</th>
+                        <th style="width: 140px; text-align: center;">Kayıtlı Ürün</th>
+                        <th style="width: 120px; text-align: center;">Menüde Aktif</th>
+                        <th style="width: 110px; text-align: right;">İşlemler</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($categories)): ?>
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 32px; color: var(--text-dim);">
+                            <td colspan="6" style="text-align: center; padding: 36px; color: var(--text-dim);">
                                 Henüz kategori eklenmedi.
                             </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($categories as $c): ?>
                             <tr id="row-category-<?php echo $c['id']; ?>">
-                                <td>
+                                <td style="text-align: center;">
                                     <?php if (!empty($c['image'])): ?>
-                                        <img src="<?php echo htmlspecialchars($c['image']); ?>" class="table-thumb" alt="">
+                                        <img src="<?php echo htmlspecialchars($c['image']); ?>" class="table-thumb" alt="<?php echo htmlspecialchars($c['name']); ?>" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                                        <div class="table-thumb" style="display:none;">
+                                            <i class="fas fa-<?php echo htmlspecialchars($c['icon'] ?: 'utensils'); ?>"></i>
+                                        </div>
                                     <?php else: ?>
-                                        <div class="table-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.2rem;">
+                                        <div class="table-thumb">
                                             <i class="fas fa-<?php echo htmlspecialchars($c['icon'] ?: 'utensils'); ?>"></i>
                                         </div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <strong><?php echo htmlspecialchars($c['name']); ?></strong>
+                                    <div style="font-weight: 800; color: #fff; font-size: 0.95rem;">
+                                        <?php echo htmlspecialchars($c['name']); ?>
+                                    </div>
+                                    <div style="font-size: 0.74rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                                        <span><i class="fas fa-tag" style="color:var(--primary); font-size:0.7rem;"></i> /<?php echo htmlspecialchars($c['slug']); ?></span>
+                                        <span>•</span>
+                                        <span>İkon: <code>fa-<?php echo htmlspecialchars($c['icon'] ?: 'utensils'); ?></code></span>
+                                    </div>
                                 </td>
-                                <td>
-                                    <span style="font-weight: 700; color: var(--text-muted); background: var(--bg-input); padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                                        <?php echo (int)$c['sort_order']; ?>
+                                <td style="text-align: center;">
+                                    <span style="font-weight: 800; font-size: 0.82rem; color: var(--text-muted); background: var(--bg-input); padding: 4px 12px; border-radius: var(--radius-full); border: 1px solid var(--border);">
+                                        #<?php echo (int)$c['sort_order']; ?>
                                     </span>
                                 </td>
-                                <td>
-                                    <a href="products.php?category=<?php echo $c['id']; ?>" style="color: var(--info); font-weight: 700; text-decoration: none;">
+                                <td style="text-align: center;">
+                                    <a href="products.php?category=<?php echo $c['id']; ?>" class="btn btn-secondary btn-sm" style="font-weight: 700; color: #60a5fa; border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.1); border-radius: var(--radius-full); padding: 4px 12px; text-decoration: none;" title="Bu kategorideki ürünleri filtrele">
                                         <i class="fas fa-burger"></i> <?php echo (int)$c['product_count']; ?> Ürün
                                     </a>
                                 </td>
-                                <td>
-                                    <label class="switch">
+                                <td style="text-align: center;">
+                                    <label class="switch" title="Menüde Aktif / Pasif">
                                         <input type="checkbox" class="status-toggle" data-type="category" data-id="<?php echo $c['id']; ?>" <?php echo $c['is_active'] ? 'checked' : ''; ?>>
                                         <span class="slider"></span>
                                     </label>
                                 </td>
                                 <td style="text-align: right;">
-                                    <button type="button" class="btn btn-secondary btn-icon" title="Düzenle" onclick='editCategory(<?php echo json_encode($c); ?>)'>
-                                        <i class="fas fa-pen"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-danger btn-icon btn-delete-item" title="Sil" data-type="category" data-id="<?php echo $c['id']; ?>" data-name="<?php echo htmlspecialchars($c['name']); ?>">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <div style="display: inline-flex; gap: 6px;">
+                                        <button type="button" class="btn btn-secondary btn-icon" title="Düzenle" onclick='editCategory(<?php echo json_encode($c); ?>)'>
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-icon btn-delete-item" title="Sil" data-type="category" data-id="<?php echo $c['id']; ?>" data-name="<?php echo htmlspecialchars($c['name']); ?>">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

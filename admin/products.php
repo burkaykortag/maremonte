@@ -164,12 +164,12 @@ $products = $stmtP->fetchAll();
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th style="width: 60px;">Görsel</th>
+                        <th style="width: 70px; text-align: center;">Görsel</th>
                         <th>Ürün Adı & Etiket</th>
                         <th>Kategori</th>
                         <th>Fiyat</th>
                         <th>Ekstralar</th>
-                        <th>Stok / Menü</th>
+                        <th style="text-align: center;">Stok / Menü</th>
                         <th style="text-align: right;">İşlemler</th>
                     </tr>
                 </thead>
@@ -183,11 +183,14 @@ $products = $stmtP->fetchAll();
                     <?php else: ?>
                         <?php foreach ($products as $p): ?>
                             <tr id="row-product-<?php echo $p['id']; ?>">
-                                <td>
+                                <td style="text-align: center;">
                                     <?php if (!empty($p['image'])): ?>
-                                        <img src="<?php echo htmlspecialchars($p['image']); ?>" class="table-thumb" alt="">
+                                        <img src="<?php echo htmlspecialchars($p['image']); ?>" class="table-thumb" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                                        <div class="table-thumb" style="display:none;">
+                                            <i class="fas fa-utensils"></i>
+                                        </div>
                                     <?php else: ?>
-                                        <div class="table-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--text-dim);">
+                                        <div class="table-thumb">
                                             <i class="fas fa-utensils"></i>
                                         </div>
                                     <?php endif; ?>
