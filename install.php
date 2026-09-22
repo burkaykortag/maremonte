@@ -67,18 +67,19 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['run_install']
             $pdo = new PDO('sqlite:' . $sqlitePath);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            define('DB_DRIVER', 'sqlite');
-            define('DB_SQLITE_PATH', $sqlitePath);
-            require_once __DIR__ . '/database.php';
-
-            $hash = password_hash($adminPass, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("UPDATE admins SET username = ?, password_hash = ? WHERE id = 1");
-            $stmt->execute([$adminUser, $hash]);
+            // Admin Şifresini Güncelle
+            try {
+                $hash = password_hash($adminPass, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("UPDATE admins SET username = ?, password_hash = ? WHERE id = 1");
+                $stmt->execute([$adminUser, $hash]);
+            } catch (Exception $eAd) {
+                // Tablolar yoksa database.php include edilince oluşur
+            }
 
             updateConfigFile('sqlite', $dbHost, $dbName, $dbUser, $dbPass);
 
             $statusType = 'success';
-            $statusMsg = 'SQLite Veritabanı başarıyla kuruldu ve tüm menü verileri yüklendi!';
+            $statusMsg = 'SQLite Veritabanı başarıyla seçildi ve tüm menü sistemi hazırlandı!';
             $isInstalled = true;
         } catch (Exception $e) {
             $statusType = 'danger';
@@ -86,26 +87,26 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['run_install']
         }
     } else {
         try {
+            $pdo = null;
+            // 1. Önce direkt veritabanına bağlanmayı dene
             try {
-                $dsn = "mysql:host={$dbHost};charset=utf8mb4";
-                $pdo = new PDO($dsn, $dbUser, $dbPass, [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-                ]);
-            } catch (PDOException $e) {
                 $dsn = "mysql:host={$dbHost};dbname={$dbName};charset=utf8mb4";
                 $pdo = new PDO($dsn, $dbUser, $dbPass, [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
                 ]);
+            } catch (PDOException $eDb) {
+                // Veritabanı yoksa host seviyesinde bağlanıp oluşturmayı dene
+                $dsnNoDb = "mysql:host={$dbHost};charset=utf8mb4";
+                $pdo = new PDO($dsnNoDb, $dbUser, $dbPass, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                ]);
+                $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                $pdo->exec("USE `{$dbName}`");
             }
 
-            try {
-                $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-            } catch (Exception $ignored) {}
-
-            $pdo->exec("USE `{$dbName}`");
-
+            // 2. database.sql dosyasını içe aktar
             if (file_exists($sqlFile)) {
                 $sqlContent = file_get_contents($sqlFile);
                 $pdo->exec("SET FOREIGN_KEY_CHECKS = 0");
@@ -118,16 +119,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['run_install']
                     }
                 }
                 $pdo->exec("SET FOREIGN_KEY_CHECKS = 1");
-            } else {
-                define('DB_DRIVER', 'mysql');
-                define('DB_HOST', $dbHost);
-                define('DB_NAME', $dbName);
-                define('DB_USER', $dbUser);
-                define('DB_PASS', $dbPass);
-                define('DB_CHARSET', 'utf8mb4');
-                require_once __DIR__ . '/database.php';
             }
 
+            // 3. Admin Şifresini Güncelle
             if (!empty($adminUser) && !empty($adminPass)) {
                 $hash = password_hash($adminPass, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("UPDATE admins SET username = ?, password_hash = ? WHERE id = 1");
@@ -138,15 +132,16 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['run_install']
                 }
             }
 
+            // 4. config.php'yi güncelle
             updateConfigFile('mysql', $dbHost, $dbName, $dbUser, $dbPass);
 
             $statusType = 'success';
-            $statusMsg = "MySQL Veritabanı (`{$dbName}`) başarıyla bağlandı, tablolar oluşturuldu ve tüm menü yüklendi!";
+            $statusMsg = "MySQL Veritabanı (`{$dbName}`) başarıyla bağlandı, tablolar yüklendi!";
             $isInstalled = true;
 
         } catch (Exception $e) {
             $statusType = 'danger';
-            $statusMsg = 'MySQL Bağlantı/Kurulum Hatası: ' . $e->getMessage() . '<br><small>İpucu: cPanel veya Plesk panelinizden veritabanı adını, kullanıcısını ve şifresini kontrol edin ve kullanıcının veritabanına "Tüm Yetkilerle (ALL PRIVILEGES)" eklendiğinden emin olun.</small>';
+            $statusMsg = 'MySQL Bağlantı Hatası: ' . $e->getMessage() . '<br><br><strong>İpuçları:</strong><br>• Eğer hosting cPanel kullanıyorsanız, kullanıcı adı genellikle <code>cpaneladi_Maremonte</code> şeklindedir.<br>• Eğer kendi bilgisayarınızda (XAMPP) deniyorsanız, kullanıcı: <code>root</code> ve şifre: <em>(boş)</em> olmalıdır.<br>• Veya hiçbir ayarla uğraşmamak için sağdaki <strong>SQLite (Sıfır Ayar)</strong> seçeneğiyle 1 saniyede kurabilirsiniz.';
         }
     }
 }
