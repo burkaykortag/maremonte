@@ -106,6 +106,101 @@ switch ($action) {
         }
         break;
 
+    // 4.1 KATEGORİ SIRALAMASINI TOPLU GÜNCELLEME (REORDER CATEGORIES)
+    case 'update_category_order':
+        $order = $_POST['order'] ?? [];
+        if (!is_array($order) && is_string($order)) {
+            $order = json_decode($order, true) ?: [];
+        }
+
+        if (empty($order) || !is_array($order)) {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz sıralama verisi.']);
+            exit;
+        }
+
+        try {
+            $pdo->beginTransaction();
+            $stmt = $pdo->prepare("UPDATE categories SET sort_order = ? WHERE id = ?");
+            $pos = 1;
+            foreach ($order as $catId) {
+                $catId = (int)$catId;
+                if ($catId > 0) {
+                    $stmt->execute([$pos, $catId]);
+                    $pos++;
+                }
+            }
+            $pdo->commit();
+            echo json_encode([
+                'success' => true,
+                'message' => 'Kategori sıralaması başarıyla güncellendi! ✨'
+            ]);
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            echo json_encode(['success' => false, 'message' => 'Sıralama kaydedilemedi: ' . $e->getMessage()]);
+        }
+        break;
+
+    // 4.2 KATEGORİYİ YUKARI / AŞAĞI TAŞIMA (MOVE CATEGORY ORDER UP/DOWN)
+    case 'move_category_order':
+        $id = (int)($_POST['id'] ?? 0);
+        $direction = $_POST['direction'] ?? 'up'; // 'up' veya 'down'
+
+        if ($id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz kategori.']);
+            exit;
+        }
+
+        try {
+            // Tüm kategorileri mevcut sıralamaya göre çek
+            $stmt = $pdo->query("SELECT id, sort_order FROM categories ORDER BY sort_order ASC, id ASC");
+            $cats = $stmt->fetchAll();
+
+            $index = -1;
+            for ($i = 0; $i < count($cats); $i++) {
+                if ((int)$cats[$i]['id'] === $id) {
+                    $index = $i;
+                    break;
+                }
+            }
+
+            if ($index === -1) {
+                echo json_encode(['success' => false, 'message' => 'Kategori bulunamadı.']);
+                exit;
+            }
+
+            $targetIndex = ($direction === 'up') ? ($index - 1) : ($index + 1);
+            if ($targetIndex < 0 || $targetIndex >= count($cats)) {
+                echo json_encode(['success' => false, 'message' => 'Kategori daha fazla taşınamaz.']);
+                exit;
+            }
+
+            // Dizide yer değiştir
+            $temp = $cats[$index];
+            $cats[$index] = $cats[$targetIndex];
+            $cats[$targetIndex] = $temp;
+
+            // Veritabanını güncelle
+            $pdo->beginTransaction();
+            $upd = $pdo->prepare("UPDATE categories SET sort_order = ? WHERE id = ?");
+            foreach ($cats as $newPos => $c) {
+                $upd->execute([$newPos + 1, (int)$c['id']]);
+            }
+            $pdo->commit();
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Kategori sırası güncellendi! ✓'
+            ]);
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            echo json_encode(['success' => false, 'message' => 'Sıralama hatası: ' . $e->getMessage()]);
+        }
+        break;
+
     // 5. SİPARİŞ DURUMU GÜNCELLEME (MUTFAK & KDS)
     case 'update_order_status':
         $orderId = (int)($_POST['order_id'] ?? 0);

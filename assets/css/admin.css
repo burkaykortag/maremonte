@@ -1162,3 +1162,62 @@ input:checked + .slider:before { transform: translateX(22px); }
     font-size: 1.2rem;
   }
 }
+
+/* ===================================================
+   DRAG & DROP SORTABLE STYLES
+   =================================================== */
+.drag-handle {
+  cursor: grab;
+  color: var(--text-dim);
+  font-size: 1.15rem;
+  text-align: center;
+  user-select: none;
+  touch-action: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+  width: 36px;
+}
+.drag-handle:hover {
+  color: var(--primary);
+  transform: scale(1.15);
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+.sortable-ghost {
+  opacity: 0.35 !important;
+  background: rgba(197, 160, 89, 0.15) !important;
+  border: 2px dashed var(--primary) !important;
+}
+.sortable-chosen {
+  background: rgba(197, 160, 89, 0.25) !important;
+}
+.sort-btn-group {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+.sort-btn {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.72rem;
+  transition: all 0.15s ease;
+}
+.sort-btn:hover {
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
+}
+.sort-btn:disabled {
+  opacity: 0.25;
+  pointer-events: none;
+}
+

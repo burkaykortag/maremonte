@@ -257,59 +257,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================================
-    // KATEGORİ SLIDE BAR & SCROLL SPY
+    // ÇİFT SIRALI BAĞIMSIZ KATEGORİ SLIDER & SCROLL SPY
     // =========================================================================
-    const categoriesCarousel = document.getElementById('categoriesCarousel');
-    const catSlidePrev = document.getElementById('catSlidePrev');
-    const catSlideNext = document.getElementById('catSlideNext');
+    function setupCarouselRow(carouselId, prevBtnId, nextBtnId) {
+        const carousel = document.getElementById(carouselId);
+        const prevBtn = document.getElementById(prevBtnId);
+        const nextBtn = document.getElementById(nextBtnId);
 
-    function updateCatSlideButtons() {
-        if (!categoriesCarousel || !catSlidePrev || !catSlideNext) return;
-        const maxScroll = categoriesCarousel.scrollWidth - categoriesCarousel.clientWidth;
-        catSlidePrev.disabled = categoriesCarousel.scrollLeft <= 4;
-        catSlideNext.disabled = categoriesCarousel.scrollLeft >= maxScroll - 4;
+        if (!carousel) return;
+
+        function updateButtons() {
+            if (!prevBtn || !nextBtn) return;
+            const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+            prevBtn.disabled = carousel.scrollLeft <= 4;
+            nextBtn.disabled = carousel.scrollLeft >= maxScroll - 4;
+        }
+
+        carousel.addEventListener('scroll', updateButtons, { passive: true });
+        window.addEventListener('resize', updateButtons);
+        setTimeout(updateButtons, 300);
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                const scrollDist = (carousel.clientWidth || 240) * 0.75;
+                carousel.scrollBy({ left: -scrollDist, behavior: 'smooth' });
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                const scrollDist = (carousel.clientWidth || 240) * 0.75;
+                carousel.scrollBy({ left: scrollDist, behavior: 'smooth' });
+            });
+        }
     }
 
-    if (categoriesCarousel) {
-        categoriesCarousel.addEventListener('scroll', updateCatSlideButtons, { passive: true });
-        window.addEventListener('resize', updateCatSlideButtons);
-        setTimeout(updateCatSlideButtons, 300);
-    }
+    // Üst Sıra ve Alt Sıra Bağımsız Carousel Başlatıcıları
+    setupCarouselRow('catCarouselTop', 'catSlidePrevTop', 'catSlideNextTop');
+    setupCarouselRow('catCarouselBottom', 'catSlidePrevBottom', 'catSlideNextBottom');
+    // Geriye dönük tekil bar uyumluluğu
+    setupCarouselRow('categoriesCarousel', 'catSlidePrev', 'catSlideNext');
 
-    if (catSlidePrev && categoriesCarousel) {
-        catSlidePrev.addEventListener('click', () => {
-            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.75;
-            categoriesCarousel.scrollBy({ left: -scrollDist, behavior: 'smooth' });
-        });
-    }
-
-    if (catSlideNext && categoriesCarousel) {
-        catSlideNext.addEventListener('click', () => {
-            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.75;
-            categoriesCarousel.scrollBy({ left: scrollDist, behavior: 'smooth' });
-        });
-    }
-
-    categoryPills.forEach(pill => {
-        pill.addEventListener('click', (e) => {
+    // Kategoriye Tıklama ile Sayfa Kaydırma
+    const allCategoryItems = document.querySelectorAll('.category-item, .category-pill');
+    allCategoryItems.forEach(item => {
+        item.addEventListener('click', (e) => {
             e.preventDefault();
-            const targetId = pill.getAttribute('href');
+            const targetId = item.getAttribute('href');
             const targetSection = document.querySelector(targetId);
             if (targetSection) {
                 targetSection.scrollIntoView({ behavior: 'smooth' });
-                categoryPills.forEach(p => p.classList.remove('active'));
-                pill.classList.add('active');
-                pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                allCategoryItems.forEach(p => p.classList.remove('active'));
+                item.classList.add('active');
+                item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
         });
     });
 
+    // IntersectionObserver (Scroll Spy)
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const id = entry.target.getAttribute('id');
-                categoryPills.forEach(pill => {
-                    if (pill.getAttribute('href') === `#${id}`) {
+                allCategoryItems.forEach(pill => {
+                    if (pill.getAttribute('href') === `#${id}` || pill.dataset.catId === id.replace('cat-', '')) {
                         pill.classList.add('active');
                         pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                     } else {

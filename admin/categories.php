@@ -85,31 +85,50 @@ $categories = $stmt->fetchAll();
 <div class="card">
     <div class="card-header">
         <h3 class="card-title"><i class="fas fa-layer-group" style="color:var(--primary);"></i> Mevcut Kategoriler (<?php echo count($categories); ?>)</h3>
+        <span style="font-size: 0.78rem; color: var(--text-dim); display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-arrows-up-down" style="color:var(--primary);"></i> Sürükle-Bırak veya Ok Tuşlarıyla Sıralayabilirsiniz
+        </span>
     </div>
+
+    <!-- HIZLI SIRALAMA BİLGİLENDİRME BANNERI -->
+    <div style="background: rgba(197, 160, 89, 0.08); border-bottom: 1px solid rgba(197, 160, 89, 0.2); padding: 10px 18px; font-size: 0.82rem; color: var(--primary-light); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-hand-pointer" style="font-size: 0.95rem;"></i>
+            <span><strong>Menü Sıralaması:</strong> Kategorileri sıralamak için <i class="fas fa-grip-vertical"></i> ikonundan sürükleyin veya <i class="fas fa-arrow-up"></i> <i class="fas fa-arrow-down"></i> butonlarını kullanın. Değişiklikler anında menüye yansır.</span>
+        </div>
+        <span id="orderStatusBadge" style="font-weight: 700; font-size: 0.74rem; color: var(--success); display: none;">
+            <i class="fas fa-check-double"></i> Sıralama Güncel
+        </span>
+    </div>
+
     <div class="card-body" style="padding: 0;">
         <!-- MASAÜSTÜ TABLO GÖRÜNÜMÜ -->
         <div class="table-responsive desktop-table-view">
             <table class="admin-table">
                 <thead>
                     <tr>
+                        <th style="width: 40px; text-align: center;">Taşı</th>
                         <th style="width: 70px; text-align: center;">Görsel / İkon</th>
                         <th style="min-width: 180px;">Kategori Bilgisi</th>
-                        <th style="width: 100px; text-align: center;">Sıra No</th>
-                        <th style="width: 140px; text-align: center;">Kayıtlı Ürün</th>
-                        <th style="width: 120px; text-align: center;">Menüde Aktif</th>
+                        <th style="width: 140px; text-align: center;">Sıra No &amp; Taşıma</th>
+                        <th style="width: 130px; text-align: center;">Kayıtlı Ürün</th>
+                        <th style="width: 110px; text-align: center;">Menüde Aktif</th>
                         <th style="width: 110px; text-align: right;">İşlemler</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="categoriesTableBody">
                     <?php if (empty($categories)): ?>
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 36px; color: var(--text-dim);">
+                            <td colspan="7" style="text-align: center; padding: 36px; color: var(--text-dim);">
                                 Henüz kategori eklenmedi.
                             </td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach ($categories as $c): ?>
-                            <tr id="row-category-<?php echo $c['id']; ?>">
+                        <?php foreach ($categories as $index => $c): ?>
+                            <tr id="row-category-<?php echo $c['id']; ?>" data-id="<?php echo $c['id']; ?>" class="category-sort-row">
+                                <td style="text-align: center;" class="drag-handle" title="Sürükleyip bırakarak sıralayın">
+                                    <i class="fas fa-grip-vertical"></i>
+                                </td>
                                 <td style="text-align: center;">
                                     <?php if (!empty($c['image'])): ?>
                                         <img src="<?php echo htmlspecialchars($c['image']); ?>" class="table-thumb" alt="<?php echo htmlspecialchars($c['name']); ?>" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
@@ -133,9 +152,17 @@ $categories = $stmt->fetchAll();
                                     </div>
                                 </td>
                                 <td style="text-align: center;">
-                                    <span style="font-weight: 800; font-size: 0.82rem; color: var(--text-muted); background: var(--bg-input); padding: 4px 12px; border-radius: var(--radius-full); border: 1px solid var(--border);">
-                                        #<?php echo (int)$c['sort_order']; ?>
-                                    </span>
+                                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <button type="button" class="sort-btn btn-move-up" title="Yukarı Taşı" onclick="moveCategoryOrder(<?php echo $c['id']; ?>, 'up')">
+                                            <i class="fas fa-arrow-up"></i>
+                                        </button>
+                                        <span class="cat-order-badge" id="cat-order-badge-<?php echo $c['id']; ?>" style="font-weight: 800; font-size: 0.82rem; color: var(--primary-light); background: var(--bg-input); padding: 4px 10px; border-radius: var(--radius-full); border: 1px solid var(--border); min-width: 38px; text-align: center;">
+                                            #<?php echo (int)$c['sort_order']; ?>
+                                        </span>
+                                        <button type="button" class="sort-btn btn-move-down" title="Aşağı Taşı" onclick="moveCategoryOrder(<?php echo $c['id']; ?>, 'down')">
+                                            <i class="fas fa-arrow-down"></i>
+                                        </button>
+                                    </div>
                                 </td>
                                 <td style="text-align: center;">
                                     <a href="products.php?category=<?php echo $c['id']; ?>" class="btn btn-secondary btn-sm" style="font-weight: 700; color: #60a5fa; border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.1); border-radius: var(--radius-full); padding: 4px 12px; text-decoration: none;" title="Bu kategorideki ürünleri filtrele">
@@ -166,13 +193,16 @@ $categories = $stmt->fetchAll();
         </div>
 
         <!-- MOBİL KARTLAR GÖRÜNÜMÜ -->
-        <div class="mobile-cards-view" style="padding: 12px;">
+        <div class="mobile-cards-view" id="categoriesMobileCards" style="padding: 12px; display: flex; flex-direction: column; gap: 10px;">
             <?php if (empty($categories)): ?>
                 <div style="text-align: center; padding: 24px; color: var(--text-dim);">Henüz kategori eklenmedi.</div>
             <?php else: ?>
                 <?php foreach ($categories as $c): ?>
-                    <div class="mobile-card" id="card-category-<?php echo $c['id']; ?>">
+                    <div class="mobile-card category-sort-card" id="card-category-<?php echo $c['id']; ?>" data-id="<?php echo $c['id']; ?>">
                         <div class="mobile-card-top">
+                            <div class="drag-handle" style="width: 24px; display: flex; align-items: center; justify-content: center;" title="Sürükle">
+                                <i class="fas fa-grip-vertical"></i>
+                            </div>
                             <?php if (!empty($c['image'])): ?>
                                 <img src="<?php echo htmlspecialchars($c['image']); ?>" class="mobile-card-thumb" alt="">
                             <?php else: ?>
@@ -181,17 +211,25 @@ $categories = $stmt->fetchAll();
                             <div class="mobile-card-info">
                                 <div class="mobile-card-title"><?php echo htmlspecialchars($c['name']); ?></div>
                                 <div class="mobile-card-tags">
-                                    <span class="mobile-tag"><i class="fas fa-arrow-down-1-9"></i> Sıra: <?php echo (int)$c['sort_order']; ?></span>
+                                    <span class="mobile-tag cat-order-badge-mobile" id="cat-order-badge-mob-<?php echo $c['id']; ?>"><i class="fas fa-arrow-down-1-9"></i> Sıra: #<?php echo (int)$c['sort_order']; ?></span>
                                     <a href="products.php?category=<?php echo $c['id']; ?>" class="mobile-tag" style="color: var(--info); text-decoration: none;">
                                         <i class="fas fa-burger"></i> <?php echo (int)$c['product_count']; ?> Ürün
                                     </a>
                                 </div>
                             </div>
-                            <div style="flex-shrink: 0;">
+                            <div style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                                 <label class="switch" title="Menüde Aktif / Pasif">
                                     <input type="checkbox" class="status-toggle" data-type="category" data-id="<?php echo $c['id']; ?>" <?php echo $c['is_active'] ? 'checked' : ''; ?>>
                                     <span class="slider"></span>
                                 </label>
+                                <div class="sort-btn-group">
+                                    <button type="button" class="sort-btn" title="Yukarı Taşı" onclick="moveCategoryOrder(<?php echo $c['id']; ?>, 'up')">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
+                                    <button type="button" class="sort-btn" title="Aşağı Taşı" onclick="moveCategoryOrder(<?php echo $c['id']; ?>, 'down')">
+                                        <i class="fas fa-arrow-down"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -289,13 +327,16 @@ $categories = $stmt->fetchAll();
     </div>
 </div>
 
+<!-- SortableJS CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
 <script>
 function openCategoryModal() {
     document.getElementById('catModalTitle').innerHTML = '<i class="fas fa-layer-group" style="color:var(--primary);"></i> Yeni Kategori Ekle';
     document.getElementById('formCatId').value = '0';
     document.getElementById('formCatName').value = '';
     document.getElementById('formCatIcon').value = 'utensils';
-    document.getElementById('formCatSort').value = '1';
+    document.getElementById('formCatSort').value = '<?php echo count($categories) + 1; ?>';
     document.getElementById('formCatImageUrl').value = '';
     document.getElementById('formCatIsActive').checked = true;
     document.getElementById('catImgPreview').style.display = 'none';
@@ -321,6 +362,117 @@ function editCategory(c) {
 
     openModal('categoryModal');
 }
+
+// Sıralama Badgelerini Güncelle
+function updateOrderBadges() {
+    const desktopRows = document.querySelectorAll('#categoriesTableBody tr.category-sort-row');
+    desktopRows.forEach((row, idx) => {
+        const id = row.dataset.id;
+        const badge = document.getElementById(`cat-order-badge-${id}`);
+        if (badge) badge.textContent = `#${idx + 1}`;
+        const mobBadge = document.getElementById(`cat-order-badge-mob-${id}`);
+        if (mobBadge) mobBadge.innerHTML = `<i class="fas fa-arrow-down-1-9"></i> Sıra: #${idx + 1}`;
+    });
+}
+
+// AJAX ile Sıralamayı Kaydet
+async function saveCategoryOrder(orderIds) {
+    try {
+        const formData = new FormData();
+        formData.append('action', 'update_category_order');
+        orderIds.forEach(id => formData.append('order[]', id));
+
+        const res = await fetch('ajax.php', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            updateOrderBadges();
+            showAdminToast(data.message || 'Kategori sıralaması güncellendi! ✨', 'success');
+        } else {
+            showAdminToast(data.message || 'Sıralama kaydedilemedi', 'error');
+        }
+    } catch (err) {
+        showAdminToast('Bağlantı hatası', 'error');
+    }
+}
+
+// Tekil Yukarı / Aşağı Taşı
+async function moveCategoryOrder(id, direction) {
+    try {
+        const formData = new FormData();
+        formData.append('action', 'move_category_order');
+        formData.append('id', id);
+        formData.append('direction', direction);
+
+        const res = await fetch('ajax.php', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            // DOM üzerinde kaydır
+            const row = document.getElementById(`row-category-${id}`);
+            if (row) {
+                if (direction === 'up' && row.previousElementSibling) {
+                    row.parentNode.insertBefore(row, row.previousElementSibling);
+                } else if (direction === 'down' && row.nextElementSibling) {
+                    row.parentNode.insertBefore(row.nextElementSibling, row);
+                }
+            }
+
+            const card = document.getElementById(`card-category-${id}`);
+            if (card) {
+                if (direction === 'up' && card.previousElementSibling) {
+                    card.parentNode.insertBefore(card, card.previousElementSibling);
+                } else if (direction === 'down' && card.nextElementSibling) {
+                    card.parentNode.insertBefore(card.nextElementSibling, card);
+                }
+            }
+
+            updateOrderBadges();
+            showAdminToast(data.message || 'Sıralama güncellendi! ✓', 'success');
+        } else {
+            showAdminToast(data.message || 'İşlem yapılamadı', 'error');
+        }
+    } catch (err) {
+        showAdminToast('Bağlantı hatası', 'error');
+    }
+}
+
+// SortableJS Başlatıcı
+document.addEventListener('DOMContentLoaded', () => {
+    const tableBody = document.getElementById('categoriesTableBody');
+    if (tableBody && typeof Sortable !== 'undefined') {
+        new Sortable(tableBody, {
+            handle: '.drag-handle',
+            animation: 200,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function() {
+                const order = Array.from(tableBody.querySelectorAll('tr.category-sort-row')).map(el => el.dataset.id);
+                saveCategoryOrder(order);
+            }
+        });
+    }
+
+    const mobileList = document.getElementById('categoriesMobileCards');
+    if (mobileList && typeof Sortable !== 'undefined') {
+        new Sortable(mobileList, {
+            handle: '.drag-handle',
+            animation: 200,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function() {
+                const order = Array.from(mobileList.querySelectorAll('.category-sort-card')).map(el => el.dataset.id);
+                saveCategoryOrder(order);
+            }
+        });
+    }
+});
 </script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>
