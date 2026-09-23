@@ -222,13 +222,6 @@ foreach ($categories as $cat) {
                 <div class="resort-badge"><i class="fas fa-crown"></i> EST. 1985 • ALTINOLUK</div>
                 <h2 class="resort-title"><?php echo htmlspecialchars($restaurantName); ?></h2>
                 <p class="resort-subtitle"><?php echo htmlspecialchars($restaurantSlogan); ?> • Kazdağları ve Ege'nin buluştuğu eşsiz gurme lezzet durağımıza hoş geldiniz.</p>
-                
-                <div class="resort-features-row">
-                    <span class="resort-feature-chip"><i class="fas fa-water"></i> Sahil &amp; İskele</span>
-                    <span class="resort-feature-chip"><i class="fas fa-music"></i> Canlı Müzik</span>
-                    <span class="resort-feature-chip"><i class="fas fa-martini-glass"></i> Kokteyl Bar</span>
-                    <span class="resort-feature-chip"><i class="fas fa-fish"></i> Taze Balık</span>
-                </div>
             </div>
         <?php endif; ?>
 
@@ -329,7 +322,7 @@ foreach ($categories as $cat) {
         </section>
     <?php endif; ?>
 
-    <!-- KATEGORİ GEZİNTİSİ (LUXURY SLIDE BAR - 2'Lİ KART GÖRÜNÜMÜ) -->
+    <!-- KATEGORİ GEZİNTİSİ (LUXURY SLIDE BAR - ENLARGED) -->
     <nav class="categories-bar" id="categoriesBar">
         <button type="button" class="category-slide-btn prev" id="catSlidePrev" aria-label="Önceki Kategori">
             <i class="fas fa-chevron-left"></i>
@@ -343,11 +336,9 @@ foreach ($categories as $cat) {
                 <a href="#cat-<?php echo $cat['id']; ?>" class="category-item <?php echo $index === 0 ? 'active' : ''; ?>">
                     <div class="category-thumb-box">
                         <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'">
+                        <span class="category-item-badge"><?php echo $prodCount; ?></span>
                     </div>
-                    <div class="category-item-info">
-                        <span class="category-item-name"><?php echo htmlspecialchars($catName); ?></span>
-                        <span class="category-item-count"><?php echo $prodCount; ?> <?php echo __t('items', $currentLang); ?></span>
-                    </div>
+                    <span class="category-item-name"><?php echo htmlspecialchars($catName); ?></span>
                 </a>
             <?php endforeach; ?>
         </div>
@@ -371,8 +362,10 @@ foreach ($categories as $cat) {
             <section class="category-section" id="cat-<?php echo $cat['id']; ?>">
                 <div class="section-header">
                     <h3 class="section-title">
-                        <i class="fas fa-<?php echo htmlspecialchars($cat['icon'] ?: 'utensils'); ?>"></i>
-                        <?php echo htmlspecialchars($catName); ?>
+                        <span class="section-icon-box">
+                            <i class="fas fa-<?php echo htmlspecialchars($cat['icon'] ?: 'utensils'); ?>"></i>
+                        </span>
+                        <span><?php echo htmlspecialchars($catName); ?></span>
                     </h3>
                     <span class="section-badge"><?php echo count($cat['products']); ?> <?php echo __t('items', $currentLang); ?></span>
                 </div>

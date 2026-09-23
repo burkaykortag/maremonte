@@ -278,14 +278,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (catSlidePrev && categoriesCarousel) {
         catSlidePrev.addEventListener('click', () => {
-            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.95;
+            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.75;
             categoriesCarousel.scrollBy({ left: -scrollDist, behavior: 'smooth' });
         });
     }
 
     if (catSlideNext && categoriesCarousel) {
         catSlideNext.addEventListener('click', () => {
-            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.95;
+            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.75;
             categoriesCarousel.scrollBy({ left: scrollDist, behavior: 'smooth' });
         });
     }

@@ -278,7 +278,7 @@ function seedInitialData($pdo) {
         'happy_hour_discount' => '15',
         
         'enable_resort_service' => '1',     // Plaj, Şezlong, Cabana & Oda Servisi
-        'enable_events' => '1',             // Canlı Müzik & Haftalık Etkinlik Takvimi
+        'enable_events' => '0',             // Canlı Müzik & Haftalık Etkinlik Takvimi (Kapalı)
         'enable_concierge' => '1',          // Vale, Taksi & Resepsiyon Servisi
         
         'enable_telegram_notify' => '0',    // Telegram Bot Canlı Bildirimi
