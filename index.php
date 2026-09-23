@@ -333,64 +333,61 @@ foreach ($menuData as $idx => $cat) {
         </section>
     <?php endif; ?>
 
-    <!-- KATEGORİ GEZİNTİSİ (ÇİFT SIRALI BAĞIMSIZ CAROUSEL - 2-ROW DUAL SLIDER) -->
-    <nav class="categories-bar-dual" id="categoriesBar">
-        <!-- 1. ÜST SIRA (3 KATEGORİ GÖRÜNÜR, BAĞIMSIZ KAYDIRILIR) -->
-        <div class="cat-row-wrapper" id="catRowTopWrapper">
-            <button type="button" class="cat-slide-btn prev" id="catSlidePrevTop" aria-label="Önceki Kategori">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="categories-carousel-row" id="catCarouselTop">
-                <?php foreach ($categoriesTop as $index => $cat): 
-                    $catName = getLocalizedText($cat, 'name', $currentLang);
-                    $catImg = !empty($cat['image']) ? $cat['image'] : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
-                    $prodCount = count($cat['products']);
-                    $isActive = (!empty($menuData) && $cat['id'] === $menuData[0]['id']);
-                ?>
-                    <a href="#cat-<?php echo $cat['id']; ?>" class="category-item <?php echo $isActive ? 'active' : ''; ?>" data-cat-id="<?php echo $cat['id']; ?>">
-                        <div class="category-thumb-box">
-                            <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'">
-                            <span class="category-item-badge"><?php echo $prodCount; ?></span>
-                        </div>
-                        <span class="category-item-name"><?php echo htmlspecialchars($catName); ?></span>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-            <button type="button" class="cat-slide-btn next" id="catSlideNextTop" aria-label="Sonraki Kategori">
-                <i class="fas fa-chevron-right"></i>
-            </button>
+    <!-- 2'Lİ LÜKS KATEGORİ KARŞILAMA IZGARASI (WYNDHAM GRAND TARZI İLK GİRİŞ EKRANI) -->
+    <section class="category-landing-section" id="categoryLandingView">
+        <div class="category-photo-grid">
+            <?php foreach ($menuData as $cat): 
+                $catName = getLocalizedText($cat, 'name', $currentLang);
+                $catImg = !empty($cat['image']) ? $cat['image'] : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
+                $prodCount = count($cat['products']);
+            ?>
+                <div class="landing-category-card" data-cat-id="<?php echo $cat['id']; ?>">
+                    <div class="landing-card-image-wrap">
+                        <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80'">
+                        <span class="landing-card-badge"><?php echo $prodCount; ?> <?php echo __t('items', $currentLang); ?></span>
+                    </div>
+                    <div class="landing-card-title-bar">
+                        <span><?php echo htmlspecialchars($catName); ?></span>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+
+    <!-- KATEGORİ ÜST GEZİNTİ BARI (STICKY SLIDER / SIDEBAR TARZI ÜST BAR) -->
+    <nav class="categories-bar" id="categoriesBar" style="display: none;">
+        <button type="button" class="back-to-grid-btn" id="backToGridBtn" title="<?php echo __t('categories', $currentLang) ?: 'Tüm Kategoriler'; ?>">
+            <i class="fas fa-chevron-left" style="font-size: 0.72rem;"></i>
+            <span><?php echo __t('categories', $currentLang) ?: 'Kategoriler'; ?></span>
+        </button>
+
+        <button type="button" class="cat-slide-btn prev" id="catSlidePrev" aria-label="Önceki Kategori">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="categories-carousel" id="categoriesCarousel">
+            <?php foreach ($menuData as $index => $cat): 
+                $catName = getLocalizedText($cat, 'name', $currentLang);
+                $catImg = !empty($cat['image']) ? $cat['image'] : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
+                $prodCount = count($cat['products']);
+            ?>
+                <a href="#cat-<?php echo $cat['id']; ?>" class="category-item <?php echo $index === 0 ? 'active' : ''; ?>" data-cat-id="<?php echo $cat['id']; ?>">
+                    <div class="category-thumb-box">
+                        <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'">
+                        <span class="category-item-badge"><?php echo $prodCount; ?></span>
+                    </div>
+                    <span class="category-item-name"><?php echo htmlspecialchars($catName); ?></span>
+                </a>
+            <?php endforeach; ?>
         </div>
 
-        <!-- 2. ALT SIRA (3 KATEGORİ GÖRÜNÜR, BAĞIMSIZ KAYDIRILIR) -->
-        <?php if (!empty($categoriesBottom)): ?>
-        <div class="cat-row-wrapper" id="catRowBottomWrapper">
-            <button type="button" class="cat-slide-btn prev" id="catSlidePrevBottom" aria-label="Önceki Kategori">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="categories-carousel-row" id="catCarouselBottom">
-                <?php foreach ($categoriesBottom as $cat): 
-                    $catName = getLocalizedText($cat, 'name', $currentLang);
-                    $catImg = !empty($cat['image']) ? $cat['image'] : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80';
-                    $prodCount = count($cat['products']);
-                ?>
-                    <a href="#cat-<?php echo $cat['id']; ?>" class="category-item" data-cat-id="<?php echo $cat['id']; ?>">
-                        <div class="category-thumb-box">
-                            <img src="<?php echo htmlspecialchars($catImg); ?>" alt="<?php echo htmlspecialchars($catName); ?>" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'">
-                            <span class="category-item-badge"><?php echo $prodCount; ?></span>
-                        </div>
-                        <span class="category-item-name"><?php echo htmlspecialchars($catName); ?></span>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-            <button type="button" class="cat-slide-btn next" id="catSlideNextBottom" aria-label="Sonraki Kategori">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-        <?php endif; ?>
+        <button type="button" class="cat-slide-btn next" id="catSlideNext" aria-label="Sonraki Kategori">
+            <i class="fas fa-chevron-right"></i>
+        </button>
     </nav>
 
-    <!-- MENÜ İÇERİK ALANI -->
-    <main class="menu-container">
+    <!-- MENÜ İÇERİK ALANI (ÜRÜN LİSTESİ) -->
+    <main class="menu-container" id="menuContainer" style="display: none;">
         
         <div id="noResultsMessage" style="display: none; text-align: center; padding: 40px 20px;">
             <i class="fas fa-search" style="font-size: 3rem; color: var(--primary); margin-bottom: 12px; display: block;"></i>

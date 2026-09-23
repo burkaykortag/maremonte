@@ -206,6 +206,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function filterMenu(query, filterType) {
         let visibleCount = 0;
 
+        if ((query || filterType !== 'all') && menuContainer && menuContainer.style.display === 'none') {
+            if (categoryLandingView) categoryLandingView.style.display = 'none';
+            if (categoriesBar) categoriesBar.style.display = 'flex';
+            if (menuContainer) menuContainer.style.display = 'block';
+            if (typeof updateCatSlideButtons === 'function') updateCatSlideButtons();
+        }
+
         categorySections.forEach(section => {
             let sectionHasVisible = false;
             const cards = section.querySelectorAll('.product-card');
@@ -257,49 +264,109 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================================
-    // ÇİFT SIRALI BAĞIMSIZ KATEGORİ SLIDER & SCROLL SPY
+    // 2'Lİ KATEGORİ IZGARASI & ÜST SLIDER GEZİNTİ MOTORU
     // =========================================================================
-    function setupCarouselRow(carouselId, prevBtnId, nextBtnId) {
-        const carousel = document.getElementById(carouselId);
-        const prevBtn = document.getElementById(prevBtnId);
-        const nextBtn = document.getElementById(nextBtnId);
+    const categoryLandingView = document.getElementById('categoryLandingView');
+    const categoriesBar = document.getElementById('categoriesBar');
+    const menuContainer = document.getElementById('menuContainer');
+    const backToGridBtn = document.getElementById('backToGridBtn');
+    const landingCards = document.querySelectorAll('.landing-category-card');
+    const categoriesCarousel = document.getElementById('categoriesCarousel');
+    const catSlidePrev = document.getElementById('catSlidePrev');
+    const catSlideNext = document.getElementById('catSlideNext');
+    const allCategoryItems = document.querySelectorAll('.category-item');
 
-        if (!carousel) return;
+    function updateCatSlideButtons() {
+        if (!categoriesCarousel || !catSlidePrev || !catSlideNext) return;
+        const maxScroll = categoriesCarousel.scrollWidth - categoriesCarousel.clientWidth;
+        catSlidePrev.disabled = categoriesCarousel.scrollLeft <= 4;
+        catSlideNext.disabled = categoriesCarousel.scrollLeft >= maxScroll - 4;
+    }
 
-        function updateButtons() {
-            if (!prevBtn || !nextBtn) return;
-            const maxScroll = carousel.scrollWidth - carousel.clientWidth;
-            prevBtn.disabled = carousel.scrollLeft <= 4;
-            nextBtn.disabled = carousel.scrollLeft >= maxScroll - 4;
-        }
+    if (categoriesCarousel) {
+        categoriesCarousel.addEventListener('scroll', updateCatSlideButtons, { passive: true });
+        window.addEventListener('resize', updateCatSlideButtons);
+        setTimeout(updateCatSlideButtons, 300);
+    }
 
-        carousel.addEventListener('scroll', updateButtons, { passive: true });
-        window.addEventListener('resize', updateButtons);
-        setTimeout(updateButtons, 300);
+    if (catSlidePrev && categoriesCarousel) {
+        catSlidePrev.addEventListener('click', () => {
+            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.75;
+            categoriesCarousel.scrollBy({ left: -scrollDist, behavior: 'smooth' });
+        });
+    }
 
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                const scrollDist = (carousel.clientWidth || 240) * 0.75;
-                carousel.scrollBy({ left: -scrollDist, behavior: 'smooth' });
-            });
-        }
+    if (catSlideNext && categoriesCarousel) {
+        catSlideNext.addEventListener('click', () => {
+            const scrollDist = (categoriesCarousel.clientWidth || 240) * 0.75;
+            categoriesCarousel.scrollBy({ left: scrollDist, behavior: 'smooth' });
+        });
+    }
 
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                const scrollDist = (carousel.clientWidth || 240) * 0.75;
-                carousel.scrollBy({ left: scrollDist, behavior: 'smooth' });
-            });
+    // Ürün Görünümüne Geç (Kategori Seçildiğinde)
+    function openCategoryProducts(catId, smoothScroll = true) {
+        if (categoryLandingView) categoryLandingView.style.display = 'none';
+        if (categoriesBar) categoriesBar.style.display = 'flex';
+        if (menuContainer) menuContainer.style.display = 'block';
+
+        // Slider'da aktif kategoriyi işaretle
+        allCategoryItems.forEach(item => {
+            if (item.dataset.catId == catId || item.getAttribute('href') === `#cat-${catId}`) {
+                item.classList.add('active');
+                item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
+        updateCatSlideButtons();
+
+        // Sayfayı seçilen kategoriye kaydır
+        if (catId) {
+            const targetSection = document.getElementById(`cat-${catId}`);
+            if (targetSection) {
+                if (smoothScroll) {
+                    setTimeout(() => {
+                        targetSection.scrollIntoView({ behavior: 'smooth' });
+                    }, 50);
+                } else {
+                    targetSection.scrollIntoView();
+                }
+            }
         }
     }
 
-    // Üst Sıra ve Alt Sıra Bağımsız Carousel Başlatıcıları
-    setupCarouselRow('catCarouselTop', 'catSlidePrevTop', 'catSlideNextTop');
-    setupCarouselRow('catCarouselBottom', 'catSlidePrevBottom', 'catSlideNextBottom');
-    // Geriye dönük tekil bar uyumluluğu
-    setupCarouselRow('categoriesCarousel', 'catSlidePrev', 'catSlideNext');
+    // Ana 2'li Kategori Izgarasına Geri Dön
+    function openLandingGrid() {
+        if (menuContainer) menuContainer.style.display = 'none';
+        if (categoriesBar) categoriesBar.style.display = 'none';
+        if (categoryLandingView) categoryLandingView.style.display = 'block';
 
-    // Kategoriye Tıklama ile Sayfa Kaydırma
-    const allCategoryItems = document.querySelectorAll('.category-item, .category-pill');
+        if (window.location.hash) {
+            history.pushState('', document.title, window.location.pathname + window.location.search);
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 2'li Izgara Kartlarına Tıklama
+    landingCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            const catId = card.dataset.catId;
+            openCategoryProducts(catId, true);
+        });
+    });
+
+    // Geri Butonuna Tıklama
+    if (backToGridBtn) {
+        backToGridBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openLandingGrid();
+        });
+    }
+
+    // Üst Kategori Barındaki Butonlara Tıklama
     allCategoryItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
@@ -314,10 +381,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Arama Yapıldığında veya Filtre Seçildiğinde Otomatik Ürünler Görünümüne Geç
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value.trim().length > 0 && menuContainer && menuContainer.style.display === 'none') {
+                if (categoryLandingView) categoryLandingView.style.display = 'none';
+                if (categoriesBar) categoriesBar.style.display = 'flex';
+                if (menuContainer) menuContainer.style.display = 'block';
+                updateCatSlideButtons();
+            }
+        });
+    }
+
+    filterBadges.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.dataset.filter !== 'all' && menuContainer && menuContainer.style.display === 'none') {
+                if (categoryLandingView) categoryLandingView.style.display = 'none';
+                if (categoriesBar) categoriesBar.style.display = 'flex';
+                if (menuContainer) menuContainer.style.display = 'block';
+                updateCatSlideButtons();
+            }
+        });
+    });
+
     // IntersectionObserver (Scroll Spy)
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
+            if (entry.isIntersecting && menuContainer && menuContainer.style.display !== 'none') {
                 const id = entry.target.getAttribute('id');
                 allCategoryItems.forEach(pill => {
                     if (pill.getAttribute('href') === `#${id}` || pill.dataset.catId === id.replace('cat-', '')) {
@@ -332,6 +422,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { rootMargin: '-130px 0px -70% 0px' });
 
     categorySections.forEach(sec => observer.observe(sec));
+
+    // Sayfa Açılışında URL Hash Kontrolü
+    if (window.location.hash && window.location.hash.startsWith('#cat-')) {
+        const hashCatId = window.location.hash.replace('#cat-', '');
+        openCategoryProducts(hashCatId, false);
+    }
 
     // =========================================================================
     // ŞEFİN AKILLI EŞLEŞTİRME MOTORU ("BİRLİKTE İYİ GİDER")
