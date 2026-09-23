@@ -14,6 +14,9 @@ date_default_timezone_set('Europe/Istanbul');
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set('display_errors', 0);
 
+// Kurulum ve Canlı Ortam Güvenlik Kilidi (Installation Lock)
+define('IS_INSTALLED', true);
+
 // Veritabanı Ayarları
 // 'sqlite' (Sıfır Ayar, Anında Çalışır) veya 'mysql' (MySQL Sunucu)
 define('DB_DRIVER', 'sqlite'); 

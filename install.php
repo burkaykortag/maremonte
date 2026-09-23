@@ -8,6 +8,146 @@ session_start();
 
 $configFile = __DIR__ . '/config.php';
 $sqlFile = __DIR__ . '/database.sql';
+$lockFile = __DIR__ . '/install.lock';
+$dataLockFile = __DIR__ . '/data/install.lock';
+
+// CANLI SUNUCU & KURULUM GÜVENLİK KİLİDİ (PRODUCTION INSTALL LOCK)
+if (file_exists($lockFile) || file_exists($dataLockFile) || (file_exists($configFile) && defined('IS_INSTALLED') && IS_INSTALLED)) {
+    http_response_code(403);
+?>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurulum Kilitlendi - Hotel Mare & Monte</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #090D16;
+            color: #F8FAFC;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .lock-card {
+            background: #161F30;
+            border: 1px solid rgba(197, 160, 89, 0.4);
+            border-radius: 20px;
+            max-width: 520px;
+            width: 100%;
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .lock-icon-wrap {
+            width: 80px;
+            height: 80px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid #ef4444;
+            color: #f87171;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 24px;
+            box-shadow: 0 0 24px rgba(239, 68, 68, 0.3);
+        }
+        h1 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 12px;
+        }
+        p {
+            font-size: 0.90rem;
+            color: #94A3B8;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.90rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #C5A059;
+            color: #000;
+            border: 1px solid #C5A059;
+        }
+        .btn-primary:hover {
+            background: #d4b370;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(197, 160, 89, 0.4);
+        }
+        .btn-secondary {
+            background: #1E293B;
+            color: #F8FAFC;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-secondary:hover {
+            background: #334155;
+            transform: translateY(-2px);
+        }
+        .security-note {
+            margin-top: 24px;
+            font-size: 0.75rem;
+            color: #64748B;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="lock-card">
+        <div class="lock-icon-wrap">
+            <i class="fas fa-lock"></i>
+        </div>
+        <h1>Kurulum Sayfası Kilitlendi</h1>
+        <p>Sisteminiz başarıyla kurulmuş ve canlı ortama alınmıştır. Güvenliğiniz için kurulum sihirbazına erişim kalıcı olarak kilitlenmiştir.</p>
+        <div class="btn-group">
+            <a href="admin/login.php" class="btn btn-primary">
+                <i class="fas fa-shield-halved"></i> Yönetici Girişi
+            </a>
+            <a href="index.php" class="btn btn-secondary">
+                <i class="fas fa-utensils"></i> Menüyü Görüntüle
+            </a>
+        </div>
+        <div class="security-note">
+            <i class="fas fa-shield"></i> Güvenlik Koruması Aktif • Hotel Mare & Monte
+        </div>
+    </div>
+</body>
+</html>
+<?php
+    exit;
+}
 
 $statusMsg = '';
 $statusType = '';
