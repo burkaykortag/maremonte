@@ -239,6 +239,35 @@ switch ($action) {
 
             $pdo->commit();
 
+            // Otel Yönetim Sistemine (Next.js / Port 3000) Anında Canlı İletim
+            try {
+                $hotelItems = [];
+                foreach ($orderItemsToInsert as $oi) {
+                    $hotelItems[] = [
+                        'menuItemId' => (int)$oi['product_id'],
+                        'quantity' => (int)$oi['quantity'],
+                        'notes' => $oi['options_json'] ? $oi['options_json'] : ''
+                    ];
+                }
+
+                $hotelPayload = json_encode([
+                    'tableNumber' => $tableNumber,
+                    'customerNote' => $customerNote,
+                    'items' => $hotelItems
+                ], JSON_UNESCAPED_UNICODE);
+
+                $ch = curl_init('http://localhost:3000/api/public/order');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $hotelPayload);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+                @curl_exec($ch);
+                @curl_close($ch);
+            } catch (Exception $eOtel) {
+                // Otel API o an kapalıysa QR sipariş akışını bozmaz
+            }
+
             // Telegram Canlı Bildirim
             $telegramMsg = "🍽️ <b>YENİ SİPARİŞ ALINDI!</b>\n";
             $telegramMsg .= "📍 <b>Konum / Masa:</b> {$tableNumber}\n";

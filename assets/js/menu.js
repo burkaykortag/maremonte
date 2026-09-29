@@ -845,37 +845,444 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================================
-    // GARSON ÇAĞIRMA & CONCIERGE SERVİSLERİ
+    // =========================================================================
+    // GARSON ÇAĞIRMA, MASA YÖNETİMİ & GERÇEK ZAMANLI BİLDİRİM
     // =========================================================================
     const openWaiterBtn = document.getElementById('openWaiterBtn');
     const closeWaiterBtn = document.getElementById('closeWaiterBtn');
     const drawerCallWaiterBtn = document.getElementById('drawerCallWaiterBtn');
+    const quickCallWaiterBtn = document.getElementById('quickCallWaiterBtn');
+    const quickCallBillBtn = document.getElementById('quickCallBillBtn');
+    const quickCallWaiterText = document.getElementById('quickCallWaiterText');
+    const quickCallBillText = document.getElementById('quickCallBillText');
     const sendWaiterCallBtn = document.getElementById('sendWaiterCallBtn');
     const callOptionBtns = document.querySelectorAll('.call-option-btn');
+
+    // Masa Seçim Modalı Elementleri
+    const tableSelectModal = document.getElementById('tableSelectModal');
+    const closeTableSelectBtn = document.getElementById('closeTableSelectBtn');
+    const confirmTableSelectBtn = document.getElementById('confirmTableSelectBtn');
+    const quickTableInput = document.getElementById('quickTableInput');
+    const headerTableBtn = document.getElementById('headerTableBtn');
+    const headerTableText = document.getElementById('headerTableText');
+    const tableModalTitle = document.getElementById('tableModalTitle');
+    const tableModalDesc = document.getElementById('tableModalDesc');
+    const confirmTableBtnText = document.getElementById('confirmTableBtnText');
+    const skipTableSelectBtn = document.getElementById('skipTableSelectBtn');
+    const quickTblBtns = document.querySelectorAll('.quick-tbl-btn');
+
     let selectedCallType = 'waiter';
+    let pendingCallAction = null; // 'waiter' | 'bill' | null
 
-    if (openWaiterBtn && waiterModal) openWaiterBtn.addEventListener('click', () => waiterModal.classList.add('active'));
-    if (closeWaiterBtn && waiterModal) closeWaiterBtn.addEventListener('click', () => waiterModal.classList.remove('active'));
+    // Masa Numarası Formatlayıcı
+    function normalizeTableInput(raw) {
+        if (!raw) return '';
+        let s = String(raw).trim();
+        // Sadece sayı girildiyse (örn: "4" veya "12") -> "Masa 4"
+        if (/^\d+$/.test(s)) {
+            return `Masa ${s}`;
+        }
+        return s;
+    }
 
-    if (drawerCallWaiterBtn && waiterModal) {
+    function formatShortTableLabel(tbl) {
+        if (!tbl) return '';
+        let s = String(tbl).trim();
+        if (/^Masa\s+(\d+)$/i.test(s)) {
+            return `M.${s.replace(/^Masa\s+/i, '')}`;
+        }
+        return s;
+    }
+
+    // Aktif Masayı Oku
+    function getActiveTableNumber() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let t = urlParams.get('table') || urlParams.get('masa') || urlParams.get('t');
+        if (t && t.trim()) {
+            const norm = normalizeTableInput(t);
+            localStorage.setItem('maremonte_table', norm);
+            return norm;
+        }
+        const saved = localStorage.getItem('maremonte_table');
+        if (saved && saved.trim()) return saved.trim();
+        return '';
+    }
+
+    // Aktif Masayı Kaydet ve Arayüzü Güncelle
+    function setActiveTableNumber(tbl) {
+        const norm = normalizeTableInput(tbl);
+        if (norm) {
+            localStorage.setItem('maremonte_table', norm);
+        } else {
+            localStorage.removeItem('maremonte_table');
+        }
+        updateTableUI();
+        updateCallCooldownUI();
+    }
+
+    // Üst Header ve Modal İçi Senkron
+    function updateTableUI() {
+        const currentTable = getActiveTableNumber();
+        if (headerTableText) {
+            headerTableText.textContent = currentTable ? currentTable : 'Masa Seçin';
+        }
+        if (quickTableInput && currentTable) {
+            quickTableInput.value = currentTable;
+        }
+        const waiterInput = document.getElementById('waiterTableNumber');
+        if (waiterInput && currentTable) {
+            waiterInput.value = currentTable;
+        }
+
+        // Hızlı buton seçimini vurgula
+        quickTblBtns.forEach(btn => {
+            const btnTbl = btn.dataset.tbl;
+            if (currentTable && (btnTbl === currentTable || `Masa ${btn.textContent.trim()}` === currentTable)) {
+                btn.classList.add('selected');
+            } else {
+                btn.classList.remove('selected');
+            }
+        });
+    }
+
+    // Cooldown (Geri Sayım & Spam Engeli) Yönetimi
+    function getCallCooldownRemaining() {
+        const until = parseInt(localStorage.getItem('maremonte_call_cooldown_until') || '0', 10);
+        const rem = Math.ceil((until - Date.now()) / 1000);
+        return rem > 0 ? rem : 0;
+    }
+
+    function startCallCooldown(seconds = 60) {
+        localStorage.setItem('maremonte_call_cooldown_until', String(Date.now() + seconds * 1000));
+        updateCallCooldownUI();
+    }
+
+    function updateCallCooldownUI() {
+        const rem = getCallCooldownRemaining();
+        const currentTable = getActiveTableNumber();
+        const shortTable = currentTable ? formatShortTableLabel(currentTable) : '';
+
+        if (rem > 0) {
+            if (quickCallWaiterBtn) {
+                quickCallWaiterBtn.disabled = true;
+                quickCallWaiterBtn.classList.add('cooldown');
+            }
+            if (quickCallWaiterText) {
+                quickCallWaiterText.textContent = shortTable ? `${shortTable} (${rem}s)` : `Garson (${rem}s)`;
+            }
+
+            if (quickCallBillBtn) {
+                quickCallBillBtn.disabled = true;
+                quickCallBillBtn.classList.add('cooldown');
+            }
+            if (quickCallBillText) {
+                quickCallBillText.textContent = shortTable ? `${shortTable} (${rem}s)` : `Hesap (${rem}s)`;
+            }
+
+            if (drawerCallWaiterBtn) {
+                drawerCallWaiterBtn.disabled = true;
+                drawerCallWaiterBtn.classList.add('cooldown');
+                drawerCallWaiterBtn.innerHTML = `<i class="fas fa-hourglass-half"></i> ${shortTable ? shortTable + ' ' : ''}Çağrıldı (${rem}s)`;
+            }
+        } else {
+            if (quickCallWaiterBtn) {
+                quickCallWaiterBtn.disabled = false;
+                quickCallWaiterBtn.classList.remove('cooldown');
+            }
+            if (quickCallWaiterText) {
+                quickCallWaiterText.textContent = currentTable ? `Garson (${shortTable})` : 'Garson (Masa No)';
+            }
+
+            if (quickCallBillBtn) {
+                quickCallBillBtn.disabled = false;
+                quickCallBillBtn.classList.remove('cooldown');
+            }
+            if (quickCallBillText) {
+                quickCallBillText.textContent = currentTable ? `Hesap (${shortTable})` : 'Hesap (Masa No)';
+            }
+
+            if (drawerCallWaiterBtn) {
+                drawerCallWaiterBtn.disabled = false;
+                drawerCallWaiterBtn.classList.remove('cooldown');
+                drawerCallWaiterBtn.innerHTML = `<i class="fas fa-bell"></i> Garson Çağır ${currentTable ? '(' + shortTable + ')' : ''}`;
+            }
+        }
+    }
+
+    setInterval(updateCallCooldownUI, 1000);
+    updateTableUI();
+    updateCallCooldownUI();
+
+    // Masa Seçim Modalı Açma / Kapama
+    function openTableSelectModal(action = null) {
+        pendingCallAction = action;
+        const currentTable = getActiveTableNumber();
+
+        if (quickTableInput) {
+            quickTableInput.value = currentTable || '';
+        }
+
+        if (action === 'waiter') {
+            if (tableModalTitle) tableModalTitle.textContent = '🛎️ Garson Çağır';
+            if (tableModalDesc) tableModalDesc.textContent = "Lütfen QR'ın yanında yazan masa numaranızı seçin";
+            if (confirmTableBtnText) confirmTableBtnText.textContent = currentTable ? `${currentTable} İçin Garson Çağır` : 'Masa No Onayla & Garson Çağır';
+        } else if (action === 'bill') {
+            if (tableModalTitle) tableModalTitle.textContent = '💳 Hesap İste';
+            if (tableModalDesc) tableModalDesc.textContent = "Lütfen QR'ın yanında yazan masa numaranızı seçin";
+            if (confirmTableBtnText) confirmTableBtnText.textContent = currentTable ? `${currentTable} İçin Hesap İste` : 'Masa No Onayla & Hesap İste';
+        } else {
+            if (tableModalTitle) tableModalTitle.textContent = '🌟 Hoş Geldiniz';
+            if (tableModalDesc) tableModalDesc.textContent = "Lütfen QR'ın yanında yazan masa numaranızı seçin";
+            if (confirmTableBtnText) confirmTableBtnText.textContent = currentTable ? `${currentTable} Olarak Onayla & Menüyü Gör` : 'Masa Numarasını Onayla & Menüyü Gör';
+        }
+
+        updateTableUI();
+        if (tableSelectModal) {
+            tableSelectModal.classList.add('active');
+            setTimeout(() => {
+                if (quickTableInput) {
+                    quickTableInput.focus();
+                    quickTableInput.select();
+                }
+            }, 250);
+        }
+    }
+
+    function closeTableSelectModal() {
+        if (tableSelectModal) tableSelectModal.classList.remove('active');
+        pendingCallAction = null;
+    }
+
+    if (headerTableBtn) {
+        headerTableBtn.addEventListener('click', () => openTableSelectModal(null));
+    }
+    if (closeTableSelectBtn) {
+        closeTableSelectBtn.addEventListener('click', closeTableSelectModal);
+    }
+    if (skipTableSelectBtn) {
+        skipTableSelectBtn.addEventListener('click', () => {
+            sessionStorage.setItem('maremonte_table_prompted', 'true');
+            closeTableSelectModal();
+        });
+    }
+
+    // QR Okutulduğunda Otomatik Açılan Masa Seçim Pop-up'ı (İlk Açılış Kontrolü)
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasUrlTable = Boolean(urlParams.get('table') || urlParams.get('masa') || urlParams.get('t'));
+    const isAlreadyPromptedThisSession = sessionStorage.getItem('maremonte_table_prompted') === 'true';
+
+    if (!hasUrlTable && !isAlreadyPromptedThisSession) {
+        setTimeout(() => {
+            openTableSelectModal(null);
+        }, 300);
+    }
+
+    // Hızlı Masa Butonlarına Tıklama
+    quickTblBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tbl = btn.dataset.tbl;
+            if (quickTableInput) quickTableInput.value = tbl;
+            quickTblBtns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            if (confirmTableBtnText) {
+                if (pendingCallAction === 'waiter') {
+                    confirmTableBtnText.textContent = `${tbl} İçin Garson Çağır`;
+                } else if (pendingCallAction === 'bill') {
+                    confirmTableBtnText.textContent = `${tbl} İçin Hesap İste`;
+                } else {
+                    confirmTableBtnText.textContent = `${tbl} Olarak Onayla & Menüyü Gör`;
+                }
+            }
+        });
+    });
+
+    if (quickTableInput) {
+        quickTableInput.addEventListener('input', () => {
+            const val = quickTableInput.value.trim();
+            const norm = normalizeTableInput(val);
+            if (confirmTableBtnText) {
+                if (pendingCallAction === 'waiter') {
+                    confirmTableBtnText.textContent = norm ? `${norm} İçin Garson Çağır` : 'Garson Çağır';
+                } else if (pendingCallAction === 'bill') {
+                    confirmTableBtnText.textContent = norm ? `${norm} İçin Hesap İste` : 'Hesap İste';
+                } else {
+                    confirmTableBtnText.textContent = norm ? `${norm} Olarak Onayla & Menüyü Gör` : 'Masa Numarasını Onayla & Menüyü Gör';
+                }
+            }
+        });
+
+        quickTableInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmTableSelectBtn?.click();
+            }
+        });
+    }
+
+    // Modal Onay Butonu
+    if (confirmTableSelectBtn) {
+        confirmTableSelectBtn.addEventListener('click', () => {
+            const rawVal = quickTableInput ? quickTableInput.value.trim() : '';
+            if (!rawVal) {
+                showToast('Lütfen masa numaranızı belirtin (Örn: 4)', 'error');
+                if (quickTableInput) quickTableInput.focus();
+                return;
+            }
+
+            const norm = normalizeTableInput(rawVal);
+            setActiveTableNumber(norm);
+            sessionStorage.setItem('maremonte_table_prompted', 'true');
+
+            const actionToDispatch = pendingCallAction;
+            closeTableSelectModal();
+
+            if (actionToDispatch) {
+                dispatchServiceCall(actionToDispatch);
+            } else {
+                showToast(`Masanız "${norm}" olarak ayarlandı. Keyifli lezzetler dileriz!`, 'success');
+            }
+        });
+    }
+
+    // Merkezi Servis Çağrısı Gönderme Fonksiyonu (Next.js Port 3000 + Fallback)
+    async function dispatchServiceCall(type = 'waiter', note = '') {
+        const rem = getCallCooldownRemaining();
+        if (rem > 0) {
+            showToast(`Talebiniz zaten iletildi. Lütfen bekleyiniz (${rem} sn)`, 'info');
+            return;
+        }
+
+        let tableNumber = getActiveTableNumber();
+        if (!tableNumber) {
+            // Masa bilinmiyorsa hemen şık masa modalını aç
+            openTableSelectModal(type);
+            return;
+        }
+
+        // UI Buton Geçici Durumu
+        if (quickCallWaiterBtn) quickCallWaiterBtn.disabled = true;
+        if (quickCallBillBtn) quickCallBillBtn.disabled = true;
+        if (drawerCallWaiterBtn) drawerCallWaiterBtn.disabled = true;
+        if (sendWaiterCallBtn) {
+            sendWaiterCallBtn.disabled = true;
+            sendWaiterCallBtn.textContent = 'İletiliyor...';
+        }
+
+        const normalizedType = (type === 'bill' || type === 'card_bill' || type === 'cash_bill') ? 'bill' : 'waiter';
+
+        let callSucceeded = false;
+        let responseMessage = '';
+        let cooldownDuration = 60;
+        let returnedTable = tableNumber;
+
+        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+        // 1. Eğer yerel geliştirme ortamındaysak doğrudan Next.js Port 3000'i dene
+        if (isLocalHost) {
+            try {
+                const hotelRes = await fetch('http://localhost:3000/api/public/call-waiter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tableNumber: tableNumber,
+                        type: normalizedType,
+                        note: note || undefined
+                    })
+                });
+
+                if (hotelRes.ok) {
+                    const hotelData = await hotelRes.json();
+                    if (hotelData.success) {
+                        callSucceeded = true;
+                        cooldownDuration = hotelData.remainingCooldown || 60;
+                        returnedTable = hotelData.tableName || tableNumber;
+                        responseMessage = normalizedType === 'bill'
+                            ? `${returnedTable} için hesap talebiniz iletildi.`
+                            : `${returnedTable} için garson çağrınız iletildi. Personel masanıza geliyor.`;
+                    }
+                }
+            } catch (hotelErr) {
+                console.warn('Otel Port 3000 direkt çağrı denenemedi, menü api.php iletilecek.', hotelErr);
+            }
+        }
+
+        // 2. Telegram Bildirimi ve Menü DB Kaydı için api.php'yi de bilgilendir
+        try {
+            const formData = new FormData();
+            formData.append('action', 'call_waiter');
+            formData.append('table_number', tableNumber);
+            formData.append('call_type', type);
+            formData.append('note', note);
+
+            const phpRes = await fetch('api.php', { method: 'POST', body: formData });
+            const phpData = await phpRes.json();
+            if (phpData.success && !callSucceeded) {
+                callSucceeded = true;
+                responseMessage = phpData.message || `${tableNumber} talebi iletildi!`;
+            }
+        } catch (phpErr) {
+            console.error('Menü api.php çağrı hatası:', phpErr);
+        }
+
+        // Sonuç Değerlendirmesi
+        if (callSucceeded) {
+            showToast(responseMessage || `${tableNumber} talebiniz iletildi.`, 'success');
+            startCallCooldown(cooldownDuration);
+            if (waiterModal) waiterModal.classList.remove('active');
+            const noteInput = document.getElementById('waiterNote');
+            if (noteInput) noteInput.value = '';
+        } else {
+            showToast('Çağrı iletilemedi. Lütfen tekrar deneyin.', 'error');
+            updateCallCooldownUI();
+        }
+
+        if (sendWaiterCallBtn) {
+            sendWaiterCallBtn.disabled = false;
+            sendWaiterCallBtn.textContent = 'Çağrıyı Gönder';
+        }
+    }
+
+    // Buton Dinleyicileri
+    if (quickCallWaiterBtn) {
+        quickCallWaiterBtn.addEventListener('click', () => {
+            const t = getActiveTableNumber();
+            if (!t) {
+                openTableSelectModal('waiter');
+            } else {
+                dispatchServiceCall('waiter');
+            }
+        });
+    }
+
+    if (quickCallBillBtn) {
+        quickCallBillBtn.addEventListener('click', () => {
+            const t = getActiveTableNumber();
+            if (!t) {
+                openTableSelectModal('bill');
+            } else {
+                dispatchServiceCall('bill');
+            }
+        });
+    }
+
+    if (drawerCallWaiterBtn) {
         drawerCallWaiterBtn.addEventListener('click', () => {
             if (drawerBackdrop) drawerBackdrop.classList.remove('active');
             document.body.style.overflow = '';
-            
-            const waiterNoteInput = document.getElementById('waiterNote');
-            if (currentSelectedProduct && waiterNoteInput) {
-                waiterNoteInput.value = `Sipariş İsteği: ${currentSelectedProduct.name}`;
+            const prodName = currentSelectedProduct?.name ? `(${currentSelectedProduct.name} siparişi)` : '';
+            const t = getActiveTableNumber();
+            if (!t) {
+                openTableSelectModal('waiter');
+            } else {
+                dispatchServiceCall('waiter', prodName);
             }
-            
-            callOptionBtns.forEach(b => {
-                if (b.dataset.type === 'waiter') b.classList.add('selected');
-                else b.classList.remove('selected');
-            });
-            selectedCallType = 'waiter';
-
-            waiterModal.classList.add('active');
         });
     }
+
+    // Eski Garson Modalı Açma Butonu ve Seçenekleri (varsa)
+    if (openWaiterBtn && waiterModal) openWaiterBtn.addEventListener('click', () => waiterModal.classList.add('active'));
+    if (closeWaiterBtn && waiterModal) closeWaiterBtn.addEventListener('click', () => waiterModal.classList.remove('active'));
 
     callOptionBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -885,82 +1292,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Masa Numarası Hafızası & Senkronu
-    const savedTable = localStorage.getItem('maremonte_table');
-    const waiterTableInput = document.getElementById('waiterTableNumber');
-    const orderTableInput = document.getElementById('orderTableNumber');
-
-    if (waiterTableInput && !waiterTableInput.value && savedTable) {
-        waiterTableInput.value = savedTable;
-    }
-    if (orderTableInput && !orderTableInput.value && savedTable) {
-        orderTableInput.value = savedTable;
-    }
-    if (waiterTableInput && waiterTableInput.value) {
-        localStorage.setItem('maremonte_table', waiterTableInput.value.trim());
-    }
-
-    if (waiterTableInput) {
-        waiterTableInput.addEventListener('input', () => {
-            const val = waiterTableInput.value.trim();
-            if (val) localStorage.setItem('maremonte_table', val);
-            if (orderTableInput) orderTableInput.value = val;
-        });
-    }
-    if (orderTableInput) {
-        orderTableInput.addEventListener('input', () => {
-            const val = orderTableInput.value.trim();
-            if (val) localStorage.setItem('maremonte_table', val);
-            if (waiterTableInput) waiterTableInput.value = val;
-        });
-    }
-
     if (sendWaiterCallBtn) {
-        sendWaiterCallBtn.addEventListener('click', async () => {
+        sendWaiterCallBtn.addEventListener('click', () => {
             const tableNumberInput = document.getElementById('waiterTableNumber');
             const tableNoteInput = document.getElementById('waiterNote');
-            let tableNumber = tableNumberInput ? tableNumberInput.value.trim() : '';
             const note = tableNoteInput ? tableNoteInput.value.trim() : '';
-
-            if (!tableNumber) {
-                showToast('Lütfen masa / konum numaranızı girin', 'error');
-                if (tableNumberInput) tableNumberInput.focus();
-                return;
+            if (tableNumberInput && tableNumberInput.value.trim()) {
+                setActiveTableNumber(tableNumberInput.value.trim());
             }
-
-            // Alan önekini ekle
-            if (currentAreaType !== 'Masa' && !tableNumber.toLowerCase().includes(currentAreaType.toLowerCase())) {
-                tableNumber = `${currentAreaType} ${tableNumber}`;
-            }
-
-            localStorage.setItem('maremonte_table', tableNumber);
-
-            sendWaiterCallBtn.disabled = true;
-            sendWaiterCallBtn.textContent = 'İletiliyor...';
-
-            try {
-                const formData = new FormData();
-                formData.append('action', 'call_waiter');
-                formData.append('table_number', tableNumber);
-                formData.append('call_type', selectedCallType);
-                formData.append('note', note);
-
-                const response = await fetch('api.php', { method: 'POST', body: formData });
-                const result = await response.json();
-
-                if (result.success) {
-                    showToast(result.message || 'Talebiniz personele iletildi!', 'success');
-                    if (waiterModal) waiterModal.classList.remove('active');
-                    if (tableNoteInput) tableNoteInput.value = '';
-                } else {
-                    showToast(result.message || 'Hata oluştu.', 'error');
-                }
-            } catch (err) {
-                showToast('Bağlantı hatası.', 'error');
-            } finally {
-                sendWaiterCallBtn.disabled = false;
-                sendWaiterCallBtn.textContent = 'Çağrıyı Gönder';
-            }
+            dispatchServiceCall(selectedCallType, note);
         });
     }
 

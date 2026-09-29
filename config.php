@@ -31,6 +31,9 @@ define('DB_USER', 'Maremonte');
 define('DB_PASS', 'Maremonte1122334455..');
 define('DB_CHARSET', 'utf8mb4');
 
+// Otel Yönetim Sistemi (Local POS) ile Güvenli Senkronizasyon Anahtarı
+define('SYNC_API_KEY', 'maremonte_sync_secret_2026');
+
 // Temel Dizin & URL Tanımları
 define('BASE_PATH', __DIR__);
 define('UPLOAD_PATH', __DIR__ . '/uploads');

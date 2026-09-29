@@ -1726,6 +1726,119 @@ body {
   box-shadow: 0 8px 24px rgba(197, 160, 89, 0.45);
 }
 
+/* Product Order Hint (Luxury Showcase Mode) */
+.product-order-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(197, 160, 89, 0.3);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  letter-spacing: 0.2px;
+}
+[data-theme="dark"] .product-order-hint {
+  color: var(--primary-light);
+  border-top-color: rgba(230, 202, 133, 0.2);
+}
+
+/* Glassmorphic Luxury Dual Action Buttons (Garson Çağır & Hesap İste) */
+.bottom-cta-waiter {
+  background: linear-gradient(135deg, #C5A059 0%, #A8833E 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 16px rgba(197, 160, 89, 0.35);
+  padding: 10px 16px;
+  font-size: 0.8rem;
+}
+.bottom-cta-waiter:hover {
+  background: linear-gradient(135deg, #D4AF6A 0%, #B89045 100%);
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.5);
+}
+
+.bottom-cta-bill {
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+  color: #F8FAFC;
+  border: 1px solid rgba(197, 160, 89, 0.45);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.4);
+  padding: 10px 16px;
+  font-size: 0.8rem;
+}
+.bottom-cta-bill:hover {
+  background: linear-gradient(135deg, #334155 0%, #1E293B 100%);
+  border-color: #C5A059;
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.25);
+}
+
+.bottom-cta-btn:disabled, .bottom-cta-btn.cooldown {
+  opacity: 0.75;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Table Selector Modal & Quick Table Buttons */
+.header-table-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(197, 160, 89, 0.12);
+  border: 1px solid rgba(197, 160, 89, 0.4);
+  color: var(--primary-dark);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+[data-theme="dark"] .header-table-badge {
+  background: rgba(197, 160, 89, 0.18);
+  color: var(--primary-light);
+}
+.header-table-badge:hover {
+  background: rgba(197, 160, 89, 0.25);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.quick-table-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.quick-tbl-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 9px 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  user-select: none;
+}
+.quick-tbl-btn:hover {
+  border-color: var(--primary);
+  background: rgba(197, 160, 89, 0.1);
+  color: var(--primary-dark);
+}
+.quick-tbl-btn.selected {
+  background: var(--primary);
+  color: #FFFFFF !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.4);
+  transform: scale(1.05);
+}
+
 /* ===================================================
    9. ACTION MODALS (WAITER, WIFI, POPUP)
    =================================================== */

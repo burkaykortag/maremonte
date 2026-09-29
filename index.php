@@ -14,8 +14,8 @@ if (!in_array($currentLang, ['tr', 'en', 'ar', 'ru', 'de'])) {
 $_SESSION['current_lang'] = $currentLang;
 $isRtl = ($currentLang === 'ar');
 
-// Masa / Konum Numarası Tespiti (?table=5 veya ?t=token)
-$tableNumber = clean($_GET['table'] ?? $_GET['t'] ?? $_SESSION['current_table'] ?? '');
+// Masa / Konum Numarası Tespiti (?table=5 veya ?masa=5 veya ?t=token)
+$tableNumber = clean($_GET['table'] ?? $_GET['masa'] ?? $_GET['t'] ?? $_SESSION['current_table'] ?? '');
 if (!empty($tableNumber)) {
     $stmtT = $pdo->prepare("SELECT table_number, table_name FROM tables WHERE token = ? OR table_number = ? LIMIT 1");
     $stmtT->execute([$tableNumber, $tableNumber]);
@@ -56,11 +56,11 @@ $googleMapsUrl = getSetting('google_maps_url', 'https://maps.google.com/?q=Hotel
 
 // Modül Aç/Kapa Durumları
 $enableHeroBanner = getSetting('enable_hero_banner', '1') === '1';
-$enableOrder = getSetting('enable_order', '0') === '1';
+$enableOrder = false; // Lüks Vitrin İlkesi: Misafir doğrudan sipariş vermez, servis garson tarafından bizzat alınır
 $enableMultiLang = getSetting('enable_multi_lang', '1') === '1';
 $enableKitchen = getSetting('enable_kitchen', '1') === '1';
 $enableStories = getSetting('enable_stories', '1') === '1';
-$enablePopup = getSetting('enable_popup', '1') === '1';
+$enablePopup = false; // Masa belirleme pop-up'ı öncelikli olduğu için eski kampanya pop-up'ı kapatıldı
 $enableFeedback = getSetting('enable_feedback', '1') === '1';
 $enableAllergensFilter = getSetting('enable_allergens_filter', '1') === '1';
 $enableWaiterCall = getSetting('enable_waiter_call', '1') === '1';
@@ -184,12 +184,11 @@ foreach ($menuData as $idx => $cat) {
         </a>
 
         <div class="header-actions">
-            <?php if (!empty($tableNumber)): ?>
-                <div class="table-pill" title="Masa / Konum">
-                    <i class="fas fa-location-dot"></i>
-                    <span><?php echo htmlspecialchars($tableName); ?></span>
-                </div>
-            <?php endif; ?>
+            <button type="button" class="header-table-badge" id="headerTableBtn" title="Masa Numarasını Belirleyin veya Değiştirin">
+                <i class="fas fa-location-dot" style="color:var(--primary);"></i>
+                <span id="headerTableText"><?php echo !empty($tableName) ? htmlspecialchars($tableName) : 'Masa Seçin'; ?></span>
+                <i class="fas fa-pen" style="font-size:0.6rem; opacity:0.7; margin-left:3px;"></i>
+            </button>
 
             <!-- Çoklu Dil Seçici -->
             <?php if ($enableMultiLang): ?>
@@ -476,6 +475,9 @@ foreach ($menuData as $idx => $cat) {
                                         <i class="fas fa-arrow-right"></i>
                                     </span>
                                 </div>
+                                <div class="product-order-hint">
+                                    <i class="fas fa-concierge-bell"></i> Siparişinizi servis personelimize iletebilirsiniz
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -573,9 +575,14 @@ foreach ($menuData as $idx => $cat) {
                             <i class="fas fa-cart-plus"></i> <?php echo __t('add_to_cart', $currentLang); ?>
                         </button>
                     <?php else: ?>
-                        <button type="button" class="bottom-cta-btn" id="drawerCallWaiterBtn">
-                            <i class="fas fa-bell"></i> <?php echo __t('call_waiter', $currentLang); ?>
-                        </button>
+                        <div style="display:flex; flex-direction:column; gap:8px; width:100%; max-width:320px;">
+                            <div class="product-order-hint" style="justify-content:center; margin-top:0; padding:6px 12px; border:1px dashed rgba(197, 160, 89, 0.4); border-radius:8px; text-align:center; background:rgba(197, 160, 89, 0.08); font-size:0.75rem;">
+                                <i class="fas fa-concierge-bell"></i> Siparişinizi servis personelimize iletebilirsiniz
+                            </div>
+                            <button type="button" class="bottom-cta-btn" id="drawerCallWaiterBtn" style="justify-content:center; width:100%;">
+                                <i class="fas fa-bell"></i> <?php echo __t('call_waiter', $currentLang); ?>
+                            </button>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -739,9 +746,13 @@ foreach ($menuData as $idx => $cat) {
         </button>
 
         <?php if ($enableWaiterCall): ?>
-            <button type="button" class="bottom-cta-btn" id="openWaiterBtn">
+            <button type="button" class="bottom-cta-btn bottom-cta-waiter" id="quickCallWaiterBtn" title="Garson Çağır">
                 <i class="fas fa-bell"></i>
-                <span><?php echo __t('call_waiter', $currentLang); ?></span>
+                <span id="quickCallWaiterText"><?php echo __t('call_waiter', $currentLang); ?></span>
+            </button>
+            <button type="button" class="bottom-cta-btn bottom-cta-bill" id="quickCallBillBtn" title="Hesap İste">
+                <i class="fas fa-receipt"></i>
+                <span id="quickCallBillText">Hesap İste</span>
             </button>
         <?php endif; ?>
 
@@ -749,6 +760,60 @@ foreach ($menuData as $idx => $cat) {
             <i class="fas fa-wifi"></i>
             <span><?php echo __t('wifi', $currentLang); ?></span>
         </button>
+    </div>
+
+    <!-- MASA NUMARASI SEÇİM & BELİRLEME MODALI -->
+    <div class="action-modal" id="tableSelectModal">
+        <div class="modal-content" style="max-width: 440px; padding: 22px 20px; text-align: center;">
+            <div class="modal-header" style="justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                <div style="display:flex; align-items:center; gap:10px; text-align:left;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:rgba(var(--primary-rgb),0.14); color:var(--primary-dark); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+                        <i class="fas fa-location-dot"></i>
+                    </div>
+                    <div>
+                        <h3 class="modal-title" id="tableModalTitle" style="font-size:1.15rem; margin:0 0 2px 0; font-family:var(--font-serif); font-weight:800; color:var(--text-serif);">Hoş Geldiniz</h3>
+                        <p style="font-size:0.8rem; color:var(--primary-dark); font-weight:700; margin:0;" id="tableModalDesc">Lütfen QR'ın yanında yazan masa numaranızı seçin</p>
+                    </div>
+                </div>
+                <button type="button" class="icon-btn" id="closeTableSelectBtn"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div style="margin: 14px 0 10px;">
+                <div style="position:relative; margin-bottom:12px;">
+                    <input type="text" id="quickTableInput" placeholder="Masa Numaranız (Örn: 4, 12, Bar 1...)" class="search-input" style="font-size:1.15rem; font-weight:800; text-align:center; height:50px; border-radius:var(--radius-md); letter-spacing:0.5px; border:2px solid var(--primary); padding-left:14px; padding-right:14px;">
+                </div>
+
+                <!-- Hızlı Seçim Butonları -->
+                <div style="text-align:left; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.72rem; color:var(--text-dim); font-weight:700; text-transform:uppercase;">Hızlı Seçim:</span>
+                    <span style="font-size:0.72rem; color:var(--text-muted);">Dokunarak seçebilirsiniz</span>
+                </div>
+                <div class="quick-table-grid" id="quickTableGrid">
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 1">1</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 2">2</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 3">3</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 4">4</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 5">5</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 6">6</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 7">7</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 8">8</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 9">9</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 10">10</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 11">11</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 12">12</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 14">14</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Masa 15">15</button>
+                    <button type="button" class="quick-tbl-btn" data-tbl="Bar 1" style="font-size:0.75rem;">Bar 1</button>
+                </div>
+            </div>
+
+            <button type="button" id="confirmTableSelectBtn" class="bottom-cta-btn" style="width:100%; justify-content:center; padding:14px; font-size:0.95rem;">
+                <i class="fas fa-check-circle"></i> <span id="confirmTableBtnText">Masa Numarasını Onayla</span>
+            </button>
+            <button type="button" id="skipTableSelectBtn" style="background:none; border:none; color:var(--text-muted); font-size:0.78rem; font-weight:600; margin-top:12px; cursor:pointer; text-decoration:underline;">
+                Şimdilik Menüyü İncele
+            </button>
+        </div>
     </div>
 
     <!-- GARSON, HESAP, VALE & CONCIERGE MODALI -->
